@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES } from "@/lib/drop-config";
+import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE } from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
 import { Lock } from "lucide-react";
@@ -102,7 +102,10 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
           <div className="absolute -inset-4 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 blur-2xl pointer-events-none" />
           <div className="relative border border-border bg-card/60 p-2 sm:p-3 shadow-[var(--shadow-deep)] overflow-x-auto scrollbar-outlaw">
             <div
-              className="grid gap-1 sm:gap-1.5 mx-auto"
+              className={cn(
+                "grid gap-1 sm:gap-1.5 mx-auto relative",
+                !DROP_LIVE && "blur-sm pointer-events-none select-none opacity-60"
+              )}
               style={{
                 gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
                 minWidth: GRID_SIZE * 22,
@@ -139,11 +142,28 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
                 );
               })}
             </div>
+
+            {/* WIP / Coming Soon overlay when vault is closed */}
+            {!DROP_LIVE && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center">
+                <div className="absolute inset-0 bg-background/40 backdrop-blur-sm" />
+                <div className="relative z-20 text-center px-6 py-8 border border-primary/50 bg-card/95 shadow-[var(--shadow-outlaw)] rounded-lg max-w-sm mx-auto">
+                  <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— WIP —</p>
+                  <h3 className="font-outlaw text-2xl md:text-3xl text-foreground text-shadow-outlaw mb-2">
+                    Coming Soon
+                  </h3>
+                  <p className="text-muted-foreground text-sm font-stamp">
+                    The vault is sealed. Check back when the next drop goes live.
+                  </p>
+                  <div className="mt-4 h-px w-16 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Cart summary bar */}
-        {selected.length > 0 && (
+        {selected.length > 0 && DROP_LIVE && (
           <div className="fixed bottom-0 inset-x-0 z-30 border-t border-primary/40 bg-background/95 backdrop-blur-md animate-reveal">
             <div className="container py-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 overflow-x-auto scrollbar-outlaw">
@@ -171,12 +191,14 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
         )}
       </div>
 
-      <CheckoutSheet
-        square={activeSquare}
-        onClose={() => setActiveSquare(null)}
-        onConfirm={tryAddToCart}
-        alreadyInCart={activeSquare ? selected.includes(activeSquare.index) : false}
-      />
+      {DROP_LIVE && (
+        <CheckoutSheet
+          square={activeSquare}
+          onClose={() => setActiveSquare(null)}
+          onConfirm={tryAddToCart}
+          alreadyInCart={activeSquare ? selected.includes(activeSquare.index) : false}
+        />
+      )}
     </section>
   );
 };

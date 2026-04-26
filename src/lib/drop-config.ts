@@ -19,6 +19,9 @@ export const TOTAL_SQUARES = GRID_SIZE * GRID_SIZE;
 
 export const MAX_CART_TOTAL = 3;
 
+/** Set to false to show a blurred preview with a "Coming Soon" overlay. */
+export const DROP_LIVE = false;
+
 export const TIERS: Record<Tier, TierConfig> = {
   EXO: {
     id: "EXO",
