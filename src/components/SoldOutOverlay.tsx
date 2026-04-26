@@ -15,7 +15,7 @@ export const SoldOutOverlay = () => (
 
       <div className="flex justify-center gap-3">
         <a
-          href="https://instagram.com"
+          href="https://instagram.com/mstwntdpacks"
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-2 px-5 py-3 bg-primary hover:bg-primary-glow text-primary-foreground font-stamp uppercase text-xs tracking-widest shadow-[var(--shadow-outlaw)] transition-smooth"
@@ -23,7 +23,7 @@ export const SoldOutOverlay = () => (
           <Instagram className="h-4 w-4" /> Instagram
         </a>
         <a
-          href="https://twitter.com"
+          href="https://twitter.com/mstwntdpacks"
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-2 px-5 py-3 border border-foreground hover:bg-foreground hover:text-background text-foreground font-stamp uppercase text-xs tracking-widest transition-smooth"
