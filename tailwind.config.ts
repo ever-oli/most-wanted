@@ -13,15 +13,30 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        outlaw: ['Rye', 'Special Elite', 'serif'],
+        stamp: ['Special Elite', 'monospace'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        tan: {
+          DEFAULT: "hsl(var(--tan))",
+          deep: "hsl(var(--tan-deep))",
+        },
+        tier: {
+          exo: "hsl(var(--tier-exo))",
+          aaa: "hsl(var(--tier-aaa))",
+        },
+        sold: "hsl(var(--sold))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
