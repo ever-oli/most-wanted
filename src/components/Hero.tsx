@@ -13,8 +13,8 @@ export const Hero = () => (
       </div>
 
       <h1 className="font-outlaw text-4xl sm:text-5xl md:text-7xl text-foreground text-shadow-outlaw mb-6 leading-[1.1]">
-        Take Your Shot <br className="md:hidden" />
-        at the <span className="text-primary">Dart Board</span> <span className="inline-block">🎯</span>
+        Welcome to <br className="md:hidden" />
+        <span className="text-primary">Most Wanted</span> Packs
       </h1>
 
       <p className="max-w-2xl mx-auto text-muted-foreground text-base md:text-lg leading-relaxed font-stamp">
