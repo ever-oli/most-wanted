@@ -1,4 +1,4 @@
-import logo from "@/assets/most-wanted-logo.jpeg";
+import logo from "@/assets/most-wanted-logo.png";
 import { Target } from "lucide-react";
 
 export const Hero = () => (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/most-wanted-logo.jpeg";
+import logo from "@/assets/most-wanted-logo.png";
 import { Button } from "@/components/ui/button";
 
 const STORAGE_KEY = "mwp-age-verified";
