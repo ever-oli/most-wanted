@@ -3,6 +3,7 @@ import { AgeGate } from "@/components/AgeGate";
 import { PromoBanner } from "@/components/PromoBanner";
 import { Hero } from "@/components/Hero";
 import { Ethos } from "@/components/Ethos";
+import { GradingSystem } from "@/components/GradingSystem";
 import { HowItWorks } from "@/components/HowItWorks";
 import { MysteryGrid } from "@/components/MysteryGrid";
 import { Footer } from "@/components/Footer";
@@ -18,6 +19,7 @@ const Index = () => {
       <main>
         <Hero />
         <Ethos />
+        <GradingSystem />
         <HowItWorks />
         <MysteryGrid onAllSold={() => setAllSold(true)} />
       </main>
