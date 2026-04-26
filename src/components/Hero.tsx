@@ -1,5 +1,6 @@
 import logo from "@/assets/most-wanted-logo.png";
-import { Target } from "lucide-react";
+import { Target, Lock } from "lucide-react";
+import { DROP_LIVE } from "@/lib/drop-config";
 
 export const Hero = () => (
   <section className="relative overflow-hidden grain">
@@ -8,8 +9,14 @@ export const Hero = () => (
       <img src={logo} alt="Most Wanted Hemp Co." className="w-full max-w-md md:max-w-xl mx-auto mb-8 select-none" draggable={false} />
 
       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted/50 mb-6">
-        <Target className="h-3.5 w-3.5 text-primary" />
-        <span className="font-stamp text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Concierge Drop · Live Now</span>
+        {DROP_LIVE ? (
+          <Target className="h-3.5 w-3.5 text-primary" />
+        ) : (
+          <Lock className="h-3.5 w-3.5 text-tan" />
+        )}
+        <span className="font-stamp text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+          {DROP_LIVE ? "Concierge Drop · Live Now" : "Vault Sealed · Coming Soon"}
+        </span>
       </div>
 
       <h1 className="font-outlaw text-4xl sm:text-5xl md:text-7xl text-foreground text-shadow-outlaw mb-6 leading-[1.1]">
