@@ -8,10 +8,10 @@ export const Footer = () => (
         Reach Out for <span className="text-primary">Wholesale Services</span>
       </h3>
       <a
-        href="mailto:wholesale@mostwantedhemp.co"
+        href="mailto:mstwntdpacks@gmail.com"
         className="inline-flex items-center gap-2 px-5 py-3 border border-primary/60 hover:bg-primary hover:text-primary-foreground text-foreground font-stamp uppercase text-xs tracking-widest transition-smooth"
       >
-        <Mail className="h-4 w-4" /> wholesale@mostwantedhemp.co
+        <Mail className="h-4 w-4" /> mstwntdpacks@gmail.com
       </a>
 
       <div className="flex justify-center gap-4 mt-8">
