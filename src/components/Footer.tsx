@@ -26,7 +26,7 @@ export const Footer = () => (
       <div className="mt-10 pt-6 border-t border-border/60 text-[11px] text-muted-foreground font-stamp uppercase tracking-wider space-y-2">
         <p>All products are 2018 Farm Bill compliant.</p>
         <p>Must be 21+ to purchase. Keep out of reach of children.</p>
-        <p className="text-muted-foreground/60">© {new Date().getFullYear()} Most Wanted Hemp Co.</p>
+        <p className="text-muted-foreground/60">© {new Date().getFullYear()} Most Wanted LLC.</p>
       </div>
     </div>
   </footer>
