@@ -15,10 +15,10 @@ export const Footer = () => (
       </a>
 
       <div className="flex justify-center gap-4 mt-8">
-        <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram" className="text-muted-foreground hover:text-primary transition-smooth">
+        <a href="https://instagram.com/mstwntdpacks" target="_blank" rel="noreferrer" aria-label="Instagram @mstwntdpacks" className="text-muted-foreground hover:text-primary transition-smooth">
           <Instagram className="h-5 w-5" />
         </a>
-        <a href="https://twitter.com" target="_blank" rel="noreferrer" aria-label="Twitter" className="text-muted-foreground hover:text-primary transition-smooth">
+        <a href="https://twitter.com/mstwntdpacks" target="_blank" rel="noreferrer" aria-label="Twitter @mstwntdpacks" className="text-muted-foreground hover:text-primary transition-smooth">
           <Twitter className="h-5 w-5" />
         </a>
       </div>
