@@ -1,9 +1,9 @@
 import { Layers, MousePointerClick, Package } from "lucide-react";
 
 const steps = [
-  { icon: Layers, title: "Choose Your Tier", body: "EXO ($100) or AAA ($65). Each represents a different pedigree of cultivar." },
+  { icon: Layers, title: "Choose Your Tier", body: "EXO ($100) or AAA ($65). Each tier unlocks a different pedigree of cultivar in a sealed 7g jar." },
   { icon: MousePointerClick, title: "Secure Your Square", body: "Lock in your spot on the grid. Once it's gone, it's gone." },
-  { icon: Package, title: "Rip the Pack", body: "1 of 3 mystery variants per tier. The strain is sealed until it hits your door." },
+  { icon: Package, title: "Rip the Pack", body: "1 of 3 mystery variants per tier. The 7g jar is sealed until it hits your door." },
 ];
 
 export const HowItWorks = () => (
