@@ -14,6 +14,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const [selected, setSelected] = useState<number[]>([]);
   const [activeSquare, setActiveSquare] = useState<Square | null>(null);
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
+  const [limitError, setLimitError] = useState<string | null>(null);
 
   const allSold = grid.every((s) => s.sold);
   if (allSold) onAllSold?.();
