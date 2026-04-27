@@ -9,7 +9,7 @@ export const SocialFeeds = () => {
     const div = document.createElement("div");
     div.id = "curator-feed-default-feed-layout";
     div.innerHTML = `
-      <a href="https://curator.io" target="_blank" class="crt-logo crt-tag">
+      <a href="https://curator.io " target="_blank" class="crt-logo crt-tag">
         Powered by Curator.io
       </a>
     `;
@@ -17,9 +17,17 @@ export const SocialFeeds = () => {
 
     const script = document.createElement("script");
     script.type = "text/javascript";
-    script.async = true;
-    script.charset = "UTF-8";
-    script.src = "https://cdn.curator.io/published/59662559-3403-4b0b-8aca-0bb1684a0b72.js";
+    script.innerHTML = `
+      (function(){
+        var i,e,d=document,s="script";
+        i=d.createElement("script");
+        i.async=1;
+        i.charset="UTF-8";
+        i.src="https://cdn.curator.io/published/59662559-3403-4b0b-8aca-0bb1684a0b72.js ";
+        e=d.getElementsByTagName(s)[0];
+        e.parentNode.insertBefore(i, e);
+      })();
+    `;
     document.body.appendChild(script);
 
     return () => {
