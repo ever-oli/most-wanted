@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import logo from "@/assets/most-wanted-logo.png";
 import { Button } from "@/components/ui/button";
 
@@ -6,6 +6,8 @@ const STORAGE_KEY = "mwp-age-verified";
 
 export const AgeGate = () => {
   const [open, setOpen] = useState(false);
+  const [fading, setFading] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -16,11 +18,17 @@ export const AgeGate = () => {
 
   const confirm = () => {
     sessionStorage.setItem(STORAGE_KEY, "1");
-    setOpen(false);
+    setFading(true);
+    setTimeout(() => setOpen(false), 500);
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background/98 backdrop-blur-md flex items-center justify-center p-6 animate-reveal">
+    <div
+      ref={containerRef}
+      className={`fixed inset-0 z-[100] bg-background/98 backdrop-blur-md flex items-center justify-center p-6 animate-reveal ${
+        fading ? "animate-fade-out motion-reduce:animate-none" : ""
+      }`}
+    >
       <div className="relative max-w-lg w-full text-center">
         <div className="absolute -inset-8 bg-gradient-to-b from-primary/10 via-transparent to-transparent blur-2xl pointer-events-none" />
         <div className="relative">

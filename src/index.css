@@ -124,3 +124,96 @@
   to { transform: scale(1); opacity: 1; }
 }
 .animate-reveal { animation: reveal 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+@keyframes scroll-cue {
+  0%, 20%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
+.animate-scroll-cue { animation: scroll-cue 2s ease-in-out infinite; }
+
+@keyframes fade-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.02); }
+}
+.animate-fade-out { animation: fade-out 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+@keyframes tagline-fade {
+  0% { opacity: 0; transform: translateY(6px); }
+  15%, 85% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+.animate-tagline-fade { animation: tagline-fade 3.4s ease-in-out forwards; }
+
+@keyframes sold-stamp {
+  0% { transform: scale(1.4) rotate(-12deg); opacity: 0; }
+  60% { transform: scale(0.92) rotate(-12deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-12deg); opacity: 1; }
+}
+.animate-sold-stamp { animation: sold-stamp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+@keyframes cart-slide-up {
+  from { transform: translateY(110%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-cart-slide { animation: cart-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 40s linear infinite; }
+.animate-marquee:hover { animation-play-state: paused; }
+
+/* ===== Custom crosshair cursor for the vault grid ===== */
+.cursor-crosshair-outlaw {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><circle cx='14' cy='14' r='10' fill='none' stroke='%23D32F2F' stroke-width='1.5'/><line x1='14' y1='1' x2='14' y2='8' stroke='%23D32F2F' stroke-width='1.5'/><line x1='14' y1='20' x2='14' y2='27' stroke='%23D32F2F' stroke-width='1.5'/><line x1='1' y1='14' x2='8' y2='14' stroke='%23D32F2F' stroke-width='1.5'/><line x1='20' y1='14' x2='27' y2='14' stroke='%23D32F2F' stroke-width='1.5'/><circle cx='14' cy='14' r='1.5' fill='%23D32F2F'/></svg>") 14 14, crosshair;
+}
+
+/* ===== Outlaw focus rings for keyboard users ===== */
+.focus-outlaw:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* ===== Sonner toast skinning ===== */
+[data-sonner-toaster] [data-sonner-toast] {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--primary) / 0.4) !important;
+  color: hsl(var(--foreground)) !important;
+  font-family: 'Special Elite', monospace !important;
+  letter-spacing: 0.05em !important;
+  border-radius: 0.25rem !important;
+  box-shadow: 0 10px 40px -10px hsl(0 70% 40% / 0.4) !important;
+}
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+  border-color: hsl(var(--primary) / 0.7) !important;
+  background: linear-gradient(135deg, hsl(0 30% 8%), hsl(var(--card))) !important;
+}
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] {
+  border-color: hsl(var(--tan) / 0.5) !important;
+}
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  color: hsl(var(--muted-foreground)) !important;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+/* ===== Reduced motion: respect user preference ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-flicker,
+  .animate-pulse-red,
+  .animate-scroll-cue,
+  .animate-marquee,
+  .animate-tagline-fade {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}

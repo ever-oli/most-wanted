@@ -1,19 +1,90 @@
-import { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE } from "@/lib/drop-config";
+import {
+  GRID_SIZE,
+  MAX_CART_TOTAL,
+  Square,
+  Tier,
+  TIERS,
+  buildGrid,
+  DEMO_SOLD_INDEXES,
+  DROP_LIVE,
+} from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
-import { Lock } from "lucide-react";
+import { Lock, Eye, EyeOff } from "lucide-react";
 
 interface Props {
   onAllSold?: () => void;
 }
+
+/* ===== Memoized square: only re-renders when its own state changes ===== */
+interface SquareProps {
+  sq: Square;
+  isSelected: boolean;
+  isRevealed: boolean;
+  onTap: (sq: Square) => void;
+  onHover: (idx: number) => void;
+  focused: boolean;
+}
+
+const GridSquare = React.memo(
+  ({ sq, isSelected, isRevealed, onTap, onHover, focused }: SquareProps) => {
+    const tierColor = sq.tier === "EXO" ? "bg-tier-exo" : "bg-tier-aaa";
+    return (
+      <button
+        data-index={sq.index}
+        onClick={() => onTap(sq)}
+        onMouseEnter={() => {
+          if (!sq.sold) onHover(sq.index);
+        }}
+        disabled={sq.sold}
+        tabIndex={focused ? 0 : -1}
+        className={cn(
+          "relative aspect-square text-[8px] sm:text-[9px] font-stamp uppercase font-bold transition-smooth select-none focus-outlaw",
+          "border border-border/60",
+          sq.sold && "bg-sold text-foreground/40 cursor-not-allowed border-border",
+          !sq.sold && !isRevealed && "bg-muted hover:bg-muted-foreground/20 text-transparent",
+          !sq.sold && isRevealed && tierColor + " text-background",
+          isSelected && "ring-2 ring-primary ring-offset-1 ring-offset-background animate-pulse-red motion-reduce:animate-none"
+        )}
+        aria-label={
+          sq.sold
+            ? `Square ${sq.index + 1} sold`
+            : `Square ${sq.index + 1}, tier ${sq.tier}, $${TIERS[sq.tier].price}`
+        }
+        aria-pressed={isSelected}
+      >
+        {sq.sold ? (
+          <span className="block leading-none animate-sold-stamp motion-reduce:animate-none">
+            SOLD
+          </span>
+        ) : isRevealed ? (
+          <span className="block leading-none">{sq.tier}</span>
+        ) : (
+          <span className="block leading-none text-foreground/60">{sq.index + 1}</span>
+        )}
+
+        {/* Hover tooltip */}
+        {!sq.sold && isRevealed && (
+          <span className="absolute -top-6 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-background border border-border text-[8px] text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 hidden sm:block">
+            {sq.tier} · ${TIERS[sq.tier].price}
+          </span>
+        )}
+      </button>
+    );
+  }
+);
+GridSquare.displayName = "GridSquare";
 
 export const MysteryGrid = ({ onAllSold }: Props) => {
   const grid: Square[] = useMemo(() => buildGrid(DEMO_SOLD_INDEXES), []);
   const [selected, setSelected] = useState<number[]>([]);
   const [activeSquare, setActiveSquare] = useState<Square | null>(null);
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
+  const [revealAll, setRevealAll] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const allSold = grid.every((s) => s.sold);
   if (allSold) onAllSold?.();
@@ -24,18 +95,37 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
       acc[t] = (acc[t] ?? 0) + 1;
       return acc;
     },
-    {} as Record<Tier, number>,
+    {} as Record<Tier, number>
   );
 
-  const handleTap = (sq: Square) => {
-    if (sq.sold) return;
-    // Reveal on first tap (mobile), open sheet on second tap
-    if (!revealed.has(sq.index)) {
-      setRevealed((prev) => new Set(prev).add(sq.index));
-      return;
+  const soldCount = grid.filter((s) => s.sold).length;
+  const claimedCount = soldCount + selected.length;
+  const progressPct = Math.min((claimedCount / grid.length) * 100, 100);
+
+  /* ===== Reveal All toggle ===== */
+  useEffect(() => {
+    if (revealAll) {
+      setRevealed(new Set(grid.filter((s) => !s.sold).map((s) => s.index)));
+    } else {
+      setRevealed((prev) => {
+        const next = new Set(prev);
+        grid.filter((s) => !s.sold && !selected.includes(s.index)).forEach((s) => next.delete(s.index));
+        return next;
+      });
     }
-    setActiveSquare(sq);
-  };
+  }, [revealAll, grid, selected]);
+
+  const handleTap = useCallback(
+    (sq: Square) => {
+      if (sq.sold) return;
+      if (!revealed.has(sq.index)) {
+        setRevealed((prev) => new Set(prev).add(sq.index));
+        return;
+      }
+      setActiveSquare(sq);
+    },
+    [revealed]
+  );
 
   const tryAddToCart = (sq: Square) => {
     if (selected.includes(sq.index)) {
@@ -45,14 +135,12 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
     if (selected.length >= MAX_CART_TOTAL) {
       toast.error("Limit reached. Leave some for the rest of the hunters.", {
         description: "Reach out for wholesale services.",
-        className: "font-stamp",
       });
       return;
     }
     if ((tierCounts[sq.tier] ?? 0) >= TIERS[sq.tier].maxPerOrder) {
       toast.error(`Max ${TIERS[sq.tier].maxPerOrder} ${sq.tier} squares per order.`, {
         description: "Reach out for wholesale services.",
-        className: "font-stamp",
       });
       return;
     }
@@ -60,7 +148,6 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
     setActiveSquare(null);
     toast.success(`${sq.tier} square locked in.`, {
       description: `Square #${sq.index + 1} • $${TIERS[sq.tier].price}`,
-      className: "font-stamp",
     });
   };
 
@@ -69,10 +156,49 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   };
 
   const cartTotal = selected.reduce((sum, i) => sum + TIERS[grid[i].tier].price, 0);
-  const soldCount = grid.filter((s) => s.sold).length;
+
+  /* ===== Keyboard nav ===== */
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (!DROP_LIVE) return;
+      const max = grid.length - 1;
+      let next = focusedIndex;
+      switch (e.key) {
+        case "ArrowRight":
+          next = Math.min(focusedIndex + 1, max);
+          break;
+        case "ArrowLeft":
+          next = Math.max(focusedIndex - 1, 0);
+          break;
+        case "ArrowDown":
+          next = Math.min(focusedIndex + GRID_SIZE, max);
+          break;
+        case "ArrowUp":
+          next = Math.max(focusedIndex - GRID_SIZE, 0);
+          break;
+        case "Enter":
+        case " ":
+          e.preventDefault();
+          handleTap(grid[focusedIndex]);
+          return;
+        default:
+          return;
+      }
+      e.preventDefault();
+      setFocusedIndex(next);
+      const btn = el.querySelector<HTMLButtonElement>(`[data-index="${next}"]`);
+      btn?.focus();
+    };
+
+    el.addEventListener("keydown", onKey);
+    return () => el.removeEventListener("keydown", onKey);
+  }, [focusedIndex, grid, handleTap]);
 
   return (
-    <section className="relative">
+    <section id="vault" className="relative">
       <div className="container py-12 md:py-16">
         <div className="text-center mb-8">
           <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— The Vault —</p>
@@ -97,53 +223,63 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
           </div>
         </div>
 
-        {/* Grid container — scrollable on mobile to keep squares tappable */}
+        {/* Progress bar */}
+        <div className="max-w-2xl mx-auto mb-4">
+          <div className="flex items-center justify-between mb-1.5 text-[10px] font-stamp uppercase tracking-widest text-muted-foreground">
+            <span>{claimedCount} of {grid.length} Claimed</span>
+            <span>{Math.round(progressPct)}%</span>
+          </div>
+          <div className="h-1.5 w-full bg-muted border border-border/40 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-primary to-tan transition-all duration-700"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Reveal All toggle */}
+        <div className="max-w-2xl mx-auto flex items-center justify-end gap-2 mb-3">
+          <button
+            onClick={() => setRevealAll((v) => !v)}
+            className="inline-flex items-center gap-1.5 text-[10px] font-stamp uppercase tracking-widest text-muted-foreground hover:text-foreground transition-smooth focus-outlaw px-2 py-1 border border-border/60 hover:border-border"
+            aria-pressed={revealAll}
+          >
+            {revealAll ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+            {revealAll ? "Hide All" : "Reveal All"}
+          </button>
+        </div>
+
+        {/* Grid container */}
         <div className="relative mx-auto max-w-2xl">
           <div className="absolute -inset-4 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 blur-2xl pointer-events-none" />
-          <div className="relative border border-border bg-card/60 p-2 sm:p-3 shadow-[var(--shadow-deep)] overflow-x-auto scrollbar-outlaw">
+          <div className="relative border border-border bg-card/60 p-2 sm:p-3 shadow-[var(--shadow-deep)] overflow-x-auto scrollbar-outlaw cursor-crosshair-outlaw">
             <div
+              ref={gridRef}
+              tabIndex={0}
               className={cn(
-                "grid gap-1 sm:gap-1.5 mx-auto relative",
+                "grid gap-1 sm:gap-1.5 mx-auto relative focus-outlaw group",
                 !DROP_LIVE && "blur-sm pointer-events-none select-none opacity-60"
               )}
               style={{
                 gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
                 minWidth: GRID_SIZE * 22,
               }}
+              aria-label="Mystery grid. Use arrow keys to navigate, enter to select."
             >
-              {grid.map((sq) => {
-                const isSelected = selected.includes(sq.index);
-                const isRevealed = revealed.has(sq.index) || isSelected;
-                const tierColor = sq.tier === "EXO" ? "bg-tier-exo" : "bg-tier-aaa";
-                return (
-                  <button
-                    key={sq.index}
-                    onClick={() => handleTap(sq)}
-                    onMouseEnter={() => !sq.sold && setRevealed((p) => new Set(p).add(sq.index))}
-                    disabled={sq.sold}
-                    className={cn(
-                      "relative aspect-square text-[8px] sm:text-[9px] font-stamp uppercase font-bold transition-smooth select-none",
-                      "border border-border/60",
-                      sq.sold && "bg-sold text-foreground/40 cursor-not-allowed border-border",
-                      !sq.sold && !isRevealed && "bg-muted hover:bg-muted-foreground/20 text-transparent",
-                      !sq.sold && isRevealed && tierColor + " text-background",
-                      isSelected && "ring-2 ring-primary ring-offset-1 ring-offset-background animate-pulse-red",
-                    )}
-                    aria-label={sq.sold ? `Square ${sq.index + 1} sold` : `Square ${sq.index + 1}`}
-                  >
-                    {sq.sold ? (
-                      <span className="block leading-none">SOLD</span>
-                    ) : isRevealed ? (
-                      <span className="block leading-none">{sq.tier}</span>
-                    ) : (
-                      <span className="block leading-none text-foreground/60">{sq.index + 1}</span>
-                    )}
-                  </button>
-                );
-              })}
+              {grid.map((sq) => (
+                <GridSquare
+                  key={sq.index}
+                  sq={sq}
+                  isSelected={selected.includes(sq.index)}
+                  isRevealed={revealed.has(sq.index) || selected.includes(sq.index)}
+                  onTap={handleTap}
+                  onHover={(idx) => setRevealed((p) => new Set(p).add(idx))}
+                  focused={focusedIndex === sq.index}
+                />
+              ))}
             </div>
 
-            {/* WIP / Coming Soon overlay when vault is closed */}
+            {/* WIP overlay when vault is closed */}
             {!DROP_LIVE && (
               <div className="absolute inset-0 z-10 flex items-center justify-center">
                 <div className="absolute inset-0 bg-background/40 backdrop-blur-sm" />
@@ -164,14 +300,14 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
 
         {/* Cart summary bar */}
         {selected.length > 0 && DROP_LIVE && (
-          <div className="fixed bottom-0 inset-x-0 z-30 border-t border-primary/40 bg-background/95 backdrop-blur-md animate-reveal">
+          <div className="fixed bottom-0 inset-x-0 z-30 border-t border-primary/40 bg-background/95 backdrop-blur-md animate-cart-slide motion-reduce:animate-none">
             <div className="container py-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 overflow-x-auto scrollbar-outlaw">
                 {selected.map((i) => (
                   <button
                     key={i}
                     onClick={() => removeFromCart(i)}
-                    className="shrink-0 px-2.5 py-1 border border-primary/50 bg-card text-xs font-stamp uppercase hover:bg-primary/20 transition-smooth"
+                    className="shrink-0 px-2.5 py-1 border border-primary/50 bg-card text-xs font-stamp uppercase hover:bg-primary/20 transition-smooth focus-outlaw"
                   >
                     {grid[i].tier} #{i + 1} ✕
                   </button>
@@ -179,10 +315,9 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               </div>
               <button
                 onClick={() => {
-                  // Trigger Shopify Buy Button here
-                  toast("Routing to Shopify checkout…", { className: "font-stamp" });
+                  toast("Routing to Shopify checkout…");
                 }}
-                className="shrink-0 px-4 py-2.5 bg-primary hover:bg-primary-glow text-primary-foreground font-stamp uppercase text-xs tracking-widest shadow-[var(--shadow-outlaw)]"
+                className="shrink-0 px-4 py-2.5 bg-primary hover:bg-primary-glow text-primary-foreground font-stamp uppercase text-xs tracking-widest shadow-[var(--shadow-outlaw)] transition-smooth focus-outlaw"
               >
                 Lock It In · ${cartTotal}
               </button>

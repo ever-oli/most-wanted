@@ -3,6 +3,7 @@ import { AgeGate } from "@/components/AgeGate";
 import { PromoBanner } from "@/components/PromoBanner";
 import { Hero } from "@/components/Hero";
 import { Ethos } from "@/components/Ethos";
+import { Testimonials } from "@/components/Testimonials";
 import { GradingSystem } from "@/components/GradingSystem";
 import { HowItWorks } from "@/components/HowItWorks";
 import { MysteryGrid } from "@/components/MysteryGrid";
@@ -19,9 +20,16 @@ const Index = () => {
       <PromoBanner />
       <main>
         <Hero />
-        <Ethos />
-        <GradingSystem />
-        <HowItWorks />
+        <section id="ethos">
+          <Ethos />
+        </section>
+        <Testimonials />
+        <section id="grading">
+          <GradingSystem />
+        </section>
+        <section id="how-it-works">
+          <HowItWorks />
+        </section>
         <MysteryGrid onAllSold={() => setAllSold(true)} />
       </main>
       <SocialFeeds />

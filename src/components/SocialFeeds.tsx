@@ -1,10 +1,27 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const SocialFeeds = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "400px" }
+    );
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!visible || !containerRef.current) return;
 
     const div = document.createElement("div");
     div.id = "curator-feed-default-feed-layout";
@@ -29,19 +46,20 @@ export const SocialFeeds = () => {
       })();
     `;
     document.body.appendChild(script);
+    scriptRef.current = script;
 
     return () => {
       if (containerRef.current && div.parentNode === containerRef.current) {
         containerRef.current.removeChild(div);
       }
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
+      if (scriptRef.current && scriptRef.current.parentNode) {
+        scriptRef.current.parentNode.removeChild(scriptRef.current);
       }
     };
-  }, []);
+  }, [visible]);
 
   return (
-    <section className="container py-16 md:py-20">
+    <section id="feed" className="container py-16 md:py-20" ref={containerRef}>
       <div className="text-center mb-10">
         <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— The Feed —</p>
         <h2 className="font-outlaw text-3xl md:text-5xl text-foreground text-shadow-outlaw mb-3">
@@ -52,10 +70,13 @@ export const SocialFeeds = () => {
         </p>
       </div>
 
-      <div
-        ref={containerRef}
-        className="max-w-4xl mx-auto border border-border bg-card/40 p-4 md:p-5 min-h-[500px]"
-      />
+      {!visible && (
+        <div className="max-w-4xl mx-auto border border-border bg-card/40 p-4 md:p-5 min-h-[500px] flex items-center justify-center">
+          <p className="font-stamp text-xs uppercase tracking-widest text-muted-foreground animate-flicker motion-reduce:animate-none">
+            Loading feed…
+          </p>
+        </div>
+      )}
     </section>
   );
 };
