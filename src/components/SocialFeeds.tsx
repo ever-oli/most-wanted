@@ -59,7 +59,7 @@ export const SocialFeeds = () => {
   }, [visible]);
 
   return (
-    <section id="feed" className="container py-16 md:py-20" ref={containerRef}>
+    <section id="feed" className="container py-16 md:py-20 scroll-mt-24" ref={containerRef}>
       <div className="text-center mb-10">
         <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— The Feed —</p>
         <h2 className="font-outlaw text-3xl md:text-5xl text-foreground text-shadow-outlaw mb-3">

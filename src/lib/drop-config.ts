@@ -22,6 +22,9 @@ export const MAX_CART_TOTAL = 3;
 /** Set to false to show a blurred preview with a "Coming Soon" overlay. */
 export const DROP_LIVE = false;
 
+/** Target date/time for the next drop. Used by the countdown on the sealed vault. */
+export const NEXT_DROP_AT = new Date("2026-05-15T19:00:00-04:00");
+
 export const TIERS: Record<Tier, TierConfig> = {
   EXO: {
     id: "EXO",

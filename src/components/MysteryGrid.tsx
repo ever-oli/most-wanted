@@ -1,17 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import {
-  GRID_SIZE,
-  MAX_CART_TOTAL,
-  Square,
-  Tier,
-  TIERS,
-  buildGrid,
-  DEMO_SOLD_INDEXES,
-  DROP_LIVE,
-} from "@/lib/drop-config";
+import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE } from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
+import { VaultCountdown } from "./VaultCountdown";
 import { Lock, Eye, EyeOff } from "lucide-react";
 
 interface Props {
@@ -27,6 +19,8 @@ interface SquareProps {
   onHover: (idx: number) => void;
   focused: boolean;
 }
+
+import React from "react";
 
 const GridSquare = React.memo(
   ({ sq, isSelected, isRevealed, onTap, onHover, focused }: SquareProps) => {
@@ -82,6 +76,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const [selected, setSelected] = useState<number[]>([]);
   const [activeSquare, setActiveSquare] = useState<Square | null>(null);
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
+  const [limitError, setLimitError] = useState<string | null>(null);
   const [revealAll, setRevealAll] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -133,17 +128,22 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
       return;
     }
     if (selected.length >= MAX_CART_TOTAL) {
+      const msg = `Max ${MAX_CART_TOTAL} squares per order. Remove one to add another.`;
+      setLimitError(msg);
       toast.error("Limit reached. Leave some for the rest of the hunters.", {
         description: "Reach out for wholesale services.",
       });
       return;
     }
     if ((tierCounts[sq.tier] ?? 0) >= TIERS[sq.tier].maxPerOrder) {
-      toast.error(`Max ${TIERS[sq.tier].maxPerOrder} ${sq.tier} squares per order.`, {
+      const msg = `Max ${TIERS[sq.tier].maxPerOrder} ${sq.tier} squares per order.`;
+      setLimitError(msg);
+      toast.error(msg, {
         description: "Reach out for wholesale services.",
       });
       return;
     }
+    setLimitError(null);
     setSelected((prev) => [...prev, sq.index]);
     setActiveSquare(null);
     toast.success(`${sq.tier} square locked in.`, {
@@ -153,6 +153,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
 
   const removeFromCart = (idx: number) => {
     setSelected((prev) => prev.filter((i) => i !== idx));
+    setLimitError(null);
   };
 
   const cartTotal = selected.reduce((sum, i) => sum + TIERS[grid[i].tier].price, 0);
@@ -198,7 +199,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   }, [focusedIndex, grid, handleTap]);
 
   return (
-    <section id="vault" className="relative">
+    <section id="vault" className="relative scroll-mt-24">
       <div className="container py-12 md:py-16">
         <div className="text-center mb-8">
           <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— The Vault —</p>
@@ -279,28 +280,32 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               ))}
             </div>
 
-            {/* WIP overlay when vault is closed */}
-            {!DROP_LIVE && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center">
-                <div className="absolute inset-0 bg-background/40 backdrop-blur-sm" />
-                <div className="relative z-20 text-center px-6 py-8 border border-primary/50 bg-card/95 shadow-[var(--shadow-outlaw)] rounded-lg max-w-sm mx-auto">
-                  <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— WIP —</p>
-                  <h3 className="font-outlaw text-2xl md:text-3xl text-foreground text-shadow-outlaw mb-2">
-                    Coming Soon
-                  </h3>
-                  <p className="text-muted-foreground text-sm font-stamp">
-                    The vault is sealed. Check back when the next drop goes live.
-                  </p>
-                  <div className="mt-4 h-px w-16 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
-                </div>
-              </div>
-            )}
+            {/* Countdown + notify-me overlay when vault is sealed */}
+            {!DROP_LIVE && <VaultCountdown />}
           </div>
         </div>
 
         {/* Cart summary bar */}
         {selected.length > 0 && DROP_LIVE && (
           <div className="fixed bottom-0 inset-x-0 z-30 border-t border-primary/40 bg-background/95 backdrop-blur-md animate-cart-slide motion-reduce:animate-none">
+            {limitError && (
+              <div
+                role="alert"
+                aria-live="polite"
+                className="container pt-2 -mb-1 flex items-center justify-between gap-3"
+              >
+                <p className="font-stamp uppercase text-[11px] tracking-widest text-destructive">
+                  ⚠ {limitError}
+                </p>
+                <button
+                  onClick={() => setLimitError(null)}
+                  className="text-destructive/80 hover:text-destructive text-xs font-stamp uppercase tracking-widest focus-outlaw"
+                  aria-label="Dismiss error"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
             <div className="container py-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 overflow-x-auto scrollbar-outlaw">
                 {selected.map((i) => (
