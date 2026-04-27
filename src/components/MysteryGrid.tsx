@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE } from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
+import { VaultCountdown } from "./VaultCountdown";
 import { Lock } from "lucide-react";
 
 interface Props {
@@ -79,7 +80,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const soldCount = grid.filter((s) => s.sold).length;
 
   return (
-    <section className="relative">
+    <section id="vault" className="relative scroll-mt-24">
       <div className="container py-12 md:py-16">
         <div className="text-center mb-8">
           <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— The Vault —</p>
