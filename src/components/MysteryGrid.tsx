@@ -14,6 +14,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const [selected, setSelected] = useState<number[]>([]);
   const [activeSquare, setActiveSquare] = useState<Square | null>(null);
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
+  const [limitError, setLimitError] = useState<string | null>(null);
 
   const allSold = grid.every((s) => s.sold);
   if (allSold) onAllSold?.();
@@ -43,6 +44,8 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
       return;
     }
     if (selected.length >= MAX_CART_TOTAL) {
+      const msg = `Max ${MAX_CART_TOTAL} squares per order. Remove one to add another.`;
+      setLimitError(msg);
       toast.error("Limit reached. Leave some for the rest of the hunters.", {
         description: "Reach out for wholesale services.",
         className: "font-stamp",
@@ -50,12 +53,15 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
       return;
     }
     if ((tierCounts[sq.tier] ?? 0) >= TIERS[sq.tier].maxPerOrder) {
-      toast.error(`Max ${TIERS[sq.tier].maxPerOrder} ${sq.tier} squares per order.`, {
+      const msg = `Max ${TIERS[sq.tier].maxPerOrder} ${sq.tier} squares per order.`;
+      setLimitError(msg);
+      toast.error(msg, {
         description: "Reach out for wholesale services.",
         className: "font-stamp",
       });
       return;
     }
+    setLimitError(null);
     setSelected((prev) => [...prev, sq.index]);
     setActiveSquare(null);
     toast.success(`${sq.tier} square locked in.`, {
@@ -66,6 +72,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
 
   const removeFromCart = (idx: number) => {
     setSelected((prev) => prev.filter((i) => i !== idx));
+    setLimitError(null);
   };
 
   const cartTotal = selected.reduce((sum, i) => sum + TIERS[grid[i].tier].price, 0);
@@ -165,6 +172,24 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
         {/* Cart summary bar */}
         {selected.length > 0 && DROP_LIVE && (
           <div className="fixed bottom-0 inset-x-0 z-30 border-t border-primary/40 bg-background/95 backdrop-blur-md animate-reveal">
+            {limitError && (
+              <div
+                role="alert"
+                aria-live="polite"
+                className="container pt-2 -mb-1 flex items-center justify-between gap-3"
+              >
+                <p className="font-stamp uppercase text-[11px] tracking-widest text-destructive">
+                  ⚠ {limitError}
+                </p>
+                <button
+                  onClick={() => setLimitError(null)}
+                  className="text-destructive/80 hover:text-destructive text-xs font-stamp uppercase tracking-widest"
+                  aria-label="Dismiss error"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
             <div className="container py-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 overflow-x-auto scrollbar-outlaw">
                 {selected.map((i) => (
