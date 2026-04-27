@@ -151,22 +151,8 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               })}
             </div>
 
-            {/* WIP / Coming Soon overlay when vault is closed */}
-            {!DROP_LIVE && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center">
-                <div className="absolute inset-0 bg-background/40 backdrop-blur-sm" />
-                <div className="relative z-20 text-center px-6 py-8 border border-primary/50 bg-card/95 shadow-[var(--shadow-outlaw)] rounded-lg max-w-sm mx-auto">
-                  <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— WIP —</p>
-                  <h3 className="font-outlaw text-2xl md:text-3xl text-foreground text-shadow-outlaw mb-2">
-                    Coming Soon
-                  </h3>
-                  <p className="text-muted-foreground text-sm font-stamp">
-                    The vault is sealed. Check back when the next drop goes live.
-                  </p>
-                  <div className="mt-4 h-px w-16 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
-                </div>
-              </div>
-            )}
+            {/* Countdown + notify-me overlay when vault is sealed */}
+            {!DROP_LIVE && <VaultCountdown />}
           </div>
         </div>
 
