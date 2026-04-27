@@ -1,22 +1,4 @@
-import { ExternalLink } from "lucide-react";
-
-// Curator.io — Instagram feed embed (works around Meta's iframe block)
-const curatorEmbedHtml = `
-  <div id="curator-feed-default-feed-layout">
-    <a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
-  </div>
-  <script type="text/javascript">
-    (function(){
-      var i, e, d = document, s = "script";
-      i = d.createElement("script");
-      i.async = 1;
-      i.charset = "UTF-8";
-      i.src = "https://cdn.curator.io/published/59662559-3403-4b0b-8aca-0bb1684a0b72.js";
-      e = d.getElementsByTagName(s)[0];
-      e.parentNode.insertBefore(i, e);
-    })();
-  </script>
-`;
+import { Instagram, Twitter, ExternalLink } from "lucide-react";
 
 export const SocialFeeds = () => (
   <section className="container py-16 md:py-20">
@@ -30,24 +12,34 @@ export const SocialFeeds = () => (
       </p>
     </div>
 
-    <div className="max-w-4xl mx-auto border border-border bg-card/40 p-4 md:p-5">
-      <div className="flex items-center justify-between mb-4">
-        <span className="font-stamp text-xs uppercase tracking-wider text-muted-foreground">
-          @mstwntdpacks
-        </span>
-        <a
-          href="https://instagram.com/mstwntdpacks"
-          target="_blank"
-          rel="noreferrer"
-          className="text-muted-foreground hover:text-primary transition-smooth"
-        >
-          <ExternalLink className="h-3.5 w-3.5" />
-        </a>
-      </div>
-      <div
-        className="overflow-hidden rounded border border-border/60 min-h-[500px]"
-        dangerouslySetInnerHTML={{ __html: curatorEmbedHtml }}
-      />
+    <div className="flex flex-wrap justify-center gap-4 max-w-lg mx-auto">
+      <a
+        href="https://instagram.com/mstwntdpacks"
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-center gap-3 px-6 py-4 border border-border bg-card/40 hover:border-primary/60 hover:bg-primary/10 transition-smooth"
+      >
+        <Instagram className="h-5 w-5 text-primary" />
+        <div className="text-left">
+          <span className="block font-outlaw text-sm text-foreground">Instagram</span>
+          <span className="block font-stamp text-[10px] uppercase tracking-wider text-muted-foreground">@mstwntdpacks</span>
+        </div>
+        <ExternalLink className="h-3 w-3 text-muted-foreground ml-2" />
+      </a>
+
+      <a
+        href="https://twitter.com/mstwntdpacks"
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-center gap-3 px-6 py-4 border border-border bg-card/40 hover:border-primary/60 hover:bg-primary/10 transition-smooth"
+      >
+        <Twitter className="h-5 w-5 text-primary" />
+        <div className="text-left">
+          <span className="block font-outlaw text-sm text-foreground">X / Twitter</span>
+          <span className="block font-stamp text-[10px] uppercase tracking-wider text-muted-foreground">@mstwntdpacks</span>
+        </div>
+        <ExternalLink className="h-3 w-3 text-muted-foreground ml-2" />
+      </a>
     </div>
   </section>
 );
