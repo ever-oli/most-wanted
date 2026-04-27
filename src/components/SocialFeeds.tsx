@@ -1,12 +1,10 @@
 import { useEffect, useRef } from "react";
-import { ExternalLink } from "lucide-react";
 
 export const SocialFeeds = () => {
-  const igRef = useRef<HTMLDivElement>(null);
-  const xRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!igRef.current) return;
+    if (!containerRef.current) return;
 
     const div = document.createElement("div");
     div.id = "curator-feed-default-feed-layout";
@@ -15,7 +13,7 @@ export const SocialFeeds = () => {
         Powered by Curator.io
       </a>
     `;
-    igRef.current.appendChild(div);
+    containerRef.current.appendChild(div);
 
     const script = document.createElement("script");
     script.type = "text/javascript";
@@ -25,36 +23,12 @@ export const SocialFeeds = () => {
     document.body.appendChild(script);
 
     return () => {
-      if (igRef.current && div.parentNode === igRef.current) {
-        igRef.current.removeChild(div);
+      if (containerRef.current && div.parentNode === containerRef.current) {
+        containerRef.current.removeChild(div);
       }
-      if (script.parentNode) script.parentNode.removeChild(script);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!xRef.current) return;
-
-    const a = document.createElement("a");
-    a.className = "twitter-timeline";
-    a.setAttribute("data-height", "500");
-    a.setAttribute("data-theme", "dark");
-    a.setAttribute("data-chrome", "noheader nofooter noborders transparent");
-    a.href = "https://twitter.com/mstwntdpacks";
-    a.textContent = "Tweets by @mstwntdpacks";
-    xRef.current.appendChild(a);
-
-    const script = document.createElement("script");
-    script.async = true;
-    script.charset = "utf-8";
-    script.src = "https://platform.twitter.com/widgets.js";
-    document.body.appendChild(script);
-
-    return () => {
-      if (xRef.current && a.parentNode === xRef.current) {
-        xRef.current.removeChild(a);
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
       }
-      if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
 
@@ -70,29 +44,10 @@ export const SocialFeeds = () => {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-        {/* Instagram — Curator.io */}
-        <div className="border border-border bg-card/40 p-4 md:p-5">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-stamp text-xs uppercase tracking-wider text-muted-foreground">Instagram · @mstwntdpacks</span>
-            <a href="https://instagram.com/mstwntdpacks" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-smooth">
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </div>
-          <div ref={igRef} className="min-h-[500px]" />
-        </div>
-
-        {/* X / Twitter — Official embed */}
-        <div className="border border-border bg-card/40 p-4 md:p-5">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-stamp text-xs uppercase tracking-wider text-muted-foreground">X / Twitter · @mstwntdpacks</span>
-            <a href="https://twitter.com/mstwntdpacks" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-smooth">
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </div>
-          <div ref={xRef} className="min-h-[500px]" />
-        </div>
-      </div>
+      <div
+        ref={containerRef}
+        className="max-w-4xl mx-auto border border-border bg-card/40 p-4 md:p-5 min-h-[500px]"
+      />
     </section>
   );
 };
