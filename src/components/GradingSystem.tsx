@@ -2,7 +2,7 @@ import gradingSystem from "@/assets/grading-system.png";
 import { Award } from "lucide-react";
 
 export const GradingSystem = () => (
-  <section className="container py-16 md:py-20">
+  <section id="grading" className="container py-16 md:py-20 scroll-mt-24">
     <div className="text-center mb-10">
       <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— Our Standard —</p>
       <h2 className="font-outlaw text-3xl md:text-5xl text-foreground text-shadow-outlaw mb-3">

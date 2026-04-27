@@ -1,7 +1,7 @@
 import { Crosshair } from "lucide-react";
 
 export const Ethos = () => (
-  <section className="relative border-y border-border/60 bg-muted/20">
+  <section id="ethos" className="relative border-y border-border/60 bg-muted/20 scroll-mt-24">
     <div className="container py-16 md:py-20 max-w-3xl text-center">
       <Crosshair className="h-8 w-8 text-primary mx-auto mb-5" />
       <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-4">— The Ethos —</p>
