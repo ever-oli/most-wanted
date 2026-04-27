@@ -1,4 +1,4 @@
-import gradingSystem from "@/assets/grading-system.jpg";
+import gradingSystem from "@/assets/grading-system.png";
 import { Award } from "lucide-react";
 
 export const GradingSystem = () => (
