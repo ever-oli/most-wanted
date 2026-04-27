@@ -172,6 +172,24 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
         {/* Cart summary bar */}
         {selected.length > 0 && DROP_LIVE && (
           <div className="fixed bottom-0 inset-x-0 z-30 border-t border-primary/40 bg-background/95 backdrop-blur-md animate-reveal">
+            {limitError && (
+              <div
+                role="alert"
+                aria-live="polite"
+                className="container pt-2 -mb-1 flex items-center justify-between gap-3"
+              >
+                <p className="font-stamp uppercase text-[11px] tracking-widest text-destructive">
+                  ⚠ {limitError}
+                </p>
+                <button
+                  onClick={() => setLimitError(null)}
+                  className="text-destructive/80 hover:text-destructive text-xs font-stamp uppercase tracking-widest"
+                  aria-label="Dismiss error"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
             <div className="container py-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 overflow-x-auto scrollbar-outlaw">
                 {selected.map((i) => (
