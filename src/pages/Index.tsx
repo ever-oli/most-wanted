@@ -6,6 +6,7 @@ import { Ethos } from "@/components/Ethos";
 import { GradingSystem } from "@/components/GradingSystem";
 import { HowItWorks } from "@/components/HowItWorks";
 import { MysteryGrid } from "@/components/MysteryGrid";
+import { SocialFeeds } from "@/components/SocialFeeds";
 import { Footer } from "@/components/Footer";
 import { SoldOutOverlay } from "@/components/SoldOutOverlay";
 
@@ -23,6 +24,7 @@ const Index = () => {
         <HowItWorks />
         <MysteryGrid onAllSold={() => setAllSold(true)} />
       </main>
+      <SocialFeeds />
       <Footer />
       {allSold && <SoldOutOverlay />}
     </div>
