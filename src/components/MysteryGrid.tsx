@@ -44,6 +44,8 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
       return;
     }
     if (selected.length >= MAX_CART_TOTAL) {
+      const msg = `Max ${MAX_CART_TOTAL} squares per order. Remove one to add another.`;
+      setLimitError(msg);
       toast.error("Limit reached. Leave some for the rest of the hunters.", {
         description: "Reach out for wholesale services.",
         className: "font-stamp",
@@ -51,12 +53,15 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
       return;
     }
     if ((tierCounts[sq.tier] ?? 0) >= TIERS[sq.tier].maxPerOrder) {
-      toast.error(`Max ${TIERS[sq.tier].maxPerOrder} ${sq.tier} squares per order.`, {
+      const msg = `Max ${TIERS[sq.tier].maxPerOrder} ${sq.tier} squares per order.`;
+      setLimitError(msg);
+      toast.error(msg, {
         description: "Reach out for wholesale services.",
         className: "font-stamp",
       });
       return;
     }
+    setLimitError(null);
     setSelected((prev) => [...prev, sq.index]);
     setActiveSquare(null);
     toast.success(`${sq.tier} square locked in.`, {
@@ -67,6 +72,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
 
   const removeFromCart = (idx: number) => {
     setSelected((prev) => prev.filter((i) => i !== idx));
+    setLimitError(null);
   };
 
   const cartTotal = selected.reduce((sum, i) => sum + TIERS[grid[i].tier].price, 0);
