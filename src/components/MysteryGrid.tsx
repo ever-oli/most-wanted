@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE } from "@/lib/drop-config";
+import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE, DROP_NAME, DROP_SUBTITLE, GOLDEN_SQUARES } from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
 import { VaultCountdown } from "./VaultCountdown";
@@ -23,7 +23,7 @@ interface SquareProps {
 import React from "react";
 
 const GridSquare = React.memo(
-  ({ sq, isSelected, isRevealed, onTap, onHover, focused }: SquareProps) => {
+  ({ sq, isSelected, isRevealed, onTap, onHover, focused, isGolden }: SquareProps & { isGolden: boolean }) => {
     const tierColor = sq.tier === "EXO" ? "bg-tier-exo" : "bg-tier-aaa";
     return (
       <button
@@ -40,12 +40,13 @@ const GridSquare = React.memo(
           sq.sold && "bg-sold text-foreground/40 cursor-not-allowed border-border",
           !sq.sold && !isRevealed && "bg-muted hover:bg-muted-foreground/20 text-transparent",
           !sq.sold && isRevealed && tierColor + " text-background",
-          isSelected && "ring-2 ring-primary ring-offset-1 ring-offset-background animate-pulse-red motion-reduce:animate-none"
+          isSelected && "ring-2 ring-primary ring-offset-1 ring-offset-background animate-pulse-red motion-reduce:animate-none",
+          isGolden && !sq.sold && "shadow-[0_0_12px_hsl(var(--tan)/0.4)] border-tan/60"
         )}
         aria-label={
           sq.sold
             ? `Square ${sq.index + 1} sold`
-            : `Square ${sq.index + 1}, tier ${sq.tier}, $${TIERS[sq.tier].price}`
+            : `Square ${sq.index + 1}, tier ${sq.tier}, $${TIERS[sq.tier].price}${isGolden ? ', golden square' : ''}`
         }
         aria-pressed={isSelected}
       >
@@ -59,10 +60,15 @@ const GridSquare = React.memo(
           <span className="block leading-none text-foreground/60">{sq.index + 1}</span>
         )}
 
+        {/* Golden indicator */}
+        {isGolden && !sq.sold && (
+          <span className="absolute top-0.5 right-0.5 h-1 w-1 bg-tan rounded-full" />
+        )}
+
         {/* Hover tooltip */}
         {!sq.sold && isRevealed && (
           <span className="absolute -top-6 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-background border border-border text-[8px] text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 hidden sm:block">
-            {sq.tier} · ${TIERS[sq.tier].price}
+            {sq.tier} · ${TIERS[sq.tier].price}{isGolden ? ' · GOLDEN' : ''}
           </span>
         )}
       </button>
@@ -201,10 +207,13 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
     <section id="vault" className="relative scroll-mt-24">
       <div className="container py-12 md:py-16">
         <div className="text-center mb-8">
-          <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— The Vault —</p>
+          <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— {DROP_NAME} —</p>
           <h2 className="font-outlaw text-3xl md:text-5xl text-foreground text-shadow-outlaw mb-3">
             Pick Your <span className="text-primary">Square</span>
           </h2>
+          <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto font-stamp italic">
+            {DROP_SUBTITLE}
+          </p>
           <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
             Tap once to reveal the tier. Tap again to lock it in. Max {MAX_CART_TOTAL} per order.
           </p>
@@ -263,6 +272,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
                   onTap={handleTap}
                   onHover={(idx) => setRevealed((p) => new Set(p).add(idx))}
                   focused={focusedIndex === sq.index}
+                  isGolden={GOLDEN_SQUARES.includes(sq.index)}
                 />
               ))}
             </div>
@@ -304,6 +314,17 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
                     {grid[i].tier} #{i + 1} ✕
                   </button>
                 ))}
+                <button
+                  onClick={() => {
+                    const squares = selected.map(i => `#${i + 1} (${grid[i].tier})`).join(', ');
+                    const text = `Locked in: ${squares} — ${DROP_NAME}. The vault awaits.`;
+                    navigator.clipboard.writeText(text).then(() => toast.success('Copied to clipboard'));
+                  }}
+                  className="shrink-0 px-2 py-1 border border-border/60 text-[10px] font-stamp uppercase tracking-widest text-muted-foreground hover:text-foreground transition-smooth focus-outlaw"
+                  aria-label="Share claimed squares"
+                >
+                  Share
+                </button>
               </div>
               <button
                 onClick={() => {

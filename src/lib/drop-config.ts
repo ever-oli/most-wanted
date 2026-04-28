@@ -25,6 +25,38 @@ export const DROP_LIVE = false;
 /** Target date/time for the next drop. Used by the countdown on the sealed vault. */
 export const NEXT_DROP_AT = new Date("2026-05-15T19:00:00-04:00");
 
+/** Drop identity */
+export const DROP_NAME = "Red River Rivalry";
+export const DROP_SUBTITLE = "Two growers. One border. The best of both sides.";
+
+/** Operators - aliases and regions for story pages */
+export const OPERATORS = [
+  { alias: "The Dallas Architect", region: "North Texas" },
+  { alias: "The OKC Ghost", region: "Moore, Oklahoma" },
+];
+
+/** Golden squares - 3 random positions that get bonus treatment */
+export const GOLDEN_SQUARES = [42, 128, 201]; // Deterministic positions for this drop
+
+/** Wanted List clues - pre-drop hints, no photos */
+export const WANTED_LIST_CLUES = [
+  "One side brings the heat from the metroplex concrete.",
+  "The other side brings the quiet from the Oklahoma plains.",
+  "The rivalry runs deeper than the Red River itself.",
+  "Small batch. Two operators. No overlap.",
+  "Sealed until your door."];
+
+/** Drop story - the backstory that appears on private pages */
+export const DROP_STORY = {
+  title: "Red River Rivalry",
+  body: `Two operators. One border. The Red River Rivalry drop brings together the best of both sides.
+
+The Dallas Architect has been perfecting solventless extraction in the metroplex for years, pushing potency through precision. The OKC Ghost works the plains outside Moore, favoring patience over flash, letting the plant speak.
+
+They do not agree on method. They agree on results.`,
+  notes: "2018 Farm Bill compliant. Lab tested. Sealed fresh."
+};
+
 export const TIERS: Record<Tier, TierConfig> = {
   EXO: {
     id: "EXO",

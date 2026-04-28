@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Square, TIERS } from "@/lib/drop-config";
-import { Package, Sparkles, X } from "lucide-react";
+import { Square, TIERS, OPERATORS } from "@/lib/drop-config";
+import { Package, Sparkles, X, MapPin } from "lucide-react";
 
 interface Props {
   square: Square | null;
@@ -9,9 +9,15 @@ interface Props {
   alreadyInCart: boolean;
 }
 
+/** Deterministic operator assignment based on square index */
+function getOperator(squareIndex: number) {
+  return OPERATORS[squareIndex % OPERATORS.length];
+}
+
 export const CheckoutSheet = ({ square, onClose, onConfirm, alreadyInCart }: Props) => {
   const open = !!square;
   const tier = square ? TIERS[square.tier] : null;
+  const operator = square ? getOperator(square.index) : null;
 
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
@@ -41,6 +47,14 @@ export const CheckoutSheet = ({ square, onClose, onConfirm, alreadyInCart }: Pro
                   </span>
                   <span className="font-stamp text-foreground">{tier.weight} Mystery Cultivar</span>
                 </div>
+                {operator && (
+                  <div className="flex justify-between items-center py-3 border-b border-border">
+                    <span className="text-muted-foreground font-stamp uppercase text-xs tracking-wider flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5" /> Hunted By
+                    </span>
+                    <span className="font-stamp text-foreground">{operator.alias} · {operator.region}</span>
+                  </div>
+                )}
                 <div className="flex items-start gap-2 py-2 text-xs text-muted-foreground italic">
                   <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                   <span>1 of 3 variants. Sealed until it hits your door.</span>
