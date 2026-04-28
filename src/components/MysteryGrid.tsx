@@ -1,9 +1,10 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE, DROP_NAME, DROP_SUBTITLE, GOLDEN_SQUARES } from "@/lib/drop-config";
+import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE, DROP_NAME, DROP_SUBTITLE, GOLDEN_SQUARES, RECRUITMENT_MODE } from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
 import { VaultCountdown } from "./VaultCountdown";
+import { WantedListRecruitment } from "./WantedListRecruitment";
 import { Lock } from "lucide-react";
 
 interface Props {
@@ -265,7 +266,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
             </div>
 
             {/* Countdown + notify-me overlay when vault is sealed */}
-            {!DROP_LIVE && <VaultCountdown />}
+            {!DROP_LIVE && (RECRUITMENT_MODE ? <WantedListRecruitment /> : <VaultCountdown />)}
           </div>
         </div>
 

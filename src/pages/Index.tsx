@@ -11,6 +11,7 @@ import { MysteryGrid } from "@/components/MysteryGrid";
 import { SocialFeeds } from "@/components/SocialFeeds";
 import { Footer } from "@/components/Footer";
 import { WantedList } from "@/components/WantedList";
+import { SoldOutOverlay } from "@/components/SoldOutOverlay";
 
 const Index = () => {
   const [allSold, setAllSold] = useState(false);
