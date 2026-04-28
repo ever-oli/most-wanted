@@ -8,7 +8,7 @@ const FAQS = [
   },
   {
     q: "What's the difference between EXO and AAA?",
-    a: "EXO ($100) is the peak of what we secure — heavy hitters reserved for serious connoisseurs. AAA ($65) is still premium, small-batch flower from trusted legacy operators. Different pedigrees, same standard.",
+    a: "EXO ($140) is the peak of what we secure — heavy hitters reserved for serious connoisseurs. AAA ($90) is still premium, small-batch flower from trusted legacy operators. Different pedigrees, same standard.",
   },
   {
     q: "Is this legal in my state?",
