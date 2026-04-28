@@ -41,17 +41,22 @@ export const AnchorNav = () => {
   return (
     <nav
       aria-label="Section navigation"
-      className="sticky top-[32px] z-30 border-b border-border/60 bg-background/85 backdrop-blur-md"
+      className="sticky top-[32px] z-30 border-b border-border/60 bg-background/90 backdrop-blur-md"
     >
-      <div className="container">
-        <ul className="flex gap-1 sm:gap-2 overflow-x-auto scrollbar-outlaw py-2">
+      <div className="container relative px-0 sm:px-4">
+        {/* Right-edge fade hint for horizontal scroll on mobile */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent sm:hidden"
+        />
+        <ul className="flex gap-0.5 sm:gap-2 overflow-x-auto scrollbar-outlaw py-2 px-3 sm:px-0 scroll-smooth snap-x">
           {LINKS.map((l) => (
-            <li key={l.id} className="shrink-0">
+            <li key={l.id} className="shrink-0 snap-start">
               <a
                 href={`#${l.id}`}
                 onClick={(e) => handleClick(e, l.id)}
                 className={cn(
-                  "px-3 py-1.5 font-stamp uppercase text-[11px] tracking-[0.2em] transition-smooth border border-transparent",
+                  "block px-2.5 sm:px-3 py-1.5 font-stamp uppercase text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] transition-smooth border border-transparent whitespace-nowrap",
                   active === l.id
                     ? "text-primary border-primary/50 bg-primary/5"
                     : "text-muted-foreground hover:text-foreground",
