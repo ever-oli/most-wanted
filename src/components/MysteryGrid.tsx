@@ -96,19 +96,6 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const claimedCount = soldCount + selected.length;
   const progressPct = Math.min((claimedCount / grid.length) * 100, 100);
 
-  /* ===== Reveal All toggle ===== */
-  useEffect(() => {
-    if (revealAll) {
-      setRevealed(new Set(grid.filter((s) => !s.sold).map((s) => s.index)));
-    } else {
-      setRevealed((prev) => {
-        const next = new Set(prev);
-        grid.filter((s) => !s.sold && !selected.includes(s.index)).forEach((s) => next.delete(s.index));
-        return next;
-      });
-    }
-  }, [revealAll, grid, selected]);
-
   const handleTap = useCallback(
     (sq: Square) => {
       if (sq.sold) return;
