@@ -61,7 +61,7 @@ export const TIERS: Record<Tier, TierConfig> = {
   EXO: {
     id: "EXO",
     label: "EXO",
-    price: 100,
+    price: 140,
     weight: "7g jar",
     count: 102,
     maxPerOrder: 2,
@@ -71,7 +71,7 @@ export const TIERS: Record<Tier, TierConfig> = {
   AAA: {
     id: "AAA",
     label: "AAA",
-    price: 65,
+    price: 90,
     weight: "7g jar",
     count: 154,
     maxPerOrder: 2,
