@@ -266,7 +266,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
             </div>
 
             {/* Countdown + notify-me overlay when vault is sealed */}
-            {!DROP_LIVE && <VaultCountdown />}
+            {!DROP_LIVE && (RECRUITMENT_MODE ? <WantedListRecruitment /> : <VaultCountdown />)}
           </div>
         </div>
 
