@@ -4,7 +4,6 @@ import { PromoBanner } from "@/components/PromoBanner";
 import { AnchorNav } from "@/components/AnchorNav";
 import { Hero } from "@/components/Hero";
 import { Ethos } from "@/components/Ethos";
-import { Testimonials } from "@/components/Testimonials";
 import { GradingSystem } from "@/components/GradingSystem";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
@@ -26,7 +25,6 @@ const Index = () => {
         <section id="ethos" className="scroll-mt-24">
           <Ethos />
         </section>
-        <Testimonials />
         <section id="grading" className="scroll-mt-24">
           <GradingSystem />
         </section>

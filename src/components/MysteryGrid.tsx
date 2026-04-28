@@ -4,7 +4,7 @@ import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_IN
 import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
 import { VaultCountdown } from "./VaultCountdown";
-import { Lock, Eye, EyeOff } from "lucide-react";
+import { Lock } from "lucide-react";
 
 interface Props {
   onAllSold?: () => void;
@@ -77,7 +77,6 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const [activeSquare, setActiveSquare] = useState<Square | null>(null);
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [limitError, setLimitError] = useState<string | null>(null);
-  const [revealAll, setRevealAll] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -236,18 +235,6 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               style={{ width: `${progressPct}%` }}
             />
           </div>
-        </div>
-
-        {/* Reveal All toggle */}
-        <div className="max-w-2xl mx-auto flex items-center justify-end gap-2 mb-3">
-          <button
-            onClick={() => setRevealAll((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-[10px] font-stamp uppercase tracking-widest text-muted-foreground hover:text-foreground transition-smooth focus-outlaw px-2 py-1 border border-border/60 hover:border-border"
-            aria-pressed={revealAll}
-          >
-            {revealAll ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-            {revealAll ? "Hide All" : "Reveal All"}
-          </button>
         </div>
 
         {/* Grid container */}
