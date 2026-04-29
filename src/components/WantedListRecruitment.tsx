@@ -2,57 +2,88 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Bell, Target } from "lucide-react";
 import { RECRUITMENT_GOAL } from "@/lib/drop-config";
+import { supabase } from "@/integrations/supabase/client";
 
-const NOTIFY_KEY = "mwp-notify-list";
-/** Demo seed so the tally doesn't read 0 on day one. Replace with real backend count. */
+const MINE_KEY = "mwp-wanted-list:mine";
+/** Demo seed so the tally never reads 0 — added on top of real DB count. */
 const DEMO_BASE_COUNT = 47;
 
 export const WantedListRecruitment = () => {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [count, setCount] = useState(DEMO_BASE_COUNT);
+  const [submitting, setSubmitting] = useState(false);
 
+  // Load live count + remember if this device already signed
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(NOTIFY_KEY);
-      const list: string[] = raw ? JSON.parse(raw) : [];
-      setCount(DEMO_BASE_COUNT + list.length);
-      // If this device already signed up, reflect it.
-      const mine = localStorage.getItem(NOTIFY_KEY + ":mine");
-      if (mine) setSubscribed(true);
-    } catch {
-      /* ignore */
-    }
+    if (localStorage.getItem(MINE_KEY)) setSubscribed(true);
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "wanted-list-signup",
+          { method: "GET" }
+        );
+        if (cancelled) return;
+        if (!error && data && typeof data.count === "number") {
+          setCount(DEMO_BASE_COUNT + data.count);
+        }
+      } catch {
+        /* keep seed count on failure */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const remaining = Math.max(0, RECRUITMENT_GOAL - count);
   const pct = Math.min(100, (count / RECRUITMENT_GOAL) * 100);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+
     const trimmed = email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
       toast.error("Enter a valid email.", { className: "font-stamp" });
       return;
     }
+
+    setSubmitting(true);
     try {
-      const raw = localStorage.getItem(NOTIFY_KEY);
-      const list: string[] = raw ? JSON.parse(raw) : [];
-      if (!list.includes(trimmed)) {
-        list.push(trimmed);
-        localStorage.setItem(NOTIFY_KEY, JSON.stringify(list));
-        setCount(DEMO_BASE_COUNT + list.length);
+      const { data, error } = await supabase.functions.invoke(
+        "wanted-list-signup",
+        { body: { email: trimmed } }
+      );
+
+      if (error || !data?.ok) {
+        toast.error("Could not sign you on. Try again.", {
+          className: "font-stamp",
+        });
+        return;
       }
-      localStorage.setItem(NOTIFY_KEY + ":mine", "1");
+
+      if (typeof data.count === "number") {
+        setCount(DEMO_BASE_COUNT + data.count);
+      }
+      localStorage.setItem(MINE_KEY, "1");
+      setSubscribed(true);
+      setEmail("");
+
+      toast.success(
+        data.duplicate ? "You're already on the list." : "You're on the wanted list.",
+        {
+          description: "Once 256 hunters sign on, the countdown begins.",
+          className: "font-stamp",
+        }
+      );
     } catch {
-      /* ignore */
+      toast.error("Network error. Try again.", { className: "font-stamp" });
+    } finally {
+      setSubmitting(false);
     }
-    setSubscribed(true);
-    setEmail("");
-    toast.success("You're on the wanted list.", {
-      description: "Once 256 hunters sign on, the countdown begins.",
-      className: "font-stamp",
-    });
   };
 
   return (
@@ -120,10 +151,11 @@ export const WantedListRecruitment = () => {
               />
               <button
                 type="submit"
-                className="shrink-0 px-3 sm:px-4 py-2 bg-primary hover:bg-primary-glow text-primary-foreground font-stamp uppercase text-[10px] sm:text-xs tracking-widest shadow-[var(--shadow-outlaw)] transition-smooth flex items-center gap-1.5"
+                disabled={submitting}
+                className="shrink-0 px-3 sm:px-4 py-2 bg-primary hover:bg-primary-glow text-primary-foreground font-stamp uppercase text-[10px] sm:text-xs tracking-widest shadow-[var(--shadow-outlaw)] transition-smooth flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Target className="h-3.5 w-3.5" />
-                Sign On
+                {submitting ? "Signing…" : "Sign On"}
               </button>
             </div>
           </form>
