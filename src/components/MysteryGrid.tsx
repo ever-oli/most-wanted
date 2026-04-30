@@ -265,8 +265,17 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               ))}
             </div>
 
-            {/* Countdown + notify-me overlay when vault is sealed */}
-            {!DROP_LIVE && (RECRUITMENT_MODE ? <WantedListRecruitment /> : <VaultCountdown />)}
+            {/* Countdown overlay when vault is sealed (recruitment lives above as its own section) */}
+            {!DROP_LIVE && !RECRUITMENT_MODE && <VaultCountdown />}
+            {!DROP_LIVE && RECRUITMENT_MODE && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center p-4 pointer-events-none">
+                <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
+                <p className="relative font-stamp uppercase text-[11px] tracking-[0.3em] text-tan/80 text-center">
+                  ★ Vault Sealed ★<br />
+                  <span className="text-[10px] text-muted-foreground">Sign the wanted list above to arm it</span>
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
