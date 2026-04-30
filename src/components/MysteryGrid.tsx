@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
 import { VaultCountdown } from "./VaultCountdown";
 import { WantedListRecruitment } from "./WantedListRecruitment";
+import { PosterFrame } from "./PosterFrame";
 import { Lock } from "lucide-react";
 
 interface Props {
