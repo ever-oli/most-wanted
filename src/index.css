@@ -155,7 +155,7 @@
   from { transform: translateY(110%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
-.animate-cart-slide { animation: cart-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-cart-slide { animation: cart-slide-up 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
 
 @keyframes marquee {
   from { transform: translateX(0); }
@@ -164,9 +164,30 @@
 .animate-marquee { animation: marquee 40s linear infinite; }
 .animate-marquee:hover { animation-play-state: paused; }
 
+@keyframes ember-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.6; }
+  100% { transform: translate3d(var(--ember-x, 20px), -120vh, 0) scale(0.4); opacity: 0; }
+}
+.animate-ember { animation: ember-drift var(--ember-dur, 14s) linear infinite; animation-delay: var(--ember-delay, 0s); }
+
+@keyframes pulse-underline {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.9; }
+}
+.animate-pulse-underline { animation: pulse-underline 3s ease-in-out infinite; }
+
 /* ===== Custom crosshair cursor for the vault grid ===== */
 .cursor-crosshair-outlaw {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><circle cx='14' cy='14' r='10' fill='none' stroke='%23D32F2F' stroke-width='1.5'/><line x1='14' y1='1' x2='14' y2='8' stroke='%23D32F2F' stroke-width='1.5'/><line x1='14' y1='20' x2='14' y2='27' stroke='%23D32F2F' stroke-width='1.5'/><line x1='1' y1='14' x2='8' y2='14' stroke='%23D32F2F' stroke-width='1.5'/><line x1='20' y1='14' x2='27' y2='14' stroke='%23D32F2F' stroke-width='1.5'/><circle cx='14' cy='14' r='1.5' fill='%23D32F2F'/></svg>") 14 14, crosshair;
+}
+
+/* ===== Site-wide outlaw cursor on interactive elements (desktop only) ===== */
+@media (hover: hover) and (pointer: fine) {
+  a, button, [role="button"], input[type="submit"] {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'><circle cx='11' cy='11' r='3' fill='%23D32F2F'/><circle cx='11' cy='11' r='8' fill='none' stroke='%23D9B380' stroke-width='1' opacity='0.7'/></svg>") 11 11, pointer;
+  }
 }
 
 /* ===== Outlaw focus rings for keyboard users ===== */
