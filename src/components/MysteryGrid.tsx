@@ -1,9 +1,11 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE, DROP_NAME, DROP_SUBTITLE, GOLDEN_SQUARES } from "@/lib/drop-config";
+import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE, DROP_NAME, DROP_SUBTITLE, GOLDEN_SQUARES, RECRUITMENT_MODE } from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
 import { VaultCountdown } from "./VaultCountdown";
+import { WantedListRecruitment } from "./WantedListRecruitment";
+import { PosterFrame } from "./PosterFrame";
 import { Lock } from "lucide-react";
 
 interface Props {
@@ -236,6 +238,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
         {/* Grid container */}
         <div className="relative mx-auto max-w-2xl">
           <div className="absolute -inset-4 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 blur-2xl pointer-events-none" />
+          <PosterFrame>
           <div className="relative border border-border bg-card/60 p-2 sm:p-3 shadow-[var(--shadow-deep)] overflow-x-auto scrollbar-outlaw cursor-crosshair-outlaw">
             <div
               ref={gridRef}
@@ -264,9 +267,19 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               ))}
             </div>
 
-            {/* Countdown + notify-me overlay when vault is sealed */}
-            {!DROP_LIVE && <VaultCountdown />}
+            {/* Countdown overlay when vault is sealed (recruitment lives above as its own section) */}
+            {!DROP_LIVE && !RECRUITMENT_MODE && <VaultCountdown />}
+            {!DROP_LIVE && RECRUITMENT_MODE && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center p-4 pointer-events-none">
+                <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
+                <p className="relative font-stamp uppercase text-[11px] tracking-[0.3em] text-tan/80 text-center">
+                  ★ Vault Sealed ★<br />
+                  <span className="text-[10px] text-muted-foreground">Sign the wanted list above to arm it</span>
+                </p>
+              </div>
+            )}
           </div>
+          </PosterFrame>
         </div>
 
         {/* Cart summary bar */}

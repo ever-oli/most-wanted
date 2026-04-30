@@ -19,6 +19,15 @@ export const Hero = () => {
     return () => clearInterval(id);
   }, []);
 
+  // Pre-computed ember positions/timings (stable across renders)
+  const embers = Array.from({ length: 18 }, (_, i) => ({
+    left: `${(i * 53) % 100}%`,
+    delay: `${(i * 0.7) % 12}s`,
+    dur: `${10 + (i % 7)}s`,
+    x: `${(i % 2 ? 1 : -1) * (15 + (i * 3) % 30)}px`,
+    size: i % 4 === 0 ? 3 : 2,
+  }));
+
   return (
     <section className="relative overflow-hidden grain">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(0_60%_15%/0.5),_transparent_60%)] pointer-events-none" />
@@ -29,6 +38,23 @@ export const Hero = () => {
           backgroundSize: "200px 200px",
         }}
       />
+      {/* Drifting embers */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
+        {embers.map((e, i) => (
+          <span
+            key={i}
+            className="absolute bottom-0 rounded-full bg-primary/60 blur-[1px] animate-ember motion-reduce:hidden"
+            style={{
+              left: e.left,
+              width: e.size,
+              height: e.size,
+              ["--ember-delay" as string]: e.delay,
+              ["--ember-dur" as string]: e.dur,
+              ["--ember-x" as string]: e.x,
+            }}
+          />
+        ))}
+      </div>
       <div className="container relative pt-10 pb-16 md:pt-16 md:pb-24 text-center">
         <img src={logo} alt="Most Wanted Hemp Co." className="w-full max-w-md md:max-w-xl mx-auto mb-8 select-none" draggable={false} />
 

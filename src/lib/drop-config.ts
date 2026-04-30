@@ -22,6 +22,16 @@ export const MAX_CART_TOTAL = 3;
 /** Set to false to show a blurred preview with a "Coming Soon" overlay. */
 export const DROP_LIVE = false;
 
+/**
+ * Recruitment mode: for the INITIAL drop only.
+ * When true, the sealed vault shows a "Wanted List" recruitment panel
+ * (tally toward 256 signups) instead of a countdown.
+ * Flip to false once 256 is hit — countdown takes over for the actual drop.
+ * After the initial drop, future drops use normal cadence (countdown only).
+ */
+export const RECRUITMENT_MODE = true;
+export const RECRUITMENT_GOAL = 256;
+
 /** Target date/time for the next drop. Used by the countdown on the sealed vault. */
 export const NEXT_DROP_AT = new Date("2026-05-15T19:00:00-04:00");
 
