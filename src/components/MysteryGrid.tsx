@@ -238,6 +238,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
         {/* Grid container */}
         <div className="relative mx-auto max-w-2xl">
           <div className="absolute -inset-4 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 blur-2xl pointer-events-none" />
+          <PosterFrame>
           <div className="relative border border-border bg-card/60 p-2 sm:p-3 shadow-[var(--shadow-deep)] overflow-x-auto scrollbar-outlaw cursor-crosshair-outlaw">
             <div
               ref={gridRef}
