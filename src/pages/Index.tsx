@@ -13,7 +13,6 @@ import { SocialFeeds } from "@/components/SocialFeeds";
 import { Footer } from "@/components/Footer";
 import { WantedList } from "@/components/WantedList";
 import { SoldOutOverlay } from "@/components/SoldOutOverlay";
-import { StampedDivider } from "@/components/StampedDivider";
 import { WantedListRecruitment } from "@/components/WantedListRecruitment";
 import { DROP_LIVE, RECRUITMENT_MODE } from "@/lib/drop-config";
 
@@ -28,19 +27,15 @@ const Index = () => {
       <AnchorNav />
       <main>
         <Hero />
-        <StampedDivider label="Ethos" />
         <section id="ethos" className="scroll-mt-24">
           <Ethos />
         </section>
-        <StampedDivider label="Grading" />
         <section id="grading" className="scroll-mt-24">
           <GradingSystem />
         </section>
-        <StampedDivider label="How It Works" />
         <section id="how-it-works" className="scroll-mt-24">
           <HowItWorks />
         </section>
-        <StampedDivider label="FAQ" />
         <FAQ />
         <WantedList />
 
@@ -53,10 +48,8 @@ const Index = () => {
           </section>
         )}
 
-        <StampedDivider label="The Vault" />
         <MysteryGrid onAllSold={() => setAllSold(true)} />
       </main>
-      <StampedDivider label="The Feed" />
       <SocialFeeds />
       <Footer />
       {allSold && <SoldOutOverlay />}
