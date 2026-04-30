@@ -279,6 +279,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               </div>
             )}
           </div>
+          </PosterFrame>
         </div>
 
         {/* Cart summary bar */}
