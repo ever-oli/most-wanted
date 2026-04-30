@@ -91,9 +91,13 @@ export const WantedListRecruitment = ({ overlay = true }: Props = {}) => {
     }
   };
 
+  const wrapperClass = overlay
+    ? "absolute inset-0 z-10 flex items-center justify-center p-4"
+    : "relative w-full flex items-center justify-center p-4";
+
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
+    <div className={wrapperClass}>
+      {overlay && <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />}
       <div className="relative z-20 w-full max-w-md text-center px-6 py-8 border border-primary/50 bg-card/95 shadow-[var(--shadow-outlaw)] rounded-lg">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/40 bg-primary/10 mb-4">
           <Target className="h-3.5 w-3.5 text-primary" />
