@@ -213,6 +213,11 @@
 [data-sonner-toaster] [data-sonner-toast][data-type="success"] {
   border-color: hsl(var(--tan) / 0.5) !important;
 }
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] [data-title]::before {
+  content: "★ ";
+  color: hsl(var(--tan));
+  margin-right: 2px;
+}
 [data-sonner-toaster] [data-sonner-toast] [data-description] {
   color: hsl(var(--muted-foreground)) !important;
   text-transform: none;
