@@ -1,107 +1,98 @@
-# Ways To Level Up The Site (Single-Page Preserved)
+# Polish Pass — Inspired by headyterppusher.com (single-page preserved)
 
-The one-page scroll stays. Everything below either adds depth *within* the scroll or polishes what's already there. Pick any combo — each item is independent.
+After walking through the live site and HTP, here's what HTP does well that we can borrow without copying the look:
 
----
+- **Cinematic illustrated background** behind the age gate (theirs is Calvin & Hobbes art) — sets a *world*, not a page.
+- **Always-running marquee strip** under the header repeating their value prop ("Premium Legal Cannabis | Great Prices | Fast Service").
+- **Playful, loose welcome card** with handwritten-feel headline instead of corporate "Age Verification".
+- **Custom cursor** + tactile micro-interactions everywhere.
+- **Strong product imagery** as the hero — they trust their packaging to do the work.
 
-## 1. Sticky Anchor Nav (preserves single-page feel)
-
-Thin bar under the promo banner with smooth-scroll links: **Ethos · Grading · How It Works · The Vault · Feed**. On mobile it collapses to a horizontal scroll strip. Highlights the active section as you scroll.
-
-**Why:** Helps returning visitors jump to the grid without losing the scroll-story feel.
-
----
-
-## 2. Countdown / Next Drop Timer
-
-Since `DROP_LIVE = false`, replace the static "Coming Soon" card on the grid with a live countdown (days · hrs · min · sec) to the next drop. Also add a small "Notify Me" email capture (stored locally for now, wired to Lovable Cloud later if you want real notifications).
-
-**Why:** Turns the dead-state vault into a FOMO hook instead of a wall.
+Our site already has the outlaw bones; we just need more *atmosphere* and *texture*. Below is what I'd ship — pick any subset.
 
 ---
 
-## 3. FAQ Accordion Section
+## 1. Cinematic Age Gate (high impact)
 
-New section between **How It Works** and **The Vault**. 6–8 questions:
-- What's actually in the pack?
-- Is this legal in my state?
-- Shipping times / discreet packaging?
-- Refund policy on mystery drops?
-- What's the difference between EXO and AAA?
-- When's the next drop?
-- How do I reach out for wholesale?
+Replace the current dim blurred background with a true scene:
 
-Uses the existing `accordion` shadcn component — fits the outlaw aesthetic with minimal styling work.
+- Full-bleed illustrated/photographic background behind the modal — think dusty saloon interior, desert highway at dusk, or a wanted-poster wall. Generated once, stored in `/public`.
+- Heavy vignette + grain overlay so the modal still pops.
+- Modal itself: looser, slightly off-axis (rotated `-1deg`) like a pinned-up poster, with torn-paper edges (SVG mask).
+- Replace "I'M 21 — ENTER" / "EXIT" with stamp-style buttons: **"RIDE IN"** / **"TURN BACK"**.
+- Fade-out already exists — keep it, add a brief "door opening" wipe.
 
-**Why:** Kills checkout hesitation and reduces DM load.
+## 2. Marquee Strip Under Promo Banner
 
----
+Right under the red "FREE SHIPPING" banner, add a thin tan-on-black marquee:
 
-## 4. Testimonials / Press Strip
+```text
+★ SMALL-BATCH DROPS  ★  SEALED UNTIL YOUR DOOR  ★  256 SQUARES, 256 OUTLAWS  ★  CONCIERGE TO THE FINEST  ★
+```
 
-Horizontal marquee or 3-card grid under Ethos: quotes from operators, customer IG screenshots, or "as seen on" logos. Can start with 3 placeholder quotes you fill in.
+Reuses the existing `animate-marquee` keyframe. Pauses on hover. Hidden when `prefers-reduced-motion`.
 
-**Why:** Social proof is missing entirely — big gap for a premium drop brand.
+## 3. Custom Crosshair Cursor — Site-Wide (currently grid-only)
 
----
+`cursor-crosshair-outlaw` already exists for the grid. Apply a softer variant globally on `html` and swap to a "lock" cursor on interactive elements (buttons, links). Big perceived-quality bump, ~10 lines of CSS.
 
-## 5. Grid UX Polish
+## 4. Hero Atmosphere
 
-- **Hover preview on desktop**: already partially there, but also show tier + price in a floating tooltip.
-- **Keyboard nav**: arrow keys move focus across the grid, Enter reveals/locks.
-- **"Reveal All" toggle**: optional switch for users who don't want the mystery-click mechanic.
-- **Progress bar**: visible "X of 256 claimed" bar above the grid, not just in the legend.
-- **Sold animation**: when a square is claimed, brief pulse + stamp animation.
+- Add a **dust/ember particle layer** drifting upward behind the star logo (CSS-only, ~20 floating dots with random delays, `prefers-reduced-motion` guard).
+- The animated tagline rotator from the original plan ("Small-batch." → "Legacy operators." → "Sealed until your door.") — already partially scaffolded in `index.css` (`animate-tagline-fade`), wire it up.
+- Add a subtle **scroll cue** chevron at the bottom of the hero (`animate-scroll-cue` already exists).
 
----
+## 5. Wanted-List Card — Reframe the Empty State
 
-## 6. Hero Enhancements
+Currently the recruitment card sits *on top of* the locked grid which looks busy. Better:
 
-- **Animated tagline rotator** under the main headline ("Small-batch." → "Legacy operators." → "Sealed until your door.")
-- **Scroll cue** (subtle bouncing chevron) so users know there's more below the fold.
-- **Parallax grain layer** on the background for depth.
+- Move the recruitment card *above* the grid as its own framed section ("Recruiting Hunters: 0 / 256 signed on").
+- Below it, the grid sits dimmed at ~40% opacity with a small "Vault locks when 256 sign on" caption — implies progression.
+- Once 256 hit, grid lights up and countdown begins (already planned).
 
----
+## 6. Wanted-Poster Frame Around the Grid
 
-## 7. SEO & Social Sharing
+Wrap `.MysteryGrid` in an SVG-bordered frame styled like an old-west wanted poster — torn edges, faux-folds in the corners, "REWARD" stamp top-left. Pure decoration, no behavior change.
 
-- Title is currently `Most Wanted  — Concierge Hemp Drops` (double space). Clean up.
-- Add `<link rel="canonical">`, `<meta name="robots">`, proper `og:url`, `og:site_name`.
-- Add `favicon.ico` + apple-touch-icon (currently using default Lovable favicon).
-- JSON-LD structured data for `Organization` + `Product` so Google shows rich results.
+## 7. Section Dividers — Stamped
 
----
+Replace the plain section gaps with thin stamped dividers (e.g., `★ ─────── ETHOS ─────── ★`) using `font-stamp`. Adds rhythm without adding scrolling sections.
 
-## 8. Performance & Accessibility
+## 8. Footer Upgrade (mentioned in old plan, still missing)
 
-- Grid currently renders 256 buttons every render — memoize square components so only the tapped one re-renders.
-- Add `prefers-reduced-motion` guard on the `animate-flicker` promo banner (can trigger migraines).
-- Add focus rings on all interactive elements for keyboard users.
-- Lazy-load the Curator social feed script (only when the section scrolls into view) — currently loads on mount, slowing first paint.
+- Quick-link column matching anchor nav
+- Newsletter signup (reuse the wanted-list edge function endpoint or add a separate `notify_me` table later)
+- Legal line: Terms · Privacy · Shipping · COA Lookup
+- "Made in [State] · Farm Bill compliant" stamp
 
----
+## 9. SEO + Favicon Cleanup (still outstanding)
 
-## 9. Footer Upgrade
+- Fix double-space in `<title>` in `index.html`
+- Add `og:url`, `og:site_name`, canonical link
+- Custom favicon (the wanted-star logo) replacing the default Lovable one
+- JSON-LD `Organization` schema
 
-Currently pretty sparse. Add:
-- Quick links column (same anchors as the nav)
-- Newsletter signup (single email input)
-- Legal: Terms · Privacy · Shipping Policy · COA lookup
-- Small "Made in [State]" or origin line for authenticity
+## 10. Micro-polish
+
+- Toast skinning is already there — add a tiny star icon prefix on success toasts.
+- Promo banner currently sticky at top — keep, but add a 1px tan underline that pulses faintly when promo is "live".
+- Cart bar slide easing tighten.
 
 ---
 
-## 10. Micro-interactions & Polish
+## Recommended first round
 
-- Toast styling: currently uses default sonner; skin it with outlaw red/tan.
-- Cart bar: add a subtle slide-up animation (already has `animate-reveal`, but tune easing).
-- Age gate: add a fade-out transition instead of instant removal.
-- Cursor: custom crosshair cursor over the grid (optional, adds a lot of character).
+If you only want one merge: **1 (cinematic age gate) + 2 (marquee) + 3 (cursor) + 5 (wanted-list reframe)**. That's the biggest *atmosphere* jump and directly mirrors what makes HTP feel cinematic — without adding any new pages or breaking the scroll-story.
 
----
+Tell me which numbers you want (e.g. "1, 2, 3, 5") and whether you want me to generate the age-gate background image (AI gen via Lovable AI) or use a CSS-only treatment.  
+  
+DO ALL TEN FUCK IT 
 
-## Recommended First Round
+## Technical notes
 
-If you want a high-impact pass in one shot, I'd do: **1 (nav) + 2 (countdown) + 3 (FAQ) + 7 (SEO cleanup)**. That's the biggest perceived-quality jump without touching Shopify or the single-page structure.
-
-Tell me which items you want (numbers are fine, e.g. "1, 2, 3, 7") and I'll build them.
+- All work stays inside existing components — no routing changes.
+- New animations all gated behind `prefers-reduced-motion` per existing pattern.
+- Custom cursor: SVG data URI in CSS, no asset.
+- Wanted-list reframe is a JSX reordering inside `Index.tsx` + tweaks to `MysteryGrid.tsx` (drop the embedded `<WantedListRecruitment/>`).
+- Age gate background: if AI-generated, write to `public/age-gate-bg.webp` (~150KB target, lazy-loaded).
+- No new dependencies.
