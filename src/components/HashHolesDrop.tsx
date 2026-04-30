@@ -16,7 +16,7 @@ export const HashHolesDrop = () => {
           </div>
           
           <h2 className="font-outlaw text-3xl sm:text-4xl md:text-5xl text-foreground mb-3">
-            Tsunami x Fidolx
+            Tsunami x Fideley
           </h2>
           <p className="font-outlaw text-xl sm:text-2xl text-primary tracking-wide">
             HASH HOLES
@@ -30,7 +30,7 @@ export const HashHolesDrop = () => {
             <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 to-transparent rounded-xl blur opacity-40 group-hover:opacity-60 transition-opacity" />
             <img
               src="/images/hash-holes-promo.png"
-              alt="Tsunami x Fidolx Hash Holes"
+              alt="Tsunami x Fideley Hash Holes"
               className="relative w-full rounded-xl border border-border/80 shadow-2xl"
               draggable={false}
             />
