@@ -238,7 +238,9 @@
   .animate-pulse-red,
   .animate-scroll-cue,
   .animate-marquee,
-  .animate-tagline-fade {
+  .animate-tagline-fade,
+  .animate-ember,
+  .animate-pulse-underline {
     animation: none !important;
     opacity: 1 !important;
   }
