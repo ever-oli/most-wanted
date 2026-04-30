@@ -5,8 +5,8 @@ import { RECRUITMENT_GOAL } from "@/lib/drop-config";
 import { supabase } from "@/integrations/supabase/client";
 
 const MINE_KEY = "mwp-wanted-list:mine";
-/** Demo seed so the tally never reads 0 — added on top of real DB count. */
-const DEMO_BASE_COUNT = 47;
+/** Start the tally from the real DB count only. */
+const DEMO_BASE_COUNT = 0;
 
 export const WantedListRecruitment = () => {
   const [email, setEmail] = useState("");
