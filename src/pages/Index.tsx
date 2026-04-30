@@ -10,7 +10,7 @@ import { FAQ } from "@/components/FAQ";
 import { MysteryGrid } from "@/components/MysteryGrid";
 import { SocialFeeds } from "@/components/SocialFeeds";
 import { Footer } from "@/components/Footer";
-import { WantedList } from "@/components/WantedList";
+import { HashHolesDrop } from "@/components/HashHolesDrop";
 
 const Index = () => {
   const [allSold, setAllSold] = useState(false);
@@ -22,6 +22,7 @@ const Index = () => {
       <AnchorNav />
       <main>
         <Hero />
+        <HashHolesDrop />
         <section id="ethos" className="scroll-mt-24">
           <Ethos />
         </section>
