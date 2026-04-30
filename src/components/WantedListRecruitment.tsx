@@ -8,7 +8,12 @@ const MINE_KEY = "mwp-wanted-list:mine";
 /** Start the tally from the real DB count only. */
 const DEMO_BASE_COUNT = 0;
 
-export const WantedListRecruitment = () => {
+interface Props {
+  /** When true, render as overlay over a sealed grid. When false, render as a standalone framed block. */
+  overlay?: boolean;
+}
+
+export const WantedListRecruitment = ({ overlay = true }: Props = {}) => {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [count, setCount] = useState(DEMO_BASE_COUNT);
