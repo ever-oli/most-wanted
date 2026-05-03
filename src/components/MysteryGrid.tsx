@@ -70,8 +70,8 @@ const GridSquare = React.memo(
 
         {/* Hover tooltip */}
         {!sq.sold && isRevealed && (
-          <span className="absolute -top-6 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-background border border-border text-[8px] text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 hidden sm:block">
-            {sq.tier} · ${TIERS[sq.tier].price}{isGolden ? ' · GOLDEN' : ''}
+          <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-background border border-tan/40 text-[9px] tracking-wider text-foreground whitespace-nowrap opacity-0 group-hover/tile:opacity-100 transition-opacity pointer-events-none z-20 hidden sm:block shadow-[0_4px_12px_hsl(0_0%_0%/0.6)]">
+            {sq.tier} · ${TIERS[sq.tier].price}{isGolden ? ' · ★' : ''}
           </span>
         )}
       </button>
