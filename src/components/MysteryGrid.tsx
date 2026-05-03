@@ -197,7 +197,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
       <div className="container py-12 md:py-16">
         <div className="text-center mb-8">
           <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— {DROP_NAME} —</p>
-          <h2 className="font-outlaw text-3xl md:text-5xl text-foreground text-shadow-outlaw mb-3">
+          <h2 className="font-outlaw text-3xl sm:text-4xl md:text-5xl text-foreground text-shadow-outlaw mb-3">
             Pick Your <span className="text-primary">Square</span>
           </h2>
           <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto font-stamp italic">
