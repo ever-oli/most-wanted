@@ -36,12 +36,13 @@ const GridSquare = React.memo(
         }}
         disabled={sq.sold}
         tabIndex={focused ? 0 : -1}
+        style={{ WebkitTapHighlightColor: "transparent" }}
         className={cn(
-          "relative aspect-square text-[8px] sm:text-[9px] font-stamp uppercase font-bold transition-smooth select-none focus-outlaw",
-          "border border-border/60",
-          sq.sold && "bg-sold text-foreground/40 cursor-not-allowed border-border",
+          "peer/tile relative aspect-square text-[8px] sm:text-[10px] font-stamp uppercase font-bold transition-smooth select-none focus-outlaw touch-manipulation",
+          "border border-border/60 active:scale-[0.92] motion-reduce:active:scale-100",
+          sq.sold && "bg-sold text-foreground/40 cursor-not-allowed border-border active:scale-100",
           !sq.sold && !isRevealed && "bg-muted hover:bg-muted-foreground/20 text-transparent",
-          !sq.sold && isRevealed && tierColor + " text-background",
+          !sq.sold && isRevealed && tierColor + " text-background hover:brightness-110",
           isSelected && "ring-2 ring-primary ring-offset-1 ring-offset-background animate-pulse-red motion-reduce:animate-none",
           isGolden && !sq.sold && "shadow-[0_0_12px_hsl(var(--tan)/0.4)] border-tan/60"
         )}
