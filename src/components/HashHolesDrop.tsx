@@ -5,7 +5,7 @@ export const HashHolesDrop = () => {
     <section className="relative overflow-hidden border-y border-border/60 bg-muted/30">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(0_60%_15%/0.3),_transparent_70%)] pointer-events-none" />
       
-      <div className="container relative py-16 md:py-24">
+      <div className="container relative pt-20 md:pt-28 pb-16 md:pb-24">
         {/* Header */}
         <div className="text-center mb-10 md:mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/40 bg-primary/10 mb-5">

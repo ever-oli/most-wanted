@@ -62,7 +62,7 @@ export const SocialFeeds = () => {
     <section id="feed" className="container py-16 md:py-20 scroll-mt-24" ref={containerRef}>
       <div className="text-center mb-10">
         <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— The Feed —</p>
-        <h2 className="font-outlaw text-3xl md:text-5xl text-foreground text-shadow-outlaw mb-3">
+        <h2 className="font-outlaw text-3xl sm:text-4xl md:text-5xl text-foreground text-shadow-outlaw mb-3">
           Follow the <span className="text-primary">Hunt</span>
         </h2>
         <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">

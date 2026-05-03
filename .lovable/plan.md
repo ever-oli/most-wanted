@@ -1,98 +1,51 @@
-# Polish Pass — Inspired by headyterppusher.com (single-page preserved)
+# Responsive Typography QA — Fixes
 
-After walking through the live site and HTP, here's what HTP does well that we can borrow without copying the look:
+## What I checked
 
-- **Cinematic illustrated background** behind the age gate (theirs is Calvin & Hobbes art) — sets a *world*, not a page.
-- **Always-running marquee strip** under the header repeating their value prop ("Premium Legal Cannabis | Great Prices | Fast Service").
-- **Playful, loose welcome card** with handwritten-feel headline instead of corporate "Age Verification".
-- **Custom cursor** + tactile micro-interactions everywhere.
-- **Strong product imagery** as the hero — they trust their packaging to do the work.
+Took screenshots at three viewports (375 mobile / 768 tablet / 1536 desktop) and walked through Hero, HashHoles, Ethos, Grading, How It Works, FAQ, WantedList, WantedListRecruitment, MysteryGrid. Most headings render cleanly. Three real issues to address, plus one polish pass for smoother scaling.
 
-Our site already has the outlaw bones; we just need more *atmosphere* and *texture*. Below is what I'd ship — pick any subset.
+## Issues to fix
 
----
+### 1. Hero tagline rotator clips on mobile (real bug)
 
-## 1. Cinematic Age Gate (high impact)
+`src/components/Hero.tsx` wraps the rotating tagline in a `<div className="h-6 overflow-hidden">`. At mobile font-size with `tracking-[0.35em]` and the dash glyphs, the line-height exceeds 24px and the bottom of the text (dashes/descenders) gets clipped. Visible as half-rendered "— LEGACY OPERATORS. —".
 
-Replace the current dim blurred background with a true scene:
+**Fix:** Change container to `min-h-[1.75rem] md:min-h-[1.5rem]` and drop `overflow-hidden` (it isn't needed — the animation only fades/translates a few px).
 
-- Full-bleed illustrated/photographic background behind the modal — think dusty saloon interior, desert highway at dusk, or a wanted-poster wall. Generated once, stored in `/public`.
-- Heavy vignette + grain overlay so the modal still pops.
-- Modal itself: looser, slightly off-axis (rotated `-1deg`) like a pinned-up poster, with torn-paper edges (SVG mask).
-- Replace "I'M 21 — ENTER" / "EXIT" with stamp-style buttons: **"RIDE IN"** / **"TURN BACK"**.
-- Fade-out already exists — keep it, add a brief "door opening" wipe.
+### 2. Hero H1 jumps too hard at the `md` breakpoint
 
-## 2. Marquee Strip Under Promo Banner
+Currently `text-4xl sm:text-5xl md:text-7xl`. At 768px tablet the jump to `text-7xl` forces an awkward 2-line wrap of "Welcome to Most Wanted Packs" with a heavy red glow. 
 
-Right under the red "FREE SHIPPING" banner, add a thin tan-on-black marquee:
+**Fix:** Insert intermediate step → `text-4xl sm:text-5xl md:text-6xl lg:text-7xl`.
 
-```text
-★ SMALL-BATCH DROPS  ★  SEALED UNTIL YOUR DOOR  ★  256 SQUARES, 256 OUTLAWS  ★  CONCIERGE TO THE FINEST  ★
-```
+### 3. Section H2s jump from `text-3xl` to `text-5xl` with no tablet step
 
-Reuses the existing `animate-marquee` keyframe. Pauses on hover. Hidden when `prefers-reduced-motion`.
+Files: `Ethos.tsx`, `GradingSystem.tsx`, `HowItWorks.tsx`, `FAQ.tsx`, `MysteryGrid.tsx`, `SocialFeeds.tsx`. Legible but blocky at ~768–900px.
 
-## 3. Custom Crosshair Cursor — Site-Wide (currently grid-only)
+**Fix:** Standardize to `text-3xl sm:text-4xl md:text-5xl` across these six section headings.
 
-`cursor-crosshair-outlaw` already exists for the grid. Apply a softer variant globally on `html` and swap to a "lock" cursor on interactive elements (buttons, links). Big perceived-quality bump, ~10 lines of CSS.
+### 4. HashHolesDrop top pill hides under sticky AnchorNav
 
-## 4. Hero Atmosphere
+The "FEATURED DROP · WHILE SUPPLIES LAST" pill gets clipped by the sticky nav on mobile because the section root has no `scroll-mt` / top breathing room and is the first thing after Hero.
 
-- Add a **dust/ember particle layer** drifting upward behind the star logo (CSS-only, ~20 floating dots with random delays, `prefers-reduced-motion` guard).
-- The animated tagline rotator from the original plan ("Small-batch." → "Legacy operators." → "Sealed until your door.") — already partially scaffolded in `index.css` (`animate-tagline-fade`), wire it up.
-- Add a subtle **scroll cue** chevron at the bottom of the hero (`animate-scroll-cue` already exists).
+**Fix:** Add `pt-6 md:pt-10` (or `scroll-mt-24` if it has an id) to the section's outer container in `src/components/HashHolesDrop.tsx`.
 
-## 5. Wanted-List Card — Reframe the Empty State
+## What I'm NOT changing
 
-Currently the recruitment card sits *on top of* the locked grid which looks busy. Better:
+- FAQ accordions, How It Works cards, Wanted List, Grading System — render correctly at all sizes.
+- The text-shadow glow on H1 — it's intentional brand styling, just smoothed by the new size step.
+- The `MarqueeStrip` — renders fine on mobile (no action needed).
+- Color, font family, letter-spacing — all on-brand.
 
-- Move the recruitment card *above* the grid as its own framed section ("Recruiting Hunters: 0 / 256 signed on").
-- Below it, the grid sits dimmed at ~40% opacity with a small "Vault locks when 256 sign on" caption — implies progression.
-- Once 256 hit, grid lights up and countdown begins (already planned).
+## Files to edit
 
-## 6. Wanted-Poster Frame Around the Grid
+- `src/components/Hero.tsx` — tagline container height + H1 size step
+- `src/components/HashHolesDrop.tsx` — section top padding
+- `src/components/Ethos.tsx`
+- `src/components/GradingSystem.tsx`
+- `src/components/HowItWorks.tsx`
+- `src/components/FAQ.tsx`
+- `src/components/MysteryGrid.tsx`
+- `src/components/SocialFeeds.tsx`
 
-Wrap `.MysteryGrid` in an SVG-bordered frame styled like an old-west wanted poster — torn edges, faux-folds in the corners, "REWARD" stamp top-left. Pure decoration, no behavior change.
-
-## 7. Section Dividers — Stamped
-
-Replace the plain section gaps with thin stamped dividers (e.g., `★ ─────── ETHOS ─────── ★`) using `font-stamp`. Adds rhythm without adding scrolling sections.
-
-## 8. Footer Upgrade (mentioned in old plan, still missing)
-
-- Quick-link column matching anchor nav
-- Newsletter signup (reuse the wanted-list edge function endpoint or add a separate `notify_me` table later)
-- Legal line: Terms · Privacy · Shipping · COA Lookup
-- "Made in [State] · Farm Bill compliant" stamp
-
-## 9. SEO + Favicon Cleanup (still outstanding)
-
-- Fix double-space in `<title>` in `index.html`
-- Add `og:url`, `og:site_name`, canonical link
-- Custom favicon (the wanted-star logo) replacing the default Lovable one
-- JSON-LD `Organization` schema
-
-## 10. Micro-polish
-
-- Toast skinning is already there — add a tiny star icon prefix on success toasts.
-- Promo banner currently sticky at top — keep, but add a 1px tan underline that pulses faintly when promo is "live".
-- Cart bar slide easing tighten.
-
----
-
-## Recommended first round
-
-If you only want one merge: **1 (cinematic age gate) + 2 (marquee) + 3 (cursor) + 5 (wanted-list reframe)**. That's the biggest *atmosphere* jump and directly mirrors what makes HTP feel cinematic — without adding any new pages or breaking the scroll-story.
-
-Tell me which numbers you want (e.g. "1, 2, 3, 5") and whether you want me to generate the age-gate background image (AI gen via Lovable AI) or use a CSS-only treatment.  
-  
-DO ALL TEN FUCK IT 
-
-## Technical notes
-
-- All work stays inside existing components — no routing changes.
-- New animations all gated behind `prefers-reduced-motion` per existing pattern.
-- Custom cursor: SVG data URI in CSS, no asset.
-- Wanted-list reframe is a JSX reordering inside `Index.tsx` + tweaks to `MysteryGrid.tsx` (drop the embedded `<WantedListRecruitment/>`).
-- Age gate background: if AI-generated, write to `public/age-gate-bg.webp` (~150KB target, lazy-loaded).
-- No new dependencies.
+After edits I'll re-shoot mobile + tablet to confirm the tagline and H1 are clean.

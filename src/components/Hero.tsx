@@ -69,16 +69,16 @@ export const Hero = () => {
           </span>
         </div>
 
-        <h1 className="font-outlaw text-4xl sm:text-5xl md:text-7xl text-foreground text-shadow-outlaw mb-4 leading-[1.1]">
+        <h1 className="font-outlaw text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground text-shadow-outlaw mb-4 leading-[1.1]">
           Welcome to <br className="md:hidden" />
           <span className="text-primary">Most Wanted</span> Packs
         </h1>
 
         {/* Animated tagline rotator */}
-        <div className="h-6 mb-4 overflow-hidden">
+        <div className="min-h-[1.75rem] md:min-h-[1.5rem] mb-4 flex items-center justify-center">
           <p
             key={taglineIndex}
-            className="font-stamp text-xs uppercase tracking-[0.35em] text-tan animate-tagline-fade motion-reduce:animate-none"
+            className="font-stamp text-xs uppercase tracking-[0.35em] text-tan animate-tagline-fade motion-reduce:animate-none leading-relaxed"
           >
             — {TAGLINES[taglineIndex]} —
           </p>

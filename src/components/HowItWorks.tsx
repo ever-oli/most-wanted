@@ -10,7 +10,7 @@ export const HowItWorks = () => (
   <section id="how" className="container py-16 md:py-20 scroll-mt-24">
     <div className="text-center mb-12">
       <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— The Mechanics —</p>
-      <h2 className="font-outlaw text-3xl md:text-5xl text-foreground text-shadow-outlaw">How The Drop Works</h2>
+      <h2 className="font-outlaw text-3xl sm:text-4xl md:text-5xl text-foreground text-shadow-outlaw">How The Drop Works</h2>
     </div>
 
     <div className="grid sm:grid-cols-3 gap-4">

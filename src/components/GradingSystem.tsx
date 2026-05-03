@@ -5,7 +5,7 @@ export const GradingSystem = () => (
   <section id="grading" className="container py-16 md:py-20 scroll-mt-24">
     <div className="text-center mb-10">
       <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— Our Standard —</p>
-      <h2 className="font-outlaw text-3xl md:text-5xl text-foreground text-shadow-outlaw mb-3">
+      <h2 className="font-outlaw text-3xl sm:text-4xl md:text-5xl text-foreground text-shadow-outlaw mb-3">
         The <span className="text-primary">5-Point</span> Grading System
       </h2>
       <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto">

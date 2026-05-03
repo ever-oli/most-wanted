@@ -5,7 +5,7 @@ export const Ethos = () => (
     <div className="container py-16 md:py-20 max-w-3xl text-center">
       <Crosshair className="h-8 w-8 text-primary mx-auto mb-5" />
       <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-4">— The Ethos —</p>
-      <h2 className="font-outlaw text-3xl md:text-5xl text-foreground mb-6 text-shadow-outlaw">
+      <h2 className="font-outlaw text-3xl sm:text-4xl md:text-5xl text-foreground mb-6 text-shadow-outlaw">
         We Don't Source. <span className="text-primary">We Hunt.</span>
       </h2>
       <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
