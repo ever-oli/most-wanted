@@ -14,7 +14,7 @@ export interface TierConfig {
   colorClass: string;
 }
 
-export const GRID_SIZE = 16; // 16x16 = 256
+export const GRID_SIZE = 8; // 8x8 = 64
 export const TOTAL_SQUARES = GRID_SIZE * GRID_SIZE;
 
 export const MAX_CART_TOTAL = 3;
@@ -25,12 +25,12 @@ export const DROP_LIVE = false;
 /**
  * Recruitment mode: for the INITIAL drop only.
  * When true, the sealed vault shows a "Wanted List" recruitment panel
- * (tally toward 256 signups) instead of a countdown.
- * Flip to false once 256 is hit — countdown takes over for the actual drop.
+ * (tally toward 64 signups) instead of a countdown.
+ * Flip to false once 64 is hit — countdown takes over for the actual drop.
  * After the initial drop, future drops use normal cadence (countdown only).
  */
 export const RECRUITMENT_MODE = true;
-export const RECRUITMENT_GOAL = 256;
+export const RECRUITMENT_GOAL = 64;
 
 /** Target date/time for the next drop. Used by the countdown on the sealed vault. */
 export const NEXT_DROP_AT = new Date("2026-05-15T19:00:00-04:00");
@@ -45,8 +45,8 @@ export const OPERATORS = [
   { alias: "The OKC Ghost", region: "Moore, Oklahoma" },
 ];
 
-/** Golden squares - 3 random positions that get bonus treatment */
-export const GOLDEN_SQUARES = [42, 128, 201]; // Deterministic positions for this drop
+/** Golden squares - 1 random position that gets bonus treatment */
+export const GOLDEN_SQUARES = [42]; // Deterministic position for this drop
 
 /** Wanted List clues - pre-drop hints, no photos */
 export const WANTED_LIST_CLUES = [
@@ -73,7 +73,7 @@ export const TIERS: Record<Tier, TierConfig> = {
     label: "EXO",
     price: 110,
     weight: "7g jar",
-    count: 102,
+    count: 26,
     maxPerOrder: 2,
     description: "Top-shelf concierge cultivar. Heavy hitters only.",
     colorClass: "bg-tier-exo",
@@ -83,7 +83,7 @@ export const TIERS: Record<Tier, TierConfig> = {
     label: "AAA",
     price: 75,
     weight: "7g jar",
-    count: 154,
+    count: 38,
     maxPerOrder: 2,
     description: "Premium small-batch flower from legacy operators.",
     colorClass: "bg-tier-aaa",
@@ -129,5 +129,5 @@ export function buildGrid(soldIndexes: number[] = []): Square[] {
 // ====== Demo: pre-marked sold squares for FOMO realism ======
 // Replace with real data from Shopify / backend later.
 export const DEMO_SOLD_INDEXES: number[] = [
-  3, 17, 22, 41, 58, 64, 77, 89, 90, 102, 113, 121, 134, 145, 156, 167, 178, 199, 210, 233, 240, 248,
+  3, 7, 12, 21, 28, 35, 41, 48, 55, 60,
 ];

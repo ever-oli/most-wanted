@@ -110,7 +110,7 @@ export const WantedListRecruitment = ({ overlay = true }: Props = {}) => {
           Sign The Wanted List
         </h3>
         <p className="font-stamp text-xs text-muted-foreground italic mb-6">
-          When 256 hunters sign on, the vault arms and the countdown begins.
+          When {RECRUITMENT_GOAL} hunters sign on, the vault arms and the countdown begins.
         </p>
 
         {/* Tally */}
@@ -173,3 +173,4 @@ export const WantedListRecruitment = ({ overlay = true }: Props = {}) => {
     </div>
   );
 };
+

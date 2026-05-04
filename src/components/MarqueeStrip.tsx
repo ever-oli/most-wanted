@@ -1,7 +1,7 @@
 const ITEMS = [
   "Small-Batch Drops",
   "Sealed Until Your Door",
-  "256 Squares · 256 Outlaws",
+  "64 Squares · 64 Outlaws",
   "Concierge to the Finest",
   "Solventless Heritage",
 ];
