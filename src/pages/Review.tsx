@@ -111,23 +111,53 @@ export default function Review() {
           <div className="text-muted-foreground font-stamp uppercase tracking-widest text-sm">
             Average Score — {getScoreLabel(parseFloat(average() as string))}
           </div>
+
+          {result?.verified && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-tan/60 text-tan font-stamp uppercase text-[10px] tracking-widest">
+              <BadgeCheck className="w-3.5 h-3.5" /> Verified Hunter
+            </div>
+          )}
+
+          {result?.discount_code && (
+            <div className="border border-primary/60 bg-card p-5 space-y-2">
+              <div className="flex items-center justify-center gap-2 font-stamp uppercase text-[10px] tracking-widest text-tan">
+                <Gift className="w-4 h-4" /> Hunter Reward — 10% off next drop
+              </div>
+              <div className="font-stamp text-2xl tracking-[0.2em] text-foreground select-all">
+                {result.discount_code}
+              </div>
+              <p className="text-[10px] text-muted-foreground">Single use. Save it.</p>
+            </div>
+          )}
+
           <div className="border-t border-border pt-6">
-            <h2 className="font-outlaw text-2xl mb-2">Thank You</h2>
+            <h2 className="font-outlaw text-2xl mb-2">Logged.</h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Your evaluation has been recorded. This batch is now part of the archive.
+              Your verdict is now part of the public archive.
             </p>
           </div>
-          <button
-            onClick={() => {
-              setSubmitted(false);
-              setBatchCode("");
-              setRatings({});
-              setNotes("");
-            }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
-          >
-            Submit another evaluation
-          </button>
+
+          <div className="flex flex-col gap-3">
+            <Link
+              to={result ? `/archive#review-${result.review_id}` : "/archive"}
+              className="px-5 py-3 bg-primary text-primary-foreground font-stamp uppercase text-xs tracking-widest hover:bg-primary-glow transition-colors shadow-[var(--shadow-outlaw)]"
+            >
+              View Your Entry in the Archive
+            </Link>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setResult(null);
+                setBatchCode("");
+                setRatings({});
+                setNotes("");
+                setDisplayName("");
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+            >
+              Submit another evaluation
+            </button>
+          </div>
         </div>
       </div>
     );
