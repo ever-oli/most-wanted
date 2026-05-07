@@ -1,64 +1,130 @@
-# Camera-Ready Demo Run Plan
+# Closing the Loop: Reviews, Archive, and Identity
 
-Goal: give your guy a polished, end-to-end run-through of the Most Wanted experience he can screen-record — landing, scrolling, hunting a square, "checking out," and a confirmation moment — without flipping the public site out of Recruitment Mode.
+The review form already exists at `/review` but it's a dead-end — nothing persists. Here's how we close the experience loop without overbuilding.
 
-## The Setup
+## The Big Question First: Accounts?
 
-The public site stays exactly as it is today: `DROP_LIVE = false`, `RECRUITMENT_MODE = true`, Wanted List collecting signups. We add a hidden **Demo Mode** that only activates with a secret URL param so the recording looks like the real drop went live, but no one stumbling onto the site sees it.
+Recommendation: **No accounts on day one. Lightweight order-bound identity instead.**
 
-Activated via: `?demo=1` (or a slightly obscured token like `?ride=1`). When active, it overrides the live/recruitment flags client-side only.
+**Why no accounts now:**
 
-## What He'll Record (storyboard)
+- Friction kills first-drop conversion. Every account requirement = 20–30% drop-off.
+- Your buyer already gave you their email + shipping at Shopify checkout. That IS their identity.
+- You don't need a profile dashboard to ship a great experience — you need data and a public archive.
 
-1. **Landing** — Age gate → promo banner → marquee → hero with rotating tagline. Pause on the hero "Hunt Begins" headline.
-2. **Scroll-through** — Past Featured Drop, Ethos, Grading System, How It Works, FAQ. This sells the brand before the mechanic.
-3. **The Vault unsealed** — Lands on the Mystery Grid. In demo mode it's unblurred and live. Some squares pre-marked SOLD for FOMO.
-4. **The hunt** — Hover/tap reveal mechanic. Tap a square → tier reveal (EXO/AAA). Tap again → CheckoutSheet confirmation. Lock in 2–3 squares (mix tiers, ideally hit the golden square #42 for the bonus moment).
-5. **Cart bar** — Bottom cart appears with selections. He clicks **Lock It In · $XXX**.
-6. **Confirmation** — Instead of routing to a real Shopify checkout (which would require a real charge), demo mode shows a styled "Order Locked" success screen with his squares, total, and a "Sealed. Shipping soon." stamp. Looks legit on camera.
-7. **Outro** — Scroll back up to the hero or cut to the Wanted List recruitment panel as the call-to-action for his viewers.
+**The model instead — "Order Token":**
+Every order gets a unique `review_token` printed on the jar card (e.g. `MW-RR-2A7K`). They go to `/review`, enter the token, rate the flower. One token = one review per square. Already aligned with your "batch code" UX.
+
+**Reward layer (lightweight, no accounts):**
+
+- Reviewers who submit get a **discount code emailed back** for the next drop (e.g. 10% off, hunter-only).
+- Top-rated reviewers (by detail/depth) get **early access** to the next drop's Wanted List — we email them 24h before public.
+- Future state: if/when accounts make sense, we already have email + review history keyed to it. Easy migration.
 
 ## What We Build
 
-### 1. Demo Mode toggle (`src/lib/demo-mode.ts`)
-- Reads `?demo=1` from URL on mount, stores in a small context/hook (`useDemoMode`).
-- Exposes overrides: `dropLive`, `recruitmentMode`, plus a `demoCheckout` flag.
-- Optional: subtle corner badge "DEMO" so we can tell it's on (hidden via second param `&clean=1` for the actual recording).
+### 1. Backend: persist reviews
 
-### 2. Mystery Grid wiring
-- Replace direct `DROP_LIVE` / `RECRUITMENT_MODE` imports with `useDemoMode()` overrides.
-- Same for `Index.tsx` (so the Recruitment section hides when demo is on and the grid unblurs).
-- Pre-seeded SOLD indexes already exist (`DEMO_SOLD_INDEXES`) — keep as-is for FOMO realism.
+New table `reviews`:
 
-### 3. Demo checkout flow
-- New component `DemoCheckoutSuccess.tsx`: full-screen modal with poster-frame styling, a red "ORDER LOCKED" stamp, list of locked squares (#, tier, price), order total, fake order # (`MW-` + random), and "A confirmation has been sent" line.
-- In `MysteryGrid.tsx`, the **Lock It In** button: if `demoCheckout` is true → open the success modal instead of the toast/Shopify route.
-- Modal has a "Hunt Again" button that resets cart + revealed state so he can re-record takes without refreshing.
+- `id` uuid pk
+- `order_token` text (e.g. `MW-RR-2A7K`) — required
+- `square_index` int (which square, 0–63) — optional but encouraged
+- `tier` text ('EXO' | 'AAA')
+- `drop_id` text (e.g. `red-river-rivalry`)
+- `nose`, `structure`, `cure`, `burn`, `experience` smallint (1–5)
+- `average` numeric(3,2) — computed
+- `notes` text
+- `display_name` text (optional, e.g. alias they want shown publicly — "TX Hunter")
+- `is_public` boolean default true
+- `is_verified` boolean default false (we flip true once we match token to a real Shopify order)
+- `created_at` timestamptz default now()
 
-### 4. Polish for the camera
-- Slow down the cart-slide-in animation a touch (currently snappy, reads better at 24fps).
-- Make sure golden square #42's tooltip + glow are visible enough on screen recording.
-- Confirm the hero tagline rotator timing feels intentional on a 15–30s pan.
+New table `order_tokens` (seeded by us when fulfilling orders):
 
-## What He Needs From Us
+- `token` text pk
+- `drop_id` text
+- `tier` text
+- `square_index` int
+- `email` text (the buyer)
+- `redeemed_at` timestamptz null
+- `created_at` timestamptz
 
-- The secret URL: `https://most-wanted.lovable.app/?demo=1&clean=1`
-- A 1-line script suggestion: "I'm gonna show y'all how this Most Wanted drop actually works…"
-- Recommend: desktop screen recording at 1920x1080, OBS or QuickTime. Mobile take optional for a B-roll cut.
-- Suggest he records 2 takes: one full slow walkthrough (90s) and one fast hunt-only (20s) for reels/shorts.
+RLS:
 
-## Out of Scope (for this pass)
+- `reviews`: anyone can SELECT where `is_public = true` (public archive). INSERT only via edge function.
+- `order_tokens`: no public access — service role only.
 
-- Real Shopify checkout integration — staying mocked until the actual drop.
-- Backend order persistence — demo orders are ephemeral.
-- Video editing / overlays — that's on his side.
+### 2. Edge function `submit-review`
+
+- Validates token exists and is unredeemed (or allow re-edit within 24h, configurable)
+- Validates ratings (1–5), required fields, profanity-light scrub on notes
+- Inserts review, marks token `redeemed_at`
+- Optionally generates a one-time discount code via Shopify Admin API and emails it back (we already have `SHOPIFY_ACCESS_TOKEN`)
+- Returns `{ success, archiveUrl }`
+
+### 3. Wire `/review` page to the function
+
+- Replace console.log with `supabase.functions.invoke('submit-review', ...)`
+- Add optional "display name / alias" field
+- Add checkbox: "Show my review publicly in the archive" (default checked)
+- On success → redirect to `/archive#review-{id}` so they can see themselves listed
+
+### 4. New page `/archive` — the public ledger
+
+This is the allure-builder. Looks like a stamped index card wall.
+
+- Lists every public review, newest first
+- Filterable by drop, tier, score range
+- Each card: alias, square #, tier, big average score (e.g. **4.6**), the 5-point breakdown bars, optional notes excerpt, date, "VERIFIED" stamp if `is_verified`
+- Drop-level header showing aggregate: "RED RIVER RIVALRY · 47 hunters reviewed · avg 4.3 · top tier: EXO 4.6"
+- Link from footer + new "ARCHIVE" entry in `AnchorNav`
+
+### 5. Drop story / aggregate lives on
+
+- On `/drop-story` (already exists), surface the aggregate ratings for that drop once reviews are in
+- On the homepage `Ethos` or new "Track Record" strip: one rotating quote + the running site-wide average
+
+### 6. Polish & loose ends
+
+- AnchorNav: add "Archive" link
+- Footer: link to `/review` (with tooltip "Have a jar? Rate it") and `/archive`
+- The jar/print card needs the `order_token` printed on it — out of scope for code, but I'll note it in `SYSTEMS.md` so you don't forget when you do the print job
+- Update `Index.tsx` "How It Works" copy to mention the rate → archive → reward loop
+
+## What We're NOT Doing (yet)
+
+- Full user accounts / profile pages
+- Photo uploads on reviews (moderation is a rabbit hole — add later)
+- Public reviewer leaderboards (can come once volume is real)
+- On-site Shopify checkout integration — still mocked
 
 ## Files to Touch
 
-- new: `src/lib/demo-mode.ts`
-- new: `src/components/DemoCheckoutSuccess.tsx`
-- edit: `src/pages/Index.tsx` (use demo overrides)
-- edit: `src/components/MysteryGrid.tsx` (use demo overrides + demo checkout path)
-- edit: `src/index.css` (slight animation timing tweak, optional)
+- new migration: `reviews`, `order_tokens` tables + RLS
+- new edge function: `supabase/functions/submit-review/index.ts`
+- new page: `src/pages/Archive.tsx`
+- edit: `src/pages/Review.tsx` (wire to backend, add alias + public toggle)
+- edit: `src/App.tsx` (add `/archive` route)
+- edit: `src/components/AnchorNav.tsx` (add Archive link)
+- edit: `src/components/Footer.tsx` (Review + Archive links)
+- edit: `src/components/HowItWorks.tsx` (mention the loop)
+- edit: `SYSTEMS.md` (note about printing tokens on jar cards)
 
-Approve this and I'll build it out so you can send him the link tonight.
+## Reward Mechanics (for your call)
+
+Pick one to ship now:
+
+1. **Discount code on submit** — 10% off next drop, single-use, expires when next drop closes. Easiest, highest impact.
+2. **Early access list** — reviewers get emailed 24h before next Wanted List opens. Free to build, more "exclusive" feel.
+3. **Both** — that's what I'd do. The discount is the carrot for casuals; early access is the carrot for the diehards.
+
+If you want #1 or #3, I'll add the Shopify Admin discount-code generation to the edge function in this same pass.
+
+---
+
+Approve and tell me which reward path (1, 2, or 3) and I'll build it all in one go.  
+  
+build all in one go but lets work on the order token I like the MW in the front but MW-STRAIN-GROWER/DISTRO/BRAND. but lets do obvoisuly like the initials
+
+&nbsp;

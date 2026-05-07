@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
-import { Star, Send, Hash, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RatingRow {
   name: string;
@@ -21,7 +23,12 @@ export default function Review() {
   const [batchCode, setBatchCode] = useState("");
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
+  const [earlyAccess, setEarlyAccess] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState<{ verified: boolean; discount_code: string | null; review_id: string } | null>(null);
 
   const average = useCallback(() => {
     const values = Object.values(ratings);
@@ -35,25 +42,47 @@ export default function Review() {
     setRatings((prev) => ({ ...prev, [criterion]: value }));
   };
 
-  const handleSubmit = () => {
-    if (!isComplete) return;
+  const handleSubmit = async () => {
+    if (!isComplete || submitting) return;
+    setSubmitting(true);
 
-    const payload = {
-      batchCode: batchCode.trim().toUpperCase(),
-      ratings,
-      average: parseFloat(average() as string),
-      notes: notes.trim(),
-      submittedAt: new Date().toISOString(),
-    };
+    const token = batchCode.trim().toUpperCase();
+    try {
+      const { data, error } = await supabase.functions.invoke("submit-review", {
+        body: {
+          token,
+          ratings: {
+            nose: ratings.NOSE,
+            structure: ratings.STRUCTURE,
+            cure: ratings.CURE,
+            burn: ratings.BURN,
+            experience: ratings.EXPERIENCE,
+          },
+          notes: notes.trim(),
+          display_name: displayName.trim(),
+          is_public: isPublic,
+          early_access_optin: earlyAccess,
+          // Pre-launch fallback so unverified reviews still log
+          drop_id_fallback: "red-river-rivalry",
+          tier_fallback: "AAA",
+        },
+      });
 
-    // TODO: Wire to your backend — Supabase, Airtable, Google Sheets, etc.
-    console.log("Review payload:", payload);
+      if (error || !data?.success) {
+        const msg = (error as any)?.context?.error || (error as any)?.message || data?.error || "Submission failed";
+        toast.error(msg);
+        setSubmitting(false);
+        return;
+      }
 
-    toast.success("Evaluation submitted. Your feedback shapes the next hunt.", {
-      duration: 4000,
-    });
-
-    setSubmitted(true);
+      setResult({ verified: data.verified, discount_code: data.discount_code, review_id: data.review_id });
+      toast.success("Evaluation logged. Your verdict is now part of the archive.");
+      setSubmitted(true);
+    } catch (e: any) {
+      toast.error(e?.message || "Something went wrong");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getScoreLabel = (score: number) => {
@@ -82,23 +111,53 @@ export default function Review() {
           <div className="text-muted-foreground font-stamp uppercase tracking-widest text-sm">
             Average Score — {getScoreLabel(parseFloat(average() as string))}
           </div>
+
+          {result?.verified && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-tan/60 text-tan font-stamp uppercase text-[10px] tracking-widest">
+              <BadgeCheck className="w-3.5 h-3.5" /> Verified Hunter
+            </div>
+          )}
+
+          {result?.discount_code && (
+            <div className="border border-primary/60 bg-card p-5 space-y-2">
+              <div className="flex items-center justify-center gap-2 font-stamp uppercase text-[10px] tracking-widest text-tan">
+                <Gift className="w-4 h-4" /> Hunter Reward — 10% off next drop
+              </div>
+              <div className="font-stamp text-2xl tracking-[0.2em] text-foreground select-all">
+                {result.discount_code}
+              </div>
+              <p className="text-[10px] text-muted-foreground">Single use. Save it.</p>
+            </div>
+          )}
+
           <div className="border-t border-border pt-6">
-            <h2 className="font-outlaw text-2xl mb-2">Thank You</h2>
+            <h2 className="font-outlaw text-2xl mb-2">Logged.</h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Your evaluation has been recorded. This batch is now part of the archive.
+              Your verdict is now part of the public archive.
             </p>
           </div>
-          <button
-            onClick={() => {
-              setSubmitted(false);
-              setBatchCode("");
-              setRatings({});
-              setNotes("");
-            }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
-          >
-            Submit another evaluation
-          </button>
+
+          <div className="flex flex-col gap-3">
+            <Link
+              to={result ? `/archive#review-${result.review_id}` : "/archive"}
+              className="px-5 py-3 bg-primary text-primary-foreground font-stamp uppercase text-xs tracking-widest hover:bg-primary-glow transition-colors shadow-[var(--shadow-outlaw)]"
+            >
+              View Your Entry in the Archive
+            </Link>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setResult(null);
+                setBatchCode("");
+                setRatings({});
+                setNotes("");
+                setDisplayName("");
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+            >
+              Submit another evaluation
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -130,11 +189,11 @@ export default function Review() {
             type="text"
             value={batchCode}
             onChange={(e) => setBatchCode(e.target.value)}
-            placeholder="e.g. MW-0427"
+            placeholder="MW-RRR-DA-2A7K"
             className="w-full bg-card border border-border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-stamp uppercase"
           />
           <p className="text-xs text-muted-foreground/60">
-            Found on your jar label or printed card.
+            Format: <span className="font-stamp text-foreground/80">MW-DROP-GROWER-CODE</span>. Found on your jar card. No code? You can still submit — it'll log as unverified.
           </p>
         </section>
 
@@ -213,18 +272,64 @@ export default function Review() {
           />
         </section>
 
+        {/* Identity */}
+        <section className="space-y-3">
+          <label className="font-stamp text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            Display Name <span className="text-muted-foreground/50">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="e.g. TX Hunter"
+            maxLength={60}
+            className="w-full bg-card border border-border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-stamp"
+          />
+          <p className="text-xs text-muted-foreground/60">
+            How you'll appear in the public archive. Leave blank for "Anonymous Hunter".
+          </p>
+        </section>
+
+        {/* Toggles */}
+        <section className="space-y-3 border border-border/60 bg-card/40 p-4 rounded">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-primary"
+            />
+            <span className="text-sm">
+              <span className="font-stamp uppercase tracking-widest text-xs text-foreground">Show in public archive</span>
+              <span className="block text-xs text-muted-foreground mt-0.5">Your review helps other hunters trust the brand.</span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={earlyAccess}
+              onChange={(e) => setEarlyAccess(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-primary"
+            />
+            <span className="text-sm">
+              <span className="font-stamp uppercase tracking-widest text-xs text-foreground">Hunter early access list</span>
+              <span className="block text-xs text-muted-foreground mt-0.5">Get notified 24h before the next drop opens.</span>
+            </span>
+          </label>
+        </section>
+
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          disabled={!isComplete}
+          disabled={!isComplete || submitting}
           className={`w-full py-4 rounded font-outlaw text-lg tracking-wider transition-all duration-300 flex items-center justify-center gap-3 ${
-            isComplete
+            isComplete && !submitting
               ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-outlaw animate-pulse-red"
               : "bg-muted text-muted-foreground cursor-not-allowed"
           }`}
         >
           <Send className="w-5 h-5" />
-          {isComplete ? "Submit Evaluation" : "Complete All Fields"}
+          {submitting ? "Submitting…" : isComplete ? "Submit Evaluation" : "Complete All Fields"}
         </button>
 
         {!isComplete && (
@@ -233,6 +338,10 @@ export default function Review() {
             Enter batch code and rate all five criteria to submit
           </div>
         )}
+
+        <p className="text-center text-xs text-muted-foreground/60">
+          Or browse the <Link to="/archive" className="text-primary underline">public archive</Link>.
+        </p>
       </main>
 
       {/* Footer */}

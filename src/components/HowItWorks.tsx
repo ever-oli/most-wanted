@@ -1,9 +1,10 @@
-import { Layers, MousePointerClick, Package } from "lucide-react";
+import { Layers, MousePointerClick, Package, Star } from "lucide-react";
 
 const steps = [
-  { icon: Layers, title: "Choose Your Tier", body: "EXO ($110) or AAA ($75). Each tier unlocks a different pedigree of cultivar in a sealed 7g jar." },
+  { icon: Layers, title: "Choose Your Tier", body: "EXO ($110) or AAA ($75). Each tier unlocks a different pedigree of cultivar in a sealed 7g jar. Max 2 per tier, 3 per order — no whales." },
   { icon: MousePointerClick, title: "Secure Your Square", body: "Lock in your spot on the grid. Once it's gone, it's gone." },
-  { icon: Package, title: "Rip the Pack", body: "1 of 3 mystery variants per tier. The 7g jar is sealed until it hits your door." },
+  { icon: Package, title: "Rip the Pack", body: "1 of 3 mystery variants per tier. Your jar arrives sealed with a unique review token printed on the card." },
+  { icon: Star, title: "Rate & Reward", body: "Drop your verdict on the 5-point Ganjier scale. Your review joins the public Archive — and earns you 10% off the next drop plus 24h early access." },
 ];
 
 export const HowItWorks = () => (
@@ -13,7 +14,7 @@ export const HowItWorks = () => (
       <h2 className="font-outlaw text-3xl sm:text-4xl md:text-5xl text-foreground text-shadow-outlaw">How The Drop Works</h2>
     </div>
 
-    <div className="grid sm:grid-cols-3 gap-4">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {steps.map((s, i) => (
         <div key={s.title} className="relative group p-6 border border-border bg-card/40 hover:border-primary/60 transition-smooth">
           <span className="absolute top-3 right-3 font-outlaw text-3xl text-primary/30 group-hover:text-primary/60 transition-smooth">
