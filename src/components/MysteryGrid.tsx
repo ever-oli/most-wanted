@@ -1,11 +1,13 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE, DROP_NAME, DROP_SUBTITLE, GOLDEN_SQUARES, RECRUITMENT_MODE } from "@/lib/drop-config";
+import { GRID_SIZE, MAX_CART_TOTAL, Square, Tier, TIERS, buildGrid, DEMO_SOLD_INDEXES, DROP_LIVE as CONFIG_DROP_LIVE, DROP_NAME, DROP_SUBTITLE, GOLDEN_SQUARES, RECRUITMENT_MODE as CONFIG_RECRUITMENT_MODE } from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
 import { CheckoutSheet } from "./CheckoutSheet";
 import { VaultCountdown } from "./VaultCountdown";
 import { WantedListRecruitment } from "./WantedListRecruitment";
 import { PosterFrame } from "./PosterFrame";
+import { DemoCheckoutSuccess } from "./DemoCheckoutSuccess";
+import { useDemoMode } from "@/lib/demo-mode";
 import { Lock } from "lucide-react";
 
 interface Props {
@@ -81,6 +83,10 @@ const GridSquare = React.memo(
 GridSquare.displayName = "GridSquare";
 
 export const MysteryGrid = ({ onAllSold }: Props) => {
+  const demo = useDemoMode();
+  const DROP_LIVE = demo.active ? demo.dropLive : CONFIG_DROP_LIVE;
+  const RECRUITMENT_MODE = demo.active ? demo.recruitmentMode : CONFIG_RECRUITMENT_MODE;
+  const [demoSuccessOpen, setDemoSuccessOpen] = useState(false);
   const grid: Square[] = useMemo(() => buildGrid(DEMO_SOLD_INDEXES), []);
   const [selected, setSelected] = useState<number[]>([]);
   const [activeSquare, setActiveSquare] = useState<Square | null>(null);
@@ -329,7 +335,11 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               </div>
               <button
                 onClick={() => {
-                  toast("Routing to Shopify checkout…");
+                  if (demo.demoCheckout) {
+                    setDemoSuccessOpen(true);
+                  } else {
+                    toast("Routing to Shopify checkout…");
+                  }
                 }}
                 className="shrink-0 px-4 py-2.5 bg-primary hover:bg-primary-glow text-primary-foreground font-stamp uppercase text-xs tracking-widest shadow-[var(--shadow-outlaw)] transition-smooth focus-outlaw"
               >
@@ -348,6 +358,19 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
           alreadyInCart={activeSquare ? selected.includes(activeSquare.index) : false}
         />
       )}
+
+      <DemoCheckoutSuccess
+        open={demoSuccessOpen}
+        selected={selected}
+        grid={grid}
+        onClose={() => setDemoSuccessOpen(false)}
+        onHuntAgain={() => {
+          setDemoSuccessOpen(false);
+          setSelected([]);
+          setRevealed(new Set());
+          setLimitError(null);
+        }}
+      />
     </section>
   );
 };

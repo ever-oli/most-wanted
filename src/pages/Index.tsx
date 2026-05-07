@@ -16,9 +16,13 @@ import { WantedList } from "@/components/WantedList";
 import { SoldOutOverlay } from "@/components/SoldOutOverlay";
 import { WantedListRecruitment } from "@/components/WantedListRecruitment";
 import { DROP_LIVE, RECRUITMENT_MODE } from "@/lib/drop-config";
+import { useDemoMode } from "@/lib/demo-mode";
 
 const Index = () => {
   const [allSold, setAllSold] = useState(false);
+  const demo = useDemoMode();
+  const dropLive = demo.active ? demo.dropLive : DROP_LIVE;
+  const recruitmentMode = demo.active ? demo.recruitmentMode : RECRUITMENT_MODE;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -42,7 +46,7 @@ const Index = () => {
         <WantedList />
 
         {/* Recruitment lives above the (sealed) grid as its own framed section */}
-        {!DROP_LIVE && RECRUITMENT_MODE && (
+        {!dropLive && recruitmentMode && (
           <section id="recruit" className="scroll-mt-24">
             <div className="container py-12 md:py-16">
               <WantedListRecruitment overlay={false} />
@@ -55,6 +59,11 @@ const Index = () => {
       <SocialFeeds />
       <Footer />
       {allSold && <SoldOutOverlay />}
+      {demo.active && !demo.clean && (
+        <div className="fixed bottom-3 left-3 z-[70] px-2 py-1 bg-primary text-primary-foreground font-stamp uppercase text-[10px] tracking-widest border border-tan/60 shadow-[var(--shadow-outlaw)] pointer-events-none">
+          Demo Mode
+        </div>
+      )}
     </div>
   );
 };
