@@ -189,11 +189,11 @@ export default function Review() {
             type="text"
             value={batchCode}
             onChange={(e) => setBatchCode(e.target.value)}
-            placeholder="e.g. MW-0427"
+            placeholder="MW-RRR-DA-2A7K"
             className="w-full bg-card border border-border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-stamp uppercase"
           />
           <p className="text-xs text-muted-foreground/60">
-            Found on your jar label or printed card.
+            Format: <span className="font-stamp text-foreground/80">MW-DROP-GROWER-CODE</span>. Found on your jar card. No code? You can still submit — it'll log as unverified.
           </p>
         </section>
 
