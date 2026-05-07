@@ -272,18 +272,64 @@ export default function Review() {
           />
         </section>
 
+        {/* Identity */}
+        <section className="space-y-3">
+          <label className="font-stamp text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            Display Name <span className="text-muted-foreground/50">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="e.g. TX Hunter"
+            maxLength={60}
+            className="w-full bg-card border border-border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-stamp"
+          />
+          <p className="text-xs text-muted-foreground/60">
+            How you'll appear in the public archive. Leave blank for "Anonymous Hunter".
+          </p>
+        </section>
+
+        {/* Toggles */}
+        <section className="space-y-3 border border-border/60 bg-card/40 p-4 rounded">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-primary"
+            />
+            <span className="text-sm">
+              <span className="font-stamp uppercase tracking-widest text-xs text-foreground">Show in public archive</span>
+              <span className="block text-xs text-muted-foreground mt-0.5">Your review helps other hunters trust the brand.</span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={earlyAccess}
+              onChange={(e) => setEarlyAccess(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-primary"
+            />
+            <span className="text-sm">
+              <span className="font-stamp uppercase tracking-widest text-xs text-foreground">Hunter early access list</span>
+              <span className="block text-xs text-muted-foreground mt-0.5">Get notified 24h before the next drop opens.</span>
+            </span>
+          </label>
+        </section>
+
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          disabled={!isComplete}
+          disabled={!isComplete || submitting}
           className={`w-full py-4 rounded font-outlaw text-lg tracking-wider transition-all duration-300 flex items-center justify-center gap-3 ${
-            isComplete
+            isComplete && !submitting
               ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-outlaw animate-pulse-red"
               : "bg-muted text-muted-foreground cursor-not-allowed"
           }`}
         >
           <Send className="w-5 h-5" />
-          {isComplete ? "Submit Evaluation" : "Complete All Fields"}
+          {submitting ? "Submitting…" : isComplete ? "Submit Evaluation" : "Complete All Fields"}
         </button>
 
         {!isComplete && (
@@ -292,6 +338,10 @@ export default function Review() {
             Enter batch code and rate all five criteria to submit
           </div>
         )}
+
+        <p className="text-center text-xs text-muted-foreground/60">
+          Or browse the <Link to="/archive" className="text-primary underline">public archive</Link>.
+        </p>
       </main>
 
       {/* Footer */}
