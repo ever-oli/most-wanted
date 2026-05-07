@@ -42,25 +42,47 @@ export default function Review() {
     setRatings((prev) => ({ ...prev, [criterion]: value }));
   };
 
-  const handleSubmit = () => {
-    if (!isComplete) return;
+  const handleSubmit = async () => {
+    if (!isComplete || submitting) return;
+    setSubmitting(true);
 
-    const payload = {
-      batchCode: batchCode.trim().toUpperCase(),
-      ratings,
-      average: parseFloat(average() as string),
-      notes: notes.trim(),
-      submittedAt: new Date().toISOString(),
-    };
+    const token = batchCode.trim().toUpperCase();
+    try {
+      const { data, error } = await supabase.functions.invoke("submit-review", {
+        body: {
+          token,
+          ratings: {
+            nose: ratings.NOSE,
+            structure: ratings.STRUCTURE,
+            cure: ratings.CURE,
+            burn: ratings.BURN,
+            experience: ratings.EXPERIENCE,
+          },
+          notes: notes.trim(),
+          display_name: displayName.trim(),
+          is_public: isPublic,
+          early_access_optin: earlyAccess,
+          // Pre-launch fallback so unverified reviews still log
+          drop_id_fallback: "red-river-rivalry",
+          tier_fallback: "AAA",
+        },
+      });
 
-    // TODO: Wire to your backend — Supabase, Airtable, Google Sheets, etc.
-    console.log("Review payload:", payload);
+      if (error || !data?.success) {
+        const msg = (error as any)?.context?.error || (error as any)?.message || data?.error || "Submission failed";
+        toast.error(msg);
+        setSubmitting(false);
+        return;
+      }
 
-    toast.success("Evaluation submitted. Your feedback shapes the next hunt.", {
-      duration: 4000,
-    });
-
-    setSubmitted(true);
+      setResult({ verified: data.verified, discount_code: data.discount_code, review_id: data.review_id });
+      toast.success("Evaluation logged. Your verdict is now part of the archive.");
+      setSubmitted(true);
+    } catch (e: any) {
+      toast.error(e?.message || "Something went wrong");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getScoreLabel = (score: number) => {
