@@ -16,9 +16,13 @@ import { WantedList } from "@/components/WantedList";
 import { SoldOutOverlay } from "@/components/SoldOutOverlay";
 import { WantedListRecruitment } from "@/components/WantedListRecruitment";
 import { DROP_LIVE, RECRUITMENT_MODE } from "@/lib/drop-config";
+import { useDemoMode } from "@/lib/demo-mode";
 
 const Index = () => {
   const [allSold, setAllSold] = useState(false);
+  const demo = useDemoMode();
+  const dropLive = demo.active ? demo.dropLive : DROP_LIVE;
+  const recruitmentMode = demo.active ? demo.recruitmentMode : RECRUITMENT_MODE;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
