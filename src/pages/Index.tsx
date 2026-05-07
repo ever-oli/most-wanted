@@ -46,7 +46,7 @@ const Index = () => {
         <WantedList />
 
         {/* Recruitment lives above the (sealed) grid as its own framed section */}
-        {!DROP_LIVE && RECRUITMENT_MODE && (
+        {!dropLive && recruitmentMode && (
           <section id="recruit" className="scroll-mt-24">
             <div className="container py-12 md:py-16">
               <WantedListRecruitment overlay={false} />
@@ -55,6 +55,15 @@ const Index = () => {
         )}
 
         <MysteryGrid onAllSold={() => setAllSold(true)} />
+      </main>
+      <SocialFeeds />
+      <Footer />
+      {allSold && <SoldOutOverlay />}
+      {demo.active && !demo.clean && (
+        <div className="fixed bottom-3 left-3 z-[70] px-2 py-1 bg-primary text-primary-foreground font-stamp uppercase text-[10px] tracking-widest border border-tan/60 shadow-[var(--shadow-outlaw)] pointer-events-none">
+          Demo Mode
+        </div>
+      )}
       </main>
       <SocialFeeds />
       <Footer />
