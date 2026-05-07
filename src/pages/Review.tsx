@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
-import { Star, Send, Hash, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RatingRow {
   name: string;
