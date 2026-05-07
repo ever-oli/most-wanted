@@ -335,7 +335,11 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               </div>
               <button
                 onClick={() => {
-                  toast("Routing to Shopify checkout…");
+                  if (demo.demoCheckout) {
+                    setDemoSuccessOpen(true);
+                  } else {
+                    toast("Routing to Shopify checkout…");
+                  }
                 }}
                 className="shrink-0 px-4 py-2.5 bg-primary hover:bg-primary-glow text-primary-foreground font-stamp uppercase text-xs tracking-widest shadow-[var(--shadow-outlaw)] transition-smooth focus-outlaw"
               >
@@ -354,6 +358,19 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
           alreadyInCart={activeSquare ? selected.includes(activeSquare.index) : false}
         />
       )}
+
+      <DemoCheckoutSuccess
+        open={demoSuccessOpen}
+        selected={selected}
+        grid={grid}
+        onClose={() => setDemoSuccessOpen(false)}
+        onHuntAgain={() => {
+          setDemoSuccessOpen(false);
+          setSelected([]);
+          setRevealed(new Set());
+          setLimitError(null);
+        }}
+      />
     </section>
   );
 };
