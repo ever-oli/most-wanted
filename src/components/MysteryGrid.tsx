@@ -83,6 +83,10 @@ const GridSquare = React.memo(
 GridSquare.displayName = "GridSquare";
 
 export const MysteryGrid = ({ onAllSold }: Props) => {
+  const demo = useDemoMode();
+  const DROP_LIVE = demo.active ? demo.dropLive : CONFIG_DROP_LIVE;
+  const RECRUITMENT_MODE = demo.active ? demo.recruitmentMode : CONFIG_RECRUITMENT_MODE;
+  const [demoSuccessOpen, setDemoSuccessOpen] = useState(false);
   const grid: Square[] = useMemo(() => buildGrid(DEMO_SOLD_INDEXES), []);
   const [selected, setSelected] = useState<number[]>([]);
   const [activeSquare, setActiveSquare] = useState<Square | null>(null);
