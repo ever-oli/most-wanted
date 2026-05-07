@@ -64,10 +64,6 @@ const Index = () => {
           Demo Mode
         </div>
       )}
-      </main>
-      <SocialFeeds />
-      <Footer />
-      {allSold && <SoldOutOverlay />}
     </div>
   );
 };
