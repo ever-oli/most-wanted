@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      order_tokens: {
+        Row: {
+          created_at: string
+          drop_id: string
+          email: string | null
+          redeemed_at: string | null
+          square_index: number | null
+          tier: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          drop_id: string
+          email?: string | null
+          redeemed_at?: string | null
+          square_index?: number | null
+          tier: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          drop_id?: string
+          email?: string | null
+          redeemed_at?: string | null
+          square_index?: number | null
+          tier?: string
+          token?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          average: number
+          burn: number
+          created_at: string
+          cure: number
+          display_name: string | null
+          drop_id: string
+          early_access_optin: boolean
+          experience: number
+          id: string
+          is_public: boolean
+          is_verified: boolean
+          nose: number
+          notes: string | null
+          order_token: string
+          square_index: number | null
+          structure: number
+          tier: string
+        }
+        Insert: {
+          average: number
+          burn: number
+          created_at?: string
+          cure: number
+          display_name?: string | null
+          drop_id: string
+          early_access_optin?: boolean
+          experience: number
+          id?: string
+          is_public?: boolean
+          is_verified?: boolean
+          nose: number
+          notes?: string | null
+          order_token: string
+          square_index?: number | null
+          structure: number
+          tier: string
+        }
+        Update: {
+          average?: number
+          burn?: number
+          created_at?: string
+          cure?: number
+          display_name?: string | null
+          drop_id?: string
+          early_access_optin?: boolean
+          experience?: number
+          id?: string
+          is_public?: boolean
+          is_verified?: boolean
+          nose?: number
+          notes?: string | null
+          order_token?: string
+          square_index?: number | null
+          structure?: number
+          tier?: string
+        }
+        Relationships: []
+      }
       wanted_list_signups: {
         Row: {
           created_at: string
