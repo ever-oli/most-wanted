@@ -313,3 +313,25 @@ Fill this in as you decide. Update this document.
 
 _Last edited: 2026-05-03_
 _Maintain this file. Add to it as systems change._
+
+---
+
+## 11. ORDER TOKEN FORMAT (printed on jar card)
+
+Tokens printed on each fulfilled jar's card. Used by buyers to submit verified reviews at `/review`.
+
+**Format:** `MW-{DROP}-{GROWER}-{CODE}`
+
+- `MW` — brand prefix (always)
+- `{DROP}` — 3-letter drop code (e.g. `RRR` for Red River Rivalry)
+- `{GROWER}` — 2-letter grower initials (e.g. `DA` for Dallas Architect, `OG` for OKC Ghost)
+- `{CODE}` — 4-char alphanumeric, unique per square (e.g. `2A7K`)
+
+**Example:** `MW-RRR-DA-2A7K`
+
+**Workflow when fulfilling orders:**
+1. Generate one token per jar
+2. Insert into `order_tokens` table with `drop_id`, `tier`, `square_index`, buyer `email`
+3. Print on the jar card before sealing
+4. When buyer submits at `/review`, the `submit-review` edge function verifies the token, marks it redeemed, and (if Shopify is configured) emails back a one-time 10% discount code
+
