@@ -23,7 +23,12 @@ export default function Review() {
   const [batchCode, setBatchCode] = useState("");
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
+  const [earlyAccess, setEarlyAccess] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState<{ verified: boolean; discount_code: string | null; review_id: string } | null>(null);
 
   const average = useCallback(() => {
     const values = Object.values(ratings);
