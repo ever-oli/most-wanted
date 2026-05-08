@@ -7,6 +7,7 @@ import { Hero } from "@/components/Hero";
 import { Ethos } from "@/components/Ethos";
 import { GradingSystem } from "@/components/GradingSystem";
 import { HowItWorks } from "@/components/HowItWorks";
+import { RapSheet } from "@/components/RapSheet";
 import { FAQ } from "@/components/FAQ";
 import { MysteryGrid } from "@/components/MysteryGrid";
 import { SocialFeeds } from "@/components/SocialFeeds";
@@ -42,6 +43,7 @@ const Index = () => {
         <section id="how-it-works" className="scroll-mt-24">
           <HowItWorks />
         </section>
+        <RapSheet />
         <FAQ />
         <WantedList />
 
