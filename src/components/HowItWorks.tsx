@@ -4,7 +4,7 @@ const steps = [
   { icon: Layers, title: "Choose Your Tier", body: "EXO ($110) or AAA ($75). Each tier unlocks a different pedigree of cultivar in a sealed 7g jar. Max 2 per tier, 3 per order — no whales." },
   { icon: MousePointerClick, title: "Secure Your Square", body: "Lock in your spot on the grid. Once it's gone, it's gone." },
   { icon: Package, title: "Rip the Pack", body: "1 of 3 mystery variants per tier. Your jar arrives sealed with a unique review token printed on the card." },
-  { icon: Star, title: "Rate & Reward", body: "Drop your verdict on the 5-point Ganjier scale. Your review joins the public Archive — and earns you 10% off the next drop plus 24h early access." },
+  { icon: Star, title: "Rate & Reward", body: "Your jar ships with a numbered Rap Sheet — scan its code to log your verdict on the 5-point Ganjier scale. Joins the public Archive, earns 10% off the next drop + 24h early access." },
 ];
 
 export const HowItWorks = () => (

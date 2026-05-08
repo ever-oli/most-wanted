@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { useState, useCallback, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +20,14 @@ const CRITERIA: Omit<RatingRow, "value">[] = [
 ];
 
 export default function Review() {
+  const [searchParams] = useSearchParams();
   const [batchCode, setBatchCode] = useState("");
+
+  useEffect(() => {
+    const t = searchParams.get("token") || searchParams.get("batch");
+    if (t) setBatchCode(t.toUpperCase());
+  }, [searchParams]);
+
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState("");
   const [displayName, setDisplayName] = useState("");

@@ -5,6 +5,7 @@ const LINKS = [
   { id: "ethos", label: "Ethos" },
   { id: "grading", label: "Grading" },
   { id: "how", label: "How It Works" },
+  { id: "rap-sheet", label: "Rap Sheet" },
   { id: "faq", label: "FAQ" },
   { id: "vault", label: "The Vault" },
   { id: "feed", label: "Feed" },

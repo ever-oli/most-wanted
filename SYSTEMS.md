@@ -335,3 +335,25 @@ Tokens printed on each fulfilled jar's card. Used by buyers to submit verified r
 3. Print on the jar card before sealing
 4. When buyer submits at `/review`, the `submit-review` edge function verifies the token, marks it redeemed, and (if Shopify is configured) emails back a one-time 10% discount code
 
+---
+
+## 12. THE RAP SHEET (in-jar keepsake)
+
+Every jar ships with a folded paper "Rap Sheet" — a numbered, drop-unique wanted poster for the strain inside. Doubles as the review prompt and the collectible artifact buyers archive.
+
+**Print spec:**
+- Folded size: ~3.5" × 5" (single fold, opens to 7" × 5")
+- Stock: warm kraft / parchment, matte
+- Ink: deep brown + single muted-red accent (sheriff star wax seal)
+
+**Content:**
+- **Cover:** "WANTED" header · drop-unique mugshot illustration of the strain · strain name + alias · drop name + numbered edition (`RED RIVER RIVALRY · 014 / 100`)
+- **Inside:** lineage, terps, grower, harvest date, cure days · 2–3 lines of grower field notes
+- **Verdict block:** small QR + the order token (`MW-RRR-DA-2A7K`) · microcopy "Rate this bounty. Earn 10% off the next hunt."
+- **Back:** sheriff star · "Property of the Most Wanted Archive" · `mostwantedhemp.co/archive`
+
+**QR target:** `https://mostwantedhemp.co/review?token=MW-RRR-DA-2A7K`
+The `/review` page reads `?token=` (or `?batch=`) from the URL and pre-fills the batch code field automatically — buyer just rates and submits.
+
+**Numbering:** Each drop's print run is fixed (e.g. 100 sheets for a 100-square drop). Numbering is sequential, hand-stamped or pre-printed. Once a drop closes, those sheets are never reprinted.
+
