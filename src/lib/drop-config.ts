@@ -42,10 +42,11 @@ export const DROP_SUBTITLE = "One man. NYC to Providence. Two ghosts you haven't
 /** Drop slug used in /drop/:dropId routes */
 export const DROP_SLUG = "belgium";
 
-/** Strain for this drop */
+/** Strain for this drop (EXO tier) */
 export const STRAIN_NAME = "Oreo Cookies";
 export const STRAIN_CODE = "OC";
 export const GROWER_CODE = "BEL";
+export const STRAIN_TIER: Tier = "EXO";
 
 /** First official batch code — found on every jar card */
 export const FIRST_BATCH_CODE = `MW-${STRAIN_CODE}-${GROWER_CODE}-01`;
