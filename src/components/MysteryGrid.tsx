@@ -102,10 +102,25 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const grid: Square[] = useMemo(() => buildGrid(DEMO_SOLD_INDEXES), []);
   const [selected, setSelected] = useState<number[]>([]);
   const [activeSquare, setActiveSquare] = useState<Square | null>(null);
+  const [reserveSquare, setReserveSquare] = useState<Square | null>(null);
+  const [reservedSet, setReservedSet] = useState<Set<number>>(new Set());
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [limitError, setLimitError] = useState<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
+
+  // Pre-drop preview mode: grid is sealed but interactive (hover peek + tap to reserve)
+  const previewMode = !DROP_LIVE && RECRUITMENT_MODE;
+
+  // Hydrate previously reserved squares from localStorage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("mw_reserved_squares");
+      if (raw) setReservedSet(new Set(JSON.parse(raw)));
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const allSold = grid.every((s) => s.sold);
   if (allSold) onAllSold?.();
