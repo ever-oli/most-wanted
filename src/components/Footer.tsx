@@ -73,6 +73,7 @@ export const Footer = () => {
                 <Twitter className="h-5 w-5" />
               </a>
             </div>
+          </div>
         </div>
 
         {/* Standing Signal back-channel */}
