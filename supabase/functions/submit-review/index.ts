@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
   const keys = ["nose", "structure", "cure", "burn", "experience"] as const;
   for (const k of keys) {
     const v = r[k];
-    if (!Number.isInteger(v) || v < 1 || v > 5) return bad(400, `Invalid rating for ${k}`);
+    if (!Number.isInteger(v) || v < 1 || v > 10) return bad(400, `Invalid rating for ${k}`);
   }
   const notes = (body.notes || "").trim().slice(0, 1000);
   const display_name = (body.display_name || "").trim().slice(0, 60) || null;

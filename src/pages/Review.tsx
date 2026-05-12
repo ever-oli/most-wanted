@@ -1,10 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift } from "lucide-react";
+import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift, X, ImagePlus, Play, Film } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { VALID_BATCH_CODES } from "@/lib/drop-config";
-
 
 interface RatingRow {
   name: string;
@@ -21,9 +20,17 @@ const CRITERIA: Omit<RatingRow, "value">[] = [
   { name: "EXPERIENCE", label: "Experience", description: "Effects, duration, satisfaction" },
 ];
 
+interface MediaFile {
+  id: string;
+  file: File;
+  previewUrl: string;
+  type: "image" | "video";
+}
+
 export default function Review() {
   const [searchParams] = useSearchParams();
   const [batchCode, setBatchCode] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const t = searchParams.get("token") || searchParams.get("batch");
@@ -38,6 +45,7 @@ export default function Review() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState<{ verified: boolean; discount_code: string | null; review_id: string } | null>(null);
+  const [media, setMedia] = useState<MediaFile[]>([]);
 
   const average = useCallback(() => {
     const values = Object.values(ratings);
@@ -50,6 +58,36 @@ export default function Review() {
 
   const handleRate = (criterion: string, value: number) => {
     setRatings((prev) => ({ ...prev, [criterion]: value }));
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newMedia: MediaFile[] = [];
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) return;
+      if (media.length + newMedia.length >= 10) {
+        toast.error("Max 10 media items per review.");
+        return;
+      }
+      const id = Math.random().toString(36).slice(2);
+      const type = file.type.startsWith("video/") ? "video" : "image";
+      newMedia.push({ id, file, previewUrl: URL.createObjectURL(file), type });
+    });
+
+    if (newMedia.length > 0) {
+      setMedia((prev) => [...prev, ...newMedia]);
+    }
+    e.target.value = "";
+  };
+
+  const removeMedia = (id: string) => {
+    setMedia((prev) => {
+      const item = prev.find((m) => m.id === id);
+      if (item) URL.revokeObjectURL(item.previewUrl);
+      return prev.filter((m) => m.id !== id);
+    });
   };
 
   const handleSubmit = async () => {
@@ -72,9 +110,9 @@ export default function Review() {
           display_name: displayName.trim(),
           is_public: isPublic,
           early_access_optin: earlyAccess,
-          // Pre-launch fallback so unverified reviews still log
           drop_id_fallback: "belgium",
           tier_fallback: "AAA",
+          media_count: media.length,
         },
       });
 
@@ -97,17 +135,17 @@ export default function Review() {
 
   const getScoreLabel = (score: number) => {
     if (score === 0) return "—";
-    if (score <= 1.5) return "Below Standard";
-    if (score <= 2.5) return "Fair";
-    if (score <= 3.5) return "Proper";
-    if (score <= 4.5) return "Quality";
+    if (score <= 3) return "Below Standard";
+    if (score <= 5) return "Fair";
+    if (score <= 7) return "Proper";
+    if (score <= 9) return "Quality";
     return "Exceptional";
   };
 
   const getScoreColor = (score: number) => {
     if (score === 0) return "text-muted-foreground";
-    if (score <= 2) return "text-destructive";
-    if (score <= 3) return "text-secondary";
+    if (score <= 4) return "text-destructive";
+    if (score <= 6) return "text-secondary";
     return "text-primary";
   };
 
@@ -162,6 +200,7 @@ export default function Review() {
                 setRatings({});
                 setNotes("");
                 setDisplayName("");
+                setMedia([]);
               }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
             >
@@ -215,10 +254,10 @@ export default function Review() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-stamp text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              The Five Points
+              The Ten Points
             </h2>
             <div className={`font-outlaw text-2xl ${getScoreColor(parseFloat(average() as string))}`}>
-              {average()} <span className="text-xs font-sans text-muted-foreground">/ 5</span>
+              {average()} <span className="text-xs font-sans text-muted-foreground">/ 10</span>
             </div>
           </div>
 
@@ -238,20 +277,20 @@ export default function Review() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((value) => (
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
                     <button
                       key={value}
                       onClick={() => handleRate(criterion.name, value)}
-                      className={`p-1 transition-all duration-200 ${
+                      className={`p-0.5 transition-all duration-200 ${
                         ratings[criterion.name] >= value
                           ? "text-primary scale-110"
                           : "text-muted-foreground/30 hover:text-muted-foreground/60"
                       }`}
-                      aria-label={`Rate ${criterion.label} ${value} out of 5`}
+                      aria-label={`Rate ${criterion.label} ${value} out of 10`}
                     >
                       <Star
-                        className="w-6 h-6"
+                        className="w-5 h-5"
                         fill={ratings[criterion.name] >= value ? "currentColor" : "none"}
                         strokeWidth={1.5}
                       />
@@ -265,12 +304,70 @@ export default function Review() {
 
         {/* Score Key */}
         <div className="grid grid-cols-5 gap-2 text-center text-[10px] font-stamp text-muted-foreground/60">
-          <div>1<br />Below</div>
-          <div>2<br />Fair</div>
-          <div>3<br />Proper</div>
-          <div>4<br />Quality</div>
-          <div>5<br />Exceptional</div>
+          <div>1–3<br />Below</div>
+          <div>4–5<br />Fair</div>
+          <div>6–7<br />Proper</div>
+          <div>8–9<br />Quality</div>
+          <div>10<br />Exceptional</div>
         </div>
+
+        {/* Media Upload — Instagram-style */}
+        <section className="space-y-3">
+          <label className="flex items-center gap-2 text-sm font-stamp uppercase tracking-wider text-muted-foreground">
+            <ImagePlus className="w-4 h-4" />
+            Media
+          </label>
+
+          <div className="grid grid-cols-3 gap-2">
+            {media.map((item) => (
+              <div key={item.id} className="relative aspect-square group rounded-lg overflow-hidden border border-border bg-card">
+                {item.type === "video" ? (
+                  <video src={item.previewUrl} className="w-full h-full object-cover" muted playsInline />
+                ) : (
+                  <img src={item.previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                )}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
+                <button
+                  onClick={() => removeMedia(item.id)}
+                  className="absolute top-1 right-1 p-1 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Remove media"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                {item.type === "video" && (
+                  <div className="absolute bottom-1 left-1 p-1 bg-black/60 text-white rounded">
+                    <Play className="w-3 h-3" />
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {media.length < 10 && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="aspect-square flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border hover:border-primary/60 hover:bg-card/60 transition-all"
+              >
+                <Film className="w-6 h-6 text-muted-foreground/60" />
+                <span className="text-[10px] font-stamp uppercase tracking-wider text-muted-foreground/60">
+                  Add
+                </span>
+              </button>
+            )}
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+
+          <p className="text-xs text-muted-foreground/60">
+            Photos or videos of your jar, buds, smoke session — max 10 items.
+          </p>
+        </section>
 
         {/* Notes */}
         <section className="space-y-3">

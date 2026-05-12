@@ -21,14 +21,14 @@ interface Review {
   created_at: string;
 }
 
-const SCORE_LABELS = ["", "Below", "Fair", "Proper", "Quality", "Exceptional"];
+const SCORE_LABELS = ["", "Below", "Below", "Below", "Fair", "Fair", "Proper", "Proper", "Quality", "Quality", "Exceptional"];
 
 function ScoreBar({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex items-center gap-2 text-[10px] font-stamp uppercase tracking-widest">
       <span className="w-20 text-muted-foreground">{label}</span>
       <div className="flex-1 h-1.5 bg-muted overflow-hidden border border-border/40">
-        <div className="h-full bg-gradient-to-r from-primary to-tan" style={{ width: `${(value / 5) * 100}%` }} />
+        <div className="h-full bg-gradient-to-r from-primary to-tan" style={{ width: `${(value / 10) * 100}%` }} />
       </div>
       <span className="w-4 text-right text-foreground">{value}</span>
     </div>

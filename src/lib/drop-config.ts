@@ -43,8 +43,8 @@ export const DROP_SUBTITLE = "One man. NYC to Providence. Two ghosts you haven't
 export const DROP_SLUG = "belgium";
 
 /** Strain for this drop */
-export const STRAIN_NAME = "SuperBoof";
-export const STRAIN_CODE = "SB";
+export const STRAIN_NAME = "Oreo Cookies";
+export const STRAIN_CODE = "OC";
 export const GROWER_CODE = "BEL";
 
 /** First official batch code — found on every jar card */
