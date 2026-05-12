@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { FIRST_BATCH_CODE } from "@/lib/drop-config";
+
 
 interface RatingRow {
   name: string;
@@ -197,7 +197,7 @@ export default function Review() {
             type="text"
             value={batchCode}
             onChange={(e) => setBatchCode(e.target.value)}
-            placeholder={FIRST_BATCH_CODE}
+            placeholder="MW-RRR-DA-2A7K"
             className="w-full bg-card border border-border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-stamp uppercase"
           />
           <p className="text-xs text-muted-foreground/60">
