@@ -412,6 +412,22 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
           setLimitError(null);
         }}
       />
+
+      {previewMode && (
+        <ReserveSquareSheet
+          square={reserveSquare}
+          onClose={() => setReserveSquare(null)}
+          onReserved={(idx) =>
+            setReservedSet((prev) => {
+              const next = new Set(prev);
+              next.add(idx);
+              return next;
+            })
+          }
+        />
+      )}
+
+      <VaultTour enabled={previewMode || DROP_LIVE} />
     </section>
   );
 };
