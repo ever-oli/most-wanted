@@ -73,7 +73,12 @@ export const Footer = () => {
                 <Twitter className="h-5 w-5" />
               </a>
             </div>
-          </div>
+        </div>
+
+        {/* Standing Signal back-channel */}
+        <div className="mt-10 pt-8 border-t border-border/60">
+          <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-4 text-center md:text-left">— Back-Channel —</p>
+          <SignalContact />
         </div>
 
         {/* Legal + origin */}
