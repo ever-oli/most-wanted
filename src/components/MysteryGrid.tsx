@@ -141,13 +141,23 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const handleTap = useCallback(
     (sq: Square) => {
       if (sq.sold) return;
+      // Pre-drop preview mode: tap once to reveal tier, tap again to open reserve form
+      if (previewMode) {
+        if (!revealed.has(sq.index)) {
+          setRevealed((prev) => new Set(prev).add(sq.index));
+          return;
+        }
+        setReserveSquare(sq);
+        return;
+      }
+      // Live drop: tap once to reveal, tap again to add to cart
       if (!revealed.has(sq.index)) {
         setRevealed((prev) => new Set(prev).add(sq.index));
         return;
       }
       setActiveSquare(sq);
     },
-    [revealed]
+    [revealed, previewMode]
   );
 
   const tryAddToCart = (sq: Square) => {
