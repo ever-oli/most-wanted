@@ -32,7 +32,6 @@ const Index = () => {
       <AnchorNav />
       <main>
         <Hero />
-        <HashHolesDrop />
         <section id="ethos" className="scroll-mt-24">
           <Ethos />
         </section>
