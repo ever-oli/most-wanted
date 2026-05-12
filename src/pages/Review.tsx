@@ -70,7 +70,7 @@ export default function Review() {
           is_public: isPublic,
           early_access_optin: earlyAccess,
           // Pre-launch fallback so unverified reviews still log
-          drop_id_fallback: "red-river-rivalry",
+          drop_id_fallback: "belgium",
           tier_fallback: "AAA",
         },
       });
