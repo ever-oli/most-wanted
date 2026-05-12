@@ -52,7 +52,14 @@ export const DropStory = () => {
               {OPERATORS.map((op, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm text-foreground">
                   <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span className="font-stamp">
+                  <span
+                    className={
+                      "font-stamp " +
+                      (op.redacted
+                        ? "bg-foreground/80 text-background px-2 py-0.5 tracking-[0.3em]"
+                        : "")
+                    }
+                  >
                     {op.alias} · {op.region}
                   </span>
                 </div>
