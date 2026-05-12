@@ -7,7 +7,7 @@ import { VaultCountdown } from "./VaultCountdown";
 import { WantedListRecruitment } from "./WantedListRecruitment";
 import { PosterFrame } from "./PosterFrame";
 import { DemoCheckoutSuccess } from "./DemoCheckoutSuccess";
-import { VaultTour } from "./VaultTour";
+
 import { VaultTicker } from "./VaultTicker";
 import { ReserveSquareSheet } from "./ReserveSquareSheet";
 import { useDemoMode } from "@/lib/demo-mode";
@@ -427,7 +427,6 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
         />
       )}
 
-      <VaultTour enabled={previewMode || DROP_LIVE} />
     </section>
   );
 };
