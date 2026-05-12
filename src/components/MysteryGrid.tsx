@@ -427,7 +427,6 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
         />
       )}
 
-      <VaultTour enabled={previewMode || DROP_LIVE} />
     </section>
   );
 };
