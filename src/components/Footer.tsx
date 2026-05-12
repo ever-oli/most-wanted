@@ -1,5 +1,6 @@
 import { Instagram, Twitter, Mail } from "lucide-react";
 import { useState } from "react";
+import { SignalContact } from "@/components/SignalContact";
 
 export const Footer = () => {
   const [email, setEmail] = useState("");
