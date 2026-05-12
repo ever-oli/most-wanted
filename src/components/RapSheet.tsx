@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Hash, QrCode, Stamp } from "lucide-react";
-import jarsImg from "@/assets/jars-most-wanted.jpg";
 import rapSheetImg from "@/assets/rap-sheet-mock.png";
 import { PosterFrame } from "@/components/PosterFrame";
+import { DROP_NAME } from "@/lib/drop-config";
 
 export const RapSheet = () => (
   <section id="rap-sheet" className="container py-16 md:py-24 scroll-mt-24">
@@ -17,37 +17,28 @@ export const RapSheet = () => (
         A folded paper rap sheet — numbered, drop-unique, and inked with the bounty's
         full criminal history. Yours to archive. Scan it to log your verdict.
       </p>
+      <p className="mt-2 font-stamp text-[10px] uppercase tracking-[0.3em] text-tan">
+        {DROP_NAME.toUpperCase()} · 014 / 100
+      </p>
     </div>
 
     <div className="grid md:grid-cols-2 gap-6 md:gap-10 items-center">
-      {/* Jar photo */}
+      {/* Rap Sheet mock */}
       <div className="relative">
         <PosterFrame>
           <img
-            src={jarsImg}
-            alt="Most Wanted amber glass jars with engraved bamboo lids"
+            src={rapSheetImg}
+            alt="Rap Sheet keepsake — a numbered wanted poster for the strain inside your jar"
             loading="lazy"
-            width={1645}
-            height={1645}
+            width={1024}
+            height={1280}
             className="w-full h-auto border border-border bg-card"
           />
         </PosterFrame>
       </div>
 
-      {/* Rap Sheet mock + bullets */}
+      {/* Bullets + CTAs */}
       <div className="space-y-6">
-        <div className="relative">
-          <PosterFrame>
-            <img
-              src={rapSheetImg}
-              alt="Rap Sheet keepsake — a numbered wanted poster for the strain inside your jar"
-              loading="lazy"
-              width={1024}
-              height={1280}
-              className="w-full h-auto border border-border bg-card"
-            />
-          </PosterFrame>
-        </div>
 
         <ul className="space-y-3 text-sm md:text-base">
           <li className="flex gap-3">
