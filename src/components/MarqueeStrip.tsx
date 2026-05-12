@@ -1,8 +1,11 @@
 const ITEMS = [
-  "Small-Batch Drops",
+  "BELGIUM",
+  "███████",
+  "███████",
+  "NYC",
+  "PROVIDENCE",
   "Sealed Until Your Door",
   "64 Squares · 64 Outlaws",
-  "Concierge to the Finest",
   "Solventless Heritage",
 ];
 
