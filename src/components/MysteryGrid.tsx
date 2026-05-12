@@ -234,7 +234,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
 
     el.addEventListener("keydown", onKey);
     return () => el.removeEventListener("keydown", onKey);
-  }, [focusedIndex, grid, handleTap]);
+  }, [focusedIndex, grid, handleTap, DROP_LIVE, previewMode]);
 
   return (
     <section id="vault" className="relative scroll-mt-24">
