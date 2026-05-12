@@ -71,11 +71,11 @@ export const AgeGate = () => {
             ★ By Order Of The Outlaw ★
           </p>
           <h2 className="font-outlaw text-3xl md:text-4xl text-foreground text-shadow-outlaw mb-4">
-            Are You 21 or Older?
+            21+ Only. No Exceptions.
           </h2>
           <p className="text-muted-foreground text-sm mb-8 max-w-sm mx-auto">
-            By entering, you confirm you are of legal age in your jurisdiction.
-            All products are 2018 Farm Bill compliant.
+            By riding in, you confirm you are 21 or older and of legal age in your jurisdiction.
+            All products are 2018 Farm Bill compliant. Lab tested. Sealed fresh.
           </p>
           <div className="flex gap-3 justify-center">
             <Button
