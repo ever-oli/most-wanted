@@ -202,7 +202,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
     if (!el) return;
 
     const onKey = (e: KeyboardEvent) => {
-      if (!DROP_LIVE) return;
+      if (!DROP_LIVE && !previewMode) return;
       const max = grid.length - 1;
       let next = focusedIndex;
       switch (e.key) {
