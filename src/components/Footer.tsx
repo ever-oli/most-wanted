@@ -1,5 +1,6 @@
 import { Instagram, Twitter, Mail } from "lucide-react";
 import { useState } from "react";
+import { SignalContact } from "@/components/SignalContact";
 
 export const Footer = () => {
   const [email, setEmail] = useState("");
@@ -73,6 +74,12 @@ export const Footer = () => {
               </a>
             </div>
           </div>
+        </div>
+
+        {/* Standing Signal back-channel */}
+        <div className="mt-10 pt-8 border-t border-border/60">
+          <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-4 text-center md:text-left">— Back-Channel —</p>
+          <SignalContact />
         </div>
 
         {/* Legal + origin */}

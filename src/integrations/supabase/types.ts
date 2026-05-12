@@ -109,16 +109,19 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          square_index: number | null
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
+          square_index?: number | null
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
+          square_index?: number | null
         }
         Relationships: []
       }

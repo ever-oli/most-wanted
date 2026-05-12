@@ -7,8 +7,11 @@ import { VaultCountdown } from "./VaultCountdown";
 import { WantedListRecruitment } from "./WantedListRecruitment";
 import { PosterFrame } from "./PosterFrame";
 import { DemoCheckoutSuccess } from "./DemoCheckoutSuccess";
+import { VaultTour } from "./VaultTour";
+import { VaultTicker } from "./VaultTicker";
+import { ReserveSquareSheet } from "./ReserveSquareSheet";
 import { useDemoMode } from "@/lib/demo-mode";
-import { Lock } from "lucide-react";
+import { Lock, Eye } from "lucide-react";
 
 interface Props {
   onAllSold?: () => void;
@@ -19,6 +22,8 @@ interface SquareProps {
   sq: Square;
   isSelected: boolean;
   isRevealed: boolean;
+  isReserved: boolean;
+  previewMode: boolean;
   onTap: (sq: Square) => void;
   onHover: (idx: number) => void;
   focused: boolean;
@@ -27,7 +32,7 @@ interface SquareProps {
 import React from "react";
 
 const GridSquare = React.memo(
-  ({ sq, isSelected, isRevealed, onTap, onHover, focused, isGolden }: SquareProps & { isGolden: boolean }) => {
+  ({ sq, isSelected, isRevealed, isReserved, previewMode, onTap, onHover, focused, isGolden }: SquareProps & { isGolden: boolean }) => {
     const tierColor = sq.tier === "EXO" ? "bg-tier-exo" : "bg-tier-aaa";
     return (
       <button
@@ -44,14 +49,16 @@ const GridSquare = React.memo(
           "border border-border/60 active:scale-[0.92] motion-reduce:active:scale-100",
           sq.sold && "bg-sold text-foreground/40 cursor-not-allowed border-border active:scale-100",
           !sq.sold && !isRevealed && "bg-muted hover:bg-muted-foreground/20 text-transparent",
-          !sq.sold && isRevealed && tierColor + " text-background hover:brightness-110",
+          !sq.sold && isRevealed && !previewMode && tierColor + " text-background hover:brightness-110",
+          !sq.sold && isRevealed && previewMode && "bg-muted/60 hover:bg-muted text-foreground/70 border-tan/40",
           isSelected && "ring-2 ring-primary ring-offset-1 ring-offset-background animate-pulse-red motion-reduce:animate-none",
+          isReserved && !sq.sold && "ring-1 ring-tan/60",
           isGolden && !sq.sold && "shadow-[0_0_12px_hsl(var(--tan)/0.4)] border-tan/60"
         )}
         aria-label={
           sq.sold
             ? `Square ${sq.index + 1} sold`
-            : `Square ${sq.index + 1}, tier ${sq.tier}, $${TIERS[sq.tier].price}${isGolden ? ', golden square' : ''}`
+            : `Square ${sq.index + 1}, tier ${sq.tier}, $${TIERS[sq.tier].price}${isGolden ? ', golden square' : ''}${previewMode ? ', tap to reserve' : ''}`
         }
         aria-pressed={isSelected}
       >
@@ -65,6 +72,11 @@ const GridSquare = React.memo(
           <span className="block leading-none text-foreground/60">{sq.index + 1}</span>
         )}
 
+        {/* Reserved (pre-drop) marker */}
+        {isReserved && !sq.sold && (
+          <span className="absolute bottom-0.5 right-0.5 text-tan text-[8px] leading-none">👁</span>
+        )}
+
         {/* Golden indicator */}
         {isGolden && !sq.sold && (
           <span className="absolute top-0.5 right-0.5 h-1 w-1 bg-tan rounded-full" />
@@ -73,7 +85,7 @@ const GridSquare = React.memo(
         {/* Hover tooltip */}
         {!sq.sold && isRevealed && (
           <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-background border border-tan/40 text-[9px] tracking-wider text-foreground whitespace-nowrap opacity-0 group-hover/tile:opacity-100 transition-opacity pointer-events-none z-20 hidden sm:block shadow-[0_4px_12px_hsl(0_0%_0%/0.6)]">
-            {sq.tier} · ${TIERS[sq.tier].price}{isGolden ? ' · ★' : ''}
+            {sq.tier} · ${TIERS[sq.tier].price}{isGolden ? ' · ★' : ''}{previewMode ? ' · locks at drop' : ''}
           </span>
         )}
       </button>
@@ -90,10 +102,25 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const grid: Square[] = useMemo(() => buildGrid(DEMO_SOLD_INDEXES), []);
   const [selected, setSelected] = useState<number[]>([]);
   const [activeSquare, setActiveSquare] = useState<Square | null>(null);
+  const [reserveSquare, setReserveSquare] = useState<Square | null>(null);
+  const [reservedSet, setReservedSet] = useState<Set<number>>(new Set());
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [limitError, setLimitError] = useState<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
+
+  // Pre-drop preview mode: grid is sealed but interactive (hover peek + tap to reserve)
+  const previewMode = !DROP_LIVE && RECRUITMENT_MODE;
+
+  // Hydrate previously reserved squares from localStorage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("mw_reserved_squares");
+      if (raw) setReservedSet(new Set(JSON.parse(raw)));
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const allSold = grid.every((s) => s.sold);
   if (allSold) onAllSold?.();
@@ -114,13 +141,23 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
   const handleTap = useCallback(
     (sq: Square) => {
       if (sq.sold) return;
+      // Pre-drop preview mode: tap once to reveal tier, tap again to open reserve form
+      if (previewMode) {
+        if (!revealed.has(sq.index)) {
+          setRevealed((prev) => new Set(prev).add(sq.index));
+          return;
+        }
+        setReserveSquare(sq);
+        return;
+      }
+      // Live drop: tap once to reveal, tap again to add to cart
       if (!revealed.has(sq.index)) {
         setRevealed((prev) => new Set(prev).add(sq.index));
         return;
       }
       setActiveSquare(sq);
     },
-    [revealed]
+    [revealed, previewMode]
   );
 
   const tryAddToCart = (sq: Square) => {
@@ -165,7 +202,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
     if (!el) return;
 
     const onKey = (e: KeyboardEvent) => {
-      if (!DROP_LIVE) return;
+      if (!DROP_LIVE && !previewMode) return;
       const max = grid.length - 1;
       let next = focusedIndex;
       switch (e.key) {
@@ -197,7 +234,7 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
 
     el.addEventListener("keydown", onKey);
     return () => el.removeEventListener("keydown", onKey);
-  }, [focusedIndex, grid, handleTap]);
+  }, [focusedIndex, grid, handleTap, DROP_LIVE, previewMode]);
 
   return (
     <section id="vault" className="relative scroll-mt-24">
@@ -211,7 +248,9 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
             {DROP_SUBTITLE}
           </p>
           <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
-            Tap once to reveal the tier. Tap again to lock it in. Max {MAX_CART_TOTAL} per order.
+            {previewMode
+              ? "Hover to peek the tier. Tap to reserve a spot on the wanted list. Pay nothing now."
+              : `Tap once to reveal the tier. Tap again to lock it in. Max ${MAX_CART_TOTAL} per order.`}
           </p>
 
           {/* Legend / counts */}
@@ -242,6 +281,9 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
           </div>
         </div>
 
+        {/* Live activity ticker */}
+        <VaultTicker />
+
         {/* Grid container */}
         <div className="relative mx-auto max-w-2xl">
           <div className="absolute -inset-4 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 blur-2xl pointer-events-none" />
@@ -252,7 +294,8 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               tabIndex={0}
               className={cn(
                 "grid gap-1 sm:gap-1.5 mx-auto relative focus-outlaw group",
-                !DROP_LIVE && "blur-sm pointer-events-none select-none opacity-60"
+                // Sealed + no-recruitment = blurred tease. In recruitment preview, the grid is interactive.
+                !DROP_LIVE && !previewMode && "blur-sm pointer-events-none select-none opacity-60"
               )}
               style={{
                 gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
@@ -266,6 +309,8 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
                   sq={sq}
                   isSelected={selected.includes(sq.index)}
                   isRevealed={revealed.has(sq.index) || selected.includes(sq.index)}
+                  isReserved={reservedSet.has(sq.index)}
+                  previewMode={previewMode}
                   onTap={handleTap}
                   onHover={(idx) => setRevealed((p) => new Set(p).add(idx))}
                   focused={focusedIndex === sq.index}
@@ -274,15 +319,11 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               ))}
             </div>
 
-            {/* Countdown overlay when vault is sealed (recruitment lives above as its own section) */}
+            {/* Countdown overlay only when sealed and NOT in recruitment (preview keeps grid usable) */}
             {!DROP_LIVE && !RECRUITMENT_MODE && <VaultCountdown />}
-            {!DROP_LIVE && RECRUITMENT_MODE && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center p-4 pointer-events-none">
-                <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
-                <p className="relative font-stamp uppercase text-[11px] tracking-[0.3em] text-tan/80 text-center">
-                  ★ Vault Sealed ★<br />
-                  <span className="text-[10px] text-muted-foreground">Sign the wanted list above to arm it</span>
-                </p>
+            {previewMode && (
+              <div className="mt-3 flex items-center justify-center gap-2 font-stamp uppercase text-[10px] tracking-[0.25em] text-tan/80">
+                <Eye className="h-3 w-3" /> Preview Mode · No purchase yet
               </div>
             )}
           </div>
@@ -371,6 +412,22 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
           setLimitError(null);
         }}
       />
+
+      {previewMode && (
+        <ReserveSquareSheet
+          square={reserveSquare}
+          onClose={() => setReserveSquare(null)}
+          onReserved={(idx) =>
+            setReservedSet((prev) => {
+              const next = new Set(prev);
+              next.add(idx);
+              return next;
+            })
+          }
+        />
+      )}
+
+      <VaultTour enabled={previewMode || DROP_LIVE} />
     </section>
   );
 };

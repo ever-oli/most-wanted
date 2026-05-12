@@ -1,69 +1,101 @@
-# The Rap Sheet — Keepsake & Review Driver
+# Belgium Drop + Interactive Sealed Vault
 
-A folded paper dossier tucked inside every jar. Looks like an old-west criminal record for the strain. Doubles as the review prompt and the collectible artifact hunters archive.
+## 1. Strip & rename
 
-## What goes on the Rap Sheet
+**HashHolesDrop (Fidels promo)** — `src/components/HashHolesDrop.tsx`
+- Remove the section entirely from `src/pages/Index.tsx` (keep the file for now, just unmount).
+- Keep the Signal contact pattern (alias `ever.07`, QR, "Open Signal" link) and lift it into a smaller, reusable **`SignalContact`** component placed in the Footer area as the standing back-channel — no product imagery, no Fidels copy.
 
-**Front (cover, folded closed)**
-- "WANTED" header in the outlaw font
-- Strain name as the alias (e.g. *"GORILLA GLUE #4 — alias 'The Glue'"*)
-- Mugshot-style illustration (drop-unique art per drop)
-- Drop name + numbered edition: `RED RIVER RIVALRY · 014 / 100`
+**Red River Rivalry** — purge across:
+- `src/lib/drop-config.ts`: replace `DROP_NAME`, `DROP_SUBTITLE`, `OPERATORS`, `WANTED_LIST_CLUES`, `DROP_STORY` with the new Belgium lore (see §2).
+- `src/pages/DropStory.tsx`: change route guard from `red-river-rivalry` to `belgium`.
+- `src/components/RapSheet.tsx`: drop the `RED RIVER RIVALRY · 014/100` example to `BELGIUM · 014/100`.
+- `SYSTEMS.md` + `.lovable/plan.md`: swap example tokens (`MW-RRR-…` → `MW-BEL-…`).
 
-**Inside (unfolds)**
-- **Rap Sheet:** lineage, terps, grower, harvest date, cure days
-- **Field notes:** 2–3 lines of grower voice
-- **The Verdict is Yours:** small QR + batch code (`MW-RRR-DA-2A7K`), microcopy "Rate this bounty. Earn 10% off the next hunt."
+**AI strain photo** — remove `src/assets/jars-most-wanted.jpg` usage from `RapSheet.tsx` (and the file). The Rap Sheet section keeps the parchment mock + bullets; jar imagery comes back later when we have a real photo.
 
-**Back**
-- Sheriff star + "Property of the Most Wanted Archive"
-- mostwantedhemp.co/archive
+## 2. New drop: "Belgium" + mystery accomplices
 
-Same template every drop, art + numbering swap. Cheap to print, high narrative weight.
+```text
+DROP_NAME      = "Belgium"
+DROP_SUBTITLE  = "One man. NYC to Providence. Two ghosts you haven't met yet."
+```
 
-## Site changes
+- **Operators:** `Belgium · NYC / RI` is the only named one. Add 2 placeholder slots: `??? · Accomplice #1`, `??? · Accomplice #2` — visually redacted (black-bar treatment) on `DropStory`.
+- **Wanted List clues** (semi-cryptic, leaning into the waffle/Belgian lore as flavor, not a real recipe):
+  1. "He moves between the boroughs and the bay."
+  2. "They call him Belgium. He won't tell you why."
+  3. "Two more names on the sheet — both redacted."
+  4. "If you know, you know. The waffle is a coincidence."
+  5. "Sealed until your door."
+- **Waffle recipe:** **reference only**, never printed. One throwaway line on `DropStory` ("No, there's no recipe. Stop asking.") — that's the whole joke.
 
-1. **New section on `/` — "The Rap Sheet"**
-   - Lives between `HowItWorks` and `GradingSystem` (keeps the loop story tight: hunt → unbox → rate)
-   - Headline: *"Every Jar Comes With A Record"*
-   - Two-column on desktop / stacked on mobile:
-     - Left: cleaned jar photo (Gemini watermark removed)
-     - Right: a `PosterFrame`-wrapped mock of the rap sheet, showing the QR placeholder + batch code, with three bullets:
-       - *Numbered & drop-unique* — only X printed, never reprinted
-       - *Your batch, your record* — code on the sheet matches your jar
-       - *Rate it, archive it* — scan to log your verdict, earn 10% off
-   - CTA row: "See The Archive →" (`/archive`) and "Submit a Verdict →" (`/review`)
+## 3. Sealed-vault interactivity (all 4, layered)
 
-2. **Jar image cleanup**
-   - Use `imagegen--edit_image` on the uploaded photo to remove the Gemini watermark in the bottom-right corner
-   - Save to `src/assets/jars-most-wanted.jpg`
+Goal: the locked grid stops being a static tease and starts teaching + collecting intent.
 
-3. **Rap Sheet visual mock**
-   - Generated illustration (`src/assets/rap-sheet-mock.png`) — folded paper with the layout above, on a dark background, premium quality so the typography reads
-   - No real QR yet (placeholder square that says "SCAN")
+**A. First-visit walkthrough overlay** — new `src/components/VaultTour.tsx`
+- 3 coachmarks anchored to the grid: (1) "Each square = one sealed jar", (2) "Hover to peek the tier", (3) "Tap to claim your spot on the Wanted List".
+- Stored in `localStorage` (`mw_vault_tour_seen`). Skip button + auto-dismiss on outside click.
 
-4. **Anchor nav + Footer**
-   - Add "Rap Sheet" link to `AnchorNav.tsx`
-   - Footer already has Review + Archive — leave alone
+**B. Hover/click preview (sealed)** — `src/components/MysteryGrid.tsx`
+- Pre-drop, hovering a square reveals tier badge (EXO/AAA) + price + "locks at drop" microcopy in a small floating chip. No buy action.
+- Mobile: tap once to preview, tap again to reserve (B → C).
 
-5. **Copy touch-ups**
-   - `HowItWorks` step 4 ("Rate & Reward") gets one line: *"Your jar ships with a numbered Rap Sheet — scan the code on it to log your verdict."*
-   - `SYSTEMS.md` gets a new "Rap Sheet" subsection under the token format spec, documenting print specs (folded 3.5"×5", numbered 001–XXX per drop, QR points to `/review?token=…`).
+**C. Tap-to-reserve interest** — wires into existing `WantedListRecruitment` + `wanted-list-signup` edge function
+- Tapping a square (after preview state) opens a tiny inline form: email + optional phone (SMS).
+- On submit, marks the square with a faint "👁 watched" overlay and increments the recruitment counter toward 64.
+- Reuses the existing edge function; add a `square_index` column to whatever table backs it (migration scope: 1 column, nullable).
 
-6. **Pre-fill review token from QR**
-   - Update `Review.tsx` to read `?token=` from the URL and pre-populate the batch code field. Tiny change, big UX win when they scan.
+**D. Live activity ticker** — new `src/components/VaultTicker.tsx`
+- Strip above/below the grid: `> square 14 just got eyed · 41 of 64 spots watched · 23 hunters online`.
+- Real watched-count from the recruitment table; "hunters online" is a tasteful synthetic counter (drifts in a believable range, not faked sales).
+
+```text
+┌──────────────────────────────────────────────┐
+│  > square 14 eyed · 41/64 watched · 23 live  │ ← VaultTicker
+├──────────────────────────────────────────────┤
+│ [grid]  hover → tier chip                    │
+│         tap   → reserve form                 │
+│         first visit → VaultTour coachmarks   │
+└──────────────────────────────────────────────┘
+```
+
+## 4. Justfeats-inspired polish (visual + business)
+
+**Visual**
+- Tighter product/tier cards in `MysteryGrid` legend + `Ethos`: less padding, larger numerals, stronger red accents. Matches the Supreme-store DNA you want to lean into.
+- New **operator marquee** under the Hero: `BELGIUM · ??? · ??? · NYC · PROVIDENCE · BELGIUM ·` — same pattern as justfeats' `TENCO·PALATE·NOBOOF` row. Reuse `MarqueeStrip.tsx` with new content.
+
+**Business cues (additive, not replacing tier model)**
+- Add an **anchor bundle hint** to `PromoBanner` / `Ethos`: "3-jar haul → free priority shipping" (mirrors justfeats' bulk angle without adding a new SKU).
+- **SMS tracking** mention: line on `HowItWorks` step 3 ("Tracking pings your phone the second it ships") and a checkbox on the reserve form (§3C).
+- Strengthen the **21+ gate** copy in `AgeGate` to match the no-nonsense justfeats tone.
+
+## 5. Files touched
+
+```text
+remove from page  src/pages/Index.tsx (drop <HashHolesDrop/>)
+new               src/components/SignalContact.tsx
+new               src/components/VaultTour.tsx
+new               src/components/VaultTicker.tsx
+edit              src/lib/drop-config.ts        (Belgium lore + clues + operators)
+edit              src/pages/DropStory.tsx       (route id, redacted accomplices, waffle gag)
+edit              src/components/MysteryGrid.tsx (hover preview + tap-to-reserve)
+edit              src/components/RapSheet.tsx   (token example, drop jar image)
+edit              src/components/MarqueeStrip.tsx (operator marquee)
+edit              src/components/PromoBanner.tsx + Ethos.tsx (bundle hint)
+edit              src/components/HowItWorks.tsx (SMS tracking line)
+edit              src/components/AgeGate.tsx    (tighter 21+ copy)
+edit              src/components/Footer.tsx     (mount SignalContact)
+delete            src/assets/jars-most-wanted.jpg
+edit              SYSTEMS.md, .lovable/plan.md  (token examples)
+migration         add nullable square_index to recruitment signups table
+```
 
 ## Out of scope
-- Actual print-ready PDF artwork (you'll commission that separately)
-- Real QR generation per token (the edge function can mint a per-order URL later — not needed for the site mock)
-- Sticker / second physical item — explicitly skipped per your call
 
-## Files touched
-- new: `src/components/RapSheet.tsx`
-- new asset: `src/assets/jars-most-wanted.jpg` (cleaned upload)
-- new asset: `src/assets/rap-sheet-mock.png` (generated)
-- edit: `src/pages/Index.tsx` (mount section)
-- edit: `src/components/AnchorNav.tsx` (nav link)
-- edit: `src/components/HowItWorks.tsx` (one line)
-- edit: `src/pages/Review.tsx` (read `?token=`)
-- edit: `SYSTEMS.md` (print spec)
+- Real photos of the new drop (placeholder/no jar image until you supply one).
+- Actual Belgian waffle recipe (gag only).
+- Naming the two accomplices (stays redacted this drop).
+- New SKUs / Shopify changes — bundle hint is copy-only for now.

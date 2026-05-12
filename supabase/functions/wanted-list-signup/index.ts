@@ -38,6 +38,10 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const rawEmail = typeof body?.email === "string" ? body.email : "";
     const email = rawEmail.trim().toLowerCase();
+    const squareIndex =
+      typeof body?.square_index === "number" && Number.isInteger(body.square_index)
+        ? body.square_index
+        : null;
 
     if (!email || email.length > 255 || !EMAIL_RE.test(email)) {
       return json({ error: "Invalid email" }, 400);
@@ -46,7 +50,7 @@ Deno.serve(async (req) => {
     // Insert; ignore unique-violation duplicates
     const { error: insertError } = await admin
       .from("wanted_list_signups")
-      .insert({ email });
+      .insert({ email, square_index: squareIndex });
 
     if (insertError && insertError.code !== "23505") {
       console.error("insert error", insertError);

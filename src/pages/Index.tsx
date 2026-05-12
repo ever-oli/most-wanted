@@ -12,7 +12,6 @@ import { FAQ } from "@/components/FAQ";
 import { MysteryGrid } from "@/components/MysteryGrid";
 import { SocialFeeds } from "@/components/SocialFeeds";
 import { Footer } from "@/components/Footer";
-import { HashHolesDrop } from "@/components/HashHolesDrop";
 import { WantedList } from "@/components/WantedList";
 import { SoldOutOverlay } from "@/components/SoldOutOverlay";
 import { WantedListRecruitment } from "@/components/WantedListRecruitment";
@@ -33,7 +32,6 @@ const Index = () => {
       <AnchorNav />
       <main>
         <Hero />
-        <HashHolesDrop />
         <section id="ethos" className="scroll-mt-24">
           <Ethos />
         </section>

@@ -327,7 +327,7 @@ Tokens printed on each fulfilled jar's card. Used by buyers to submit verified r
 - `{GROWER}` — 2-letter grower initials (e.g. `DA` for Dallas Architect, `OG` for OKC Ghost)
 - `{CODE}` — 4-char alphanumeric, unique per square (e.g. `2A7K`)
 
-**Example:** `MW-RRR-DA-2A7K`
+**Example:** `MW-BEL-NY-2A7K`
 
 **Workflow when fulfilling orders:**
 1. Generate one token per jar
@@ -347,12 +347,12 @@ Every jar ships with a folded paper "Rap Sheet" — a numbered, drop-unique want
 - Ink: deep brown + single muted-red accent (sheriff star wax seal)
 
 **Content:**
-- **Cover:** "WANTED" header · drop-unique mugshot illustration of the strain · strain name + alias · drop name + numbered edition (`RED RIVER RIVALRY · 014 / 100`)
+- **Cover:** "WANTED" header · drop-unique mugshot illustration of the strain · strain name + alias · drop name + numbered edition (`BELGIUM · 014 / 100`)
 - **Inside:** lineage, terps, grower, harvest date, cure days · 2–3 lines of grower field notes
-- **Verdict block:** small QR + the order token (`MW-RRR-DA-2A7K`) · microcopy "Rate this bounty. Earn 10% off the next hunt."
+- **Verdict block:** small QR + the order token (`MW-BEL-NY-2A7K`) · microcopy "Rate this bounty. Earn 10% off the next hunt."
 - **Back:** sheriff star · "Property of the Most Wanted Archive" · `mostwantedhemp.co/archive`
 
-**QR target:** `https://mostwantedhemp.co/review?token=MW-RRR-DA-2A7K`
+**QR target:** `https://mostwantedhemp.co/review?token=MW-BEL-NY-2A7K`
 The `/review` page reads `?token=` (or `?batch=`) from the URL and pre-fills the batch code field automatically — buyer just rates and submits.
 
 **Numbering:** Each drop's print run is fixed (e.g. 100 sheets for a 100-square drop). Numbering is sequential, hand-stamped or pre-printed. Once a drop closes, those sheets are never reprinted.
