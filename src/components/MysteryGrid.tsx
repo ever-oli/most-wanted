@@ -281,6 +281,9 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
           </div>
         </div>
 
+        {/* Live activity ticker */}
+        <VaultTicker />
+
         {/* Grid container */}
         <div className="relative mx-auto max-w-2xl">
           <div className="absolute -inset-4 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 blur-2xl pointer-events-none" />
@@ -291,7 +294,8 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               tabIndex={0}
               className={cn(
                 "grid gap-1 sm:gap-1.5 mx-auto relative focus-outlaw group",
-                !DROP_LIVE && "blur-sm pointer-events-none select-none opacity-60"
+                // Sealed + no-recruitment = blurred tease. In recruitment preview, the grid is interactive.
+                !DROP_LIVE && !previewMode && "blur-sm pointer-events-none select-none opacity-60"
               )}
               style={{
                 gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))`,
@@ -305,6 +309,8 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
                   sq={sq}
                   isSelected={selected.includes(sq.index)}
                   isRevealed={revealed.has(sq.index) || selected.includes(sq.index)}
+                  isReserved={reservedSet.has(sq.index)}
+                  previewMode={previewMode}
                   onTap={handleTap}
                   onHover={(idx) => setRevealed((p) => new Set(p).add(idx))}
                   focused={focusedIndex === sq.index}
@@ -313,15 +319,11 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
               ))}
             </div>
 
-            {/* Countdown overlay when vault is sealed (recruitment lives above as its own section) */}
+            {/* Countdown overlay only when sealed and NOT in recruitment (preview keeps grid usable) */}
             {!DROP_LIVE && !RECRUITMENT_MODE && <VaultCountdown />}
-            {!DROP_LIVE && RECRUITMENT_MODE && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center p-4 pointer-events-none">
-                <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px]" />
-                <p className="relative font-stamp uppercase text-[11px] tracking-[0.3em] text-tan/80 text-center">
-                  ★ Vault Sealed ★<br />
-                  <span className="text-[10px] text-muted-foreground">Sign the wanted list above to arm it</span>
-                </p>
+            {previewMode && (
+              <div className="mt-3 flex items-center justify-center gap-2 font-stamp uppercase text-[10px] tracking-[0.25em] text-tan/80">
+                <Eye className="h-3 w-3" /> Preview Mode · No purchase yet
               </div>
             )}
           </div>
