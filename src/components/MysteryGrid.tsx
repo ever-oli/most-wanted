@@ -22,6 +22,8 @@ interface SquareProps {
   sq: Square;
   isSelected: boolean;
   isRevealed: boolean;
+  isReserved: boolean;
+  previewMode: boolean;
   onTap: (sq: Square) => void;
   onHover: (idx: number) => void;
   focused: boolean;
@@ -30,7 +32,7 @@ interface SquareProps {
 import React from "react";
 
 const GridSquare = React.memo(
-  ({ sq, isSelected, isRevealed, onTap, onHover, focused, isGolden }: SquareProps & { isGolden: boolean }) => {
+  ({ sq, isSelected, isRevealed, isReserved, previewMode, onTap, onHover, focused, isGolden }: SquareProps & { isGolden: boolean }) => {
     const tierColor = sq.tier === "EXO" ? "bg-tier-exo" : "bg-tier-aaa";
     return (
       <button
@@ -47,14 +49,16 @@ const GridSquare = React.memo(
           "border border-border/60 active:scale-[0.92] motion-reduce:active:scale-100",
           sq.sold && "bg-sold text-foreground/40 cursor-not-allowed border-border active:scale-100",
           !sq.sold && !isRevealed && "bg-muted hover:bg-muted-foreground/20 text-transparent",
-          !sq.sold && isRevealed && tierColor + " text-background hover:brightness-110",
+          !sq.sold && isRevealed && !previewMode && tierColor + " text-background hover:brightness-110",
+          !sq.sold && isRevealed && previewMode && "bg-muted/60 hover:bg-muted text-foreground/70 border-tan/40",
           isSelected && "ring-2 ring-primary ring-offset-1 ring-offset-background animate-pulse-red motion-reduce:animate-none",
+          isReserved && !sq.sold && "ring-1 ring-tan/60",
           isGolden && !sq.sold && "shadow-[0_0_12px_hsl(var(--tan)/0.4)] border-tan/60"
         )}
         aria-label={
           sq.sold
             ? `Square ${sq.index + 1} sold`
-            : `Square ${sq.index + 1}, tier ${sq.tier}, $${TIERS[sq.tier].price}${isGolden ? ', golden square' : ''}`
+            : `Square ${sq.index + 1}, tier ${sq.tier}, $${TIERS[sq.tier].price}${isGolden ? ', golden square' : ''}${previewMode ? ', tap to reserve' : ''}`
         }
         aria-pressed={isSelected}
       >
@@ -68,6 +72,11 @@ const GridSquare = React.memo(
           <span className="block leading-none text-foreground/60">{sq.index + 1}</span>
         )}
 
+        {/* Reserved (pre-drop) marker */}
+        {isReserved && !sq.sold && (
+          <span className="absolute bottom-0.5 right-0.5 text-tan text-[8px] leading-none">👁</span>
+        )}
+
         {/* Golden indicator */}
         {isGolden && !sq.sold && (
           <span className="absolute top-0.5 right-0.5 h-1 w-1 bg-tan rounded-full" />
@@ -76,7 +85,7 @@ const GridSquare = React.memo(
         {/* Hover tooltip */}
         {!sq.sold && isRevealed && (
           <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-background border border-tan/40 text-[9px] tracking-wider text-foreground whitespace-nowrap opacity-0 group-hover/tile:opacity-100 transition-opacity pointer-events-none z-20 hidden sm:block shadow-[0_4px_12px_hsl(0_0%_0%/0.6)]">
-            {sq.tier} · ${TIERS[sq.tier].price}{isGolden ? ' · ★' : ''}
+            {sq.tier} · ${TIERS[sq.tier].price}{isGolden ? ' · ★' : ''}{previewMode ? ' · locks at drop' : ''}
           </span>
         )}
       </button>
