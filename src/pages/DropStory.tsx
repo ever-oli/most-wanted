@@ -1,12 +1,12 @@
 import { useParams } from "react-router-dom";
-import { DROP_STORY, OPERATORS, DROP_NAME } from "@/lib/drop-config";
+import { DROP_STORY, OPERATORS, DROP_SLUG } from "@/lib/drop-config";
 import { MapPin, BadgeCheck } from "lucide-react";
 
 export const DropStory = () => {
   const { dropId } = useParams<{ dropId: string }>();
 
   // Simple guard - in production you'd validate dropId against a registry
-  if (dropId !== "red-river-rivalry") {
+  if (dropId !== DROP_SLUG) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="text-center">
