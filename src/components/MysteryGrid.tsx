@@ -248,7 +248,9 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
             {DROP_SUBTITLE}
           </p>
           <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
-            Tap once to reveal the tier. Tap again to lock it in. Max {MAX_CART_TOTAL} per order.
+            {previewMode
+              ? "Hover to peek the tier. Tap to reserve a spot on the wanted list. Pay nothing now."
+              : `Tap once to reveal the tier. Tap again to lock it in. Max ${MAX_CART_TOTAL} per order.`}
           </p>
 
           {/* Legend / counts */}
