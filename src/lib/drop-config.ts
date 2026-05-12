@@ -42,6 +42,14 @@ export const DROP_SUBTITLE = "One man. NYC to Providence. Two ghosts you haven't
 /** Drop slug used in /drop/:dropId routes */
 export const DROP_SLUG = "belgium";
 
+/** Strain for this drop */
+export const STRAIN_NAME = "SuperBoof";
+export const STRAIN_CODE = "SB";
+export const GROWER_CODE = "BEL";
+
+/** First official batch code — found on every jar card */
+export const FIRST_BATCH_CODE = `MW-${STRAIN_CODE}-${GROWER_CODE}-01`;
+
 /** Operators - aliases and regions for story pages. Two are intentionally redacted. */
 export const OPERATORS = [
   { alias: "Belgium", region: "NYC / Providence", redacted: false },

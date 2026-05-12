@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Hash, QrCode, Stamp } from "lucide-react";
 import rapSheetImg from "@/assets/rap-sheet-mock.png";
 import { PosterFrame } from "@/components/PosterFrame";
-import { DROP_NAME } from "@/lib/drop-config";
+import { DROP_NAME, FIRST_BATCH_CODE } from "@/lib/drop-config";
 
 export const RapSheet = () => (
   <section id="rap-sheet" className="container py-16 md:py-24 scroll-mt-24">
@@ -19,6 +19,9 @@ export const RapSheet = () => (
       </p>
       <p className="mt-2 font-stamp text-[10px] uppercase tracking-[0.3em] text-tan">
         {DROP_NAME.toUpperCase()} · 014 / 100
+      </p>
+      <p className="mt-1 font-stamp text-[11px] uppercase tracking-[0.2em] text-foreground/70">
+        Batch: {FIRST_BATCH_CODE}
       </p>
     </div>
 
