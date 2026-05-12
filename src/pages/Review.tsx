@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { VALID_BATCH_CODES } from "@/lib/drop-config";
 
 
 interface RatingRow {
@@ -44,7 +45,8 @@ export default function Review() {
     return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
   }, [ratings]);
 
-  const isComplete = CRITERIA.every((c) => ratings[c.name] > 0) && batchCode.trim().length > 0;
+  const isValidCode = VALID_BATCH_CODES.includes(batchCode.trim().toUpperCase());
+  const isComplete = CRITERIA.every((c) => ratings[c.name] > 0) && isValidCode;
 
   const handleRate = (criterion: string, value: number) => {
     setRatings((prev) => ({ ...prev, [criterion]: value }));
@@ -198,10 +200,14 @@ export default function Review() {
             value={batchCode}
             onChange={(e) => setBatchCode(e.target.value)}
             placeholder="MW-RRR-DA-2A7K"
-            className="w-full bg-card border border-border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all font-stamp uppercase"
+            className={`w-full bg-card border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 transition-all font-stamp uppercase ${
+              batchCode.trim().length > 0 && !isValidCode
+                ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+                : "border-border focus:border-primary focus:ring-primary/30"
+            }`}
           />
           <p className="text-xs text-muted-foreground/60">
-            Format: <span className="font-stamp text-foreground/80">MW-DROP-GROWER-CODE</span>. Found on your jar card. No code? You can still submit — it'll log as unverified.
+            Format: <span className="font-stamp text-foreground/80">MW-DROP-GROWER-CODE</span>. Found on your jar card. Invalid or missing code — submission blocked.
           </p>
         </section>
 
@@ -343,7 +349,9 @@ export default function Review() {
         {!isComplete && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground/60 justify-center">
             <AlertCircle className="w-3 h-3" />
-            Enter batch code and rate all five criteria to submit
+            {batchCode.trim().length > 0 && !isValidCode
+              ? "Invalid batch code — check your jar card"
+              : "Enter a valid batch code and rate all five criteria to submit"}
           </div>
         )}
 

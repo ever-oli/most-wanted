@@ -50,6 +50,11 @@ export const GROWER_CODE = "BEL";
 /** First official batch code — found on every jar card */
 export const FIRST_BATCH_CODE = `MW-${STRAIN_CODE}-${GROWER_CODE}-01`;
 
+/** Valid batch codes — only these codes pass verification */
+export const VALID_BATCH_CODES: string[] = [
+  FIRST_BATCH_CODE,
+];
+
 /** Operators - aliases and regions for story pages. Two are intentionally redacted. */
 export const OPERATORS = [
   { alias: "Belgium", region: "NYC / Providence", redacted: false },
