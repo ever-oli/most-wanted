@@ -51,10 +51,10 @@ export const STRAIN_TIER: Tier = "EXO";
 /** First official batch code — found on every jar card */
 export const FIRST_BATCH_CODE = `MW-${STRAIN_CODE}-${GROWER_CODE}-01`;
 
-/** Valid batch codes — only these codes pass verification */
-export const VALID_BATCH_CODES: string[] = [
-  FIRST_BATCH_CODE,
-];
+/**
+ * Valid jar codes now live in the backend `order_tokens` table (source of truth).
+ * The Review form does a format check + backend pre-check — no client list to drift.
+ */
 
 /** Operators - aliases and regions for story pages. Two are intentionally redacted. */
 export const OPERATORS = [

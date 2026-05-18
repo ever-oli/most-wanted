@@ -3,7 +3,13 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift, X, ImagePlus, Play, Film } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { VALID_BATCH_CODES } from "@/lib/drop-config";
+
+const CODE_FORMAT_RE = /^MW-[A-Z0-9-]{2,40}$/;
+type CodeCheck =
+  | { status: "idle" }
+  | { status: "checking" }
+  | { status: "valid"; drop_id: string; tier: string }
+  | { status: "invalid"; message: string };
 
 interface RatingRow {
   name: string;
@@ -47,14 +53,49 @@ export default function Review() {
   const [result, setResult] = useState<{ verified: boolean; discount_code: string | null; review_id: string } | null>(null);
   const [media, setMedia] = useState<MediaFile[]>([]);
 
+
+  const [codeCheck, setCodeCheck] = useState<CodeCheck>({ status: "idle" });
+
   const average = useCallback(() => {
     const values = Object.values(ratings);
     if (values.length < CRITERIA.length) return 0;
     return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
   }, [ratings]);
 
-  const isValidCode = VALID_BATCH_CODES.includes(batchCode.trim().toUpperCase());
-  const isComplete = CRITERIA.every((c) => ratings[c.name] > 0) && isValidCode;
+  const trimmedCode = batchCode.trim().toUpperCase();
+  const isFormatValid = CODE_FORMAT_RE.test(trimmedCode);
+  const isCodeVerified = codeCheck.status === "valid";
+  const isComplete = CRITERIA.every((c) => ratings[c.name] > 0) && isCodeVerified;
+
+  // Debounced backend pre-check (like a promo code validator)
+  useEffect(() => {
+    if (!isFormatValid) {
+      setCodeCheck(trimmedCode.length === 0 ? { status: "idle" } : { status: "invalid", message: "Format: MW-XXXX-XXXX" });
+      return;
+    }
+    setCodeCheck({ status: "checking" });
+    const handle = setTimeout(async () => {
+      const { data, error } = await supabase.functions.invoke("submit-review", {
+        body: { token: trimmedCode, validate_only: true },
+      });
+      if (error) {
+        const ctx = (error as any)?.context;
+        let msg = "Code not found. Check your jar card.";
+        try {
+          const parsed = ctx ? (typeof ctx === "string" ? JSON.parse(ctx) : ctx) : null;
+          if (parsed?.error) msg = parsed.error;
+        } catch { /* ignore */ }
+        setCodeCheck({ status: "invalid", message: msg });
+        return;
+      }
+      if (data?.ok && data?.verified) {
+        setCodeCheck({ status: "valid", drop_id: data.drop_id, tier: data.tier });
+      } else {
+        setCodeCheck({ status: "invalid", message: data?.error || "Code not valid." });
+      }
+    }, 350);
+    return () => clearTimeout(handle);
+  }, [trimmedCode, isFormatValid]);
 
   const handleRate = (criterion: string, value: number) => {
     setRatings((prev) => ({ ...prev, [criterion]: value }));
@@ -238,16 +279,33 @@ export default function Review() {
             type="text"
             value={batchCode}
             onChange={(e) => setBatchCode(e.target.value)}
-            placeholder="MW-RRR-DA-2A7K"
+            placeholder="MW-OC-BEL-01"
             className={`w-full bg-card border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 transition-all font-stamp uppercase ${
-              batchCode.trim().length > 0 && !isValidCode
+              codeCheck.status === "invalid"
                 ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+                : codeCheck.status === "valid"
+                ? "border-primary focus:border-primary focus:ring-primary/30"
                 : "border-border focus:border-primary focus:ring-primary/30"
             }`}
           />
-          <p className="text-xs text-muted-foreground/60">
-            Format: <span className="font-stamp text-foreground/80">MW-DROP-GROWER-CODE</span>. Found on your jar card. Invalid or missing code — submission blocked.
-          </p>
+          <div className="text-xs min-h-[1.25rem]">
+            {codeCheck.status === "checking" && (
+              <span className="text-muted-foreground/70">Verifying code…</span>
+            )}
+            {codeCheck.status === "valid" && (
+              <span className="text-primary font-stamp uppercase tracking-widest">
+                ✓ Verified · {codeCheck.drop_id} · {codeCheck.tier}
+              </span>
+            )}
+            {codeCheck.status === "invalid" && (
+              <span className="text-destructive">{codeCheck.message}</span>
+            )}
+            {codeCheck.status === "idle" && (
+              <span className="text-muted-foreground/60">
+                Format: <span className="font-stamp text-foreground/80">MW-DROP-GROWER-CODE</span> — from your jar card.
+              </span>
+            )}
+          </div>
         </section>
 
         {/* Ratings */}
@@ -446,9 +504,9 @@ export default function Review() {
         {!isComplete && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground/60 justify-center">
             <AlertCircle className="w-3 h-3" />
-            {batchCode.trim().length > 0 && !isValidCode
-              ? "Invalid batch code — check your jar card"
-              : "Enter a valid batch code and rate all five criteria to submit"}
+            {codeCheck.status === "invalid"
+              ? codeCheck.message
+              : "Enter a valid jar code and rate all five criteria to submit"}
           </div>
         )}
 
