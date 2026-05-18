@@ -8,7 +8,9 @@ const corsHeaders = {
 
 interface Payload {
   token: string;
-  ratings: {
+  // When true, only validate the token and return its status. No insert.
+  validate_only?: boolean;
+  ratings?: {
     nose: number;
     structure: number;
     cure: number;
@@ -19,18 +21,19 @@ interface Payload {
   display_name?: string;
   is_public?: boolean;
   early_access_optin?: boolean;
-  // Fallbacks if no token row exists yet (early demo / pre-launch flexibility)
-  drop_id_fallback?: string;
-  tier_fallback?: "EXO" | "AAA";
-  square_index_fallback?: number | null;
 }
 
-function bad(status: number, message: string) {
-  return new Response(JSON.stringify({ error: message }), {
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
+function bad(status: number, message: string, code?: string) {
+  return json({ error: message, code }, status);
+}
+
+const TOKEN_RE = /^MW-[A-Z0-9-]{2,40}$/;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -43,11 +46,47 @@ Deno.serve(async (req) => {
     return bad(400, "Invalid JSON");
   }
 
-  // Validate
   const token = (body.token || "").trim().toUpperCase();
-  if (!/^MW-[A-Z0-9-]{2,40}$/.test(token)) {
-    return bad(400, "Invalid token format. Expected MW-XXXX-XXXX");
+  if (!TOKEN_RE.test(token)) {
+    return bad(400, "Invalid code format. Expected MW-XXXX-XXXX", "bad_format");
   }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  // Look up token in backend source of truth
+  const { data: tokenRow, error: lookupErr } = await supabase
+    .from("order_tokens")
+    .select("*")
+    .eq("token", token)
+    .maybeSingle();
+
+  if (lookupErr) {
+    console.error("token lookup error", lookupErr);
+    return bad(500, "Lookup failed");
+  }
+
+  if (!tokenRow) {
+    return bad(404, "Code not found. Check your jar card.", "not_found");
+  }
+  if (tokenRow.redeemed_at) {
+    return bad(409, "This code has already been used to submit a review.", "already_used");
+  }
+
+  // Validation-only path (used by the form's pre-check)
+  if (body.validate_only) {
+    return json({
+      ok: true,
+      verified: true,
+      drop_id: tokenRow.drop_id,
+      tier: tokenRow.tier,
+      square_index: tokenRow.square_index ?? null,
+    });
+  }
+
+  // Full submit path — require ratings
   const r = body.ratings;
   if (!r) return bad(400, "Missing ratings");
   const keys = ["nose", "structure", "cure", "burn", "experience"] as const;
@@ -58,38 +97,6 @@ Deno.serve(async (req) => {
   const notes = (body.notes || "").trim().slice(0, 1000);
   const display_name = (body.display_name || "").trim().slice(0, 60) || null;
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
-
-  // Look up token
-  const { data: tokenRow } = await supabase
-    .from("order_tokens")
-    .select("*")
-    .eq("token", token)
-    .maybeSingle();
-
-  let drop_id: string;
-  let tier: "EXO" | "AAA";
-  let square_index: number | null;
-  let is_verified = false;
-
-  if (tokenRow) {
-    if (tokenRow.redeemed_at) {
-      return bad(409, "This token has already been used to submit a review.");
-    }
-    drop_id = tokenRow.drop_id;
-    tier = tokenRow.tier;
-    square_index = tokenRow.square_index ?? null;
-    is_verified = true;
-  } else {
-    // Unverified path — accept review but flag it. Useful pre-launch.
-    drop_id = (body.drop_id_fallback || "unknown").slice(0, 40);
-    tier = body.tier_fallback === "EXO" ? "EXO" : "AAA";
-    square_index = typeof body.square_index_fallback === "number" ? body.square_index_fallback : null;
-  }
-
   const average =
     Math.round(((r.nose + r.structure + r.cure + r.burn + r.experience) / 5) * 100) / 100;
 
@@ -97,9 +104,9 @@ Deno.serve(async (req) => {
     .from("reviews")
     .insert({
       order_token: token,
-      drop_id,
-      tier,
-      square_index,
+      drop_id: tokenRow.drop_id,
+      tier: tokenRow.tier,
+      square_index: tokenRow.square_index ?? null,
       nose: r.nose,
       structure: r.structure,
       cure: r.cure,
@@ -109,38 +116,36 @@ Deno.serve(async (req) => {
       notes: notes || null,
       display_name,
       is_public: body.is_public !== false,
-      is_verified,
+      is_verified: true,
       early_access_optin: !!body.early_access_optin,
     })
     .select("id")
     .single();
 
   if (insertErr) {
+    // Unique-violation on order_token => already used race
+    if ((insertErr as any).code === "23505") {
+      return bad(409, "This code has already been used to submit a review.", "already_used");
+    }
     console.error("insert error", insertErr);
     return bad(500, "Could not save review");
   }
 
-  if (tokenRow) {
-    await supabase
-      .from("order_tokens")
-      .update({ redeemed_at: new Date().toISOString() })
-      .eq("token", token);
-  }
+  await supabase
+    .from("order_tokens")
+    .update({ redeemed_at: new Date().toISOString() })
+    .eq("token", token);
 
-  // Generate one-time discount code via Shopify Admin API (best-effort)
+  // Generate one-time Shopify discount code (best-effort)
   let discount_code: string | null = null;
   try {
     const shop = Deno.env.get("SHOPIFY_SHOP_DOMAIN");
     const adminToken = Deno.env.get("SHOPIFY_ACCESS_TOKEN");
     if (shop && adminToken) {
       const code = "HUNTER-" + token.split("-").slice(-1)[0] + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
-      // Shopify Admin: create a price rule + discount code (10% off, single use)
       const priceRuleRes = await fetch(`https://${shop}/admin/api/2025-07/price_rules.json`, {
         method: "POST",
-        headers: {
-          "X-Shopify-Access-Token": adminToken,
-          "Content-Type": "application/json",
-        },
+        headers: { "X-Shopify-Access-Token": adminToken, "Content-Type": "application/json" },
         body: JSON.stringify({
           price_rule: {
             title: `Hunter reward ${code}`,
@@ -162,10 +167,7 @@ Deno.serve(async (req) => {
           `https://${shop}/admin/api/2025-07/price_rules/${pr.price_rule.id}/discount_codes.json`,
           {
             method: "POST",
-            headers: {
-              "X-Shopify-Access-Token": adminToken,
-              "Content-Type": "application/json",
-            },
+            headers: { "X-Shopify-Access-Token": adminToken, "Content-Type": "application/json" },
             body: JSON.stringify({ discount_code: { code } }),
           }
         );
@@ -176,14 +178,11 @@ Deno.serve(async (req) => {
     console.error("discount code generation failed", e);
   }
 
-  return new Response(
-    JSON.stringify({
-      success: true,
-      review_id: inserted.id,
-      verified: is_verified,
-      discount_code,
-      archive_url: `/archive#review-${inserted.id}`,
-    }),
-    { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-  );
+  return json({
+    success: true,
+    review_id: inserted.id,
+    verified: true,
+    discount_code,
+    archive_url: `/archive#review-${inserted.id}`,
+  });
 });
