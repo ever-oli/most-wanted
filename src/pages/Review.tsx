@@ -504,9 +504,9 @@ export default function Review() {
         {!isComplete && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground/60 justify-center">
             <AlertCircle className="w-3 h-3" />
-            {batchCode.trim().length > 0 && !isValidCode
-              ? "Invalid batch code — check your jar card"
-              : "Enter a valid batch code and rate all five criteria to submit"}
+            {codeCheck.status === "invalid"
+              ? codeCheck.message
+              : "Enter a valid jar code and rate all five criteria to submit"}
           </div>
         )}
 
