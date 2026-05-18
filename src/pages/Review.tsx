@@ -3,7 +3,13 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift, X, ImagePlus, Play, Film } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { VALID_BATCH_CODES } from "@/lib/drop-config";
+
+const CODE_FORMAT_RE = /^MW-[A-Z0-9-]{2,40}$/;
+type CodeCheck =
+  | { status: "idle" }
+  | { status: "checking" }
+  | { status: "valid"; drop_id: string; tier: string }
+  | { status: "invalid"; message: string };
 
 interface RatingRow {
   name: string;
