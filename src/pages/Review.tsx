@@ -53,11 +53,6 @@ export default function Review() {
   const [result, setResult] = useState<{ verified: boolean; discount_code: string | null; review_id: string } | null>(null);
   const [media, setMedia] = useState<MediaFile[]>([]);
 
-  const average = useCallback(() => {
-    const values = Object.values(ratings);
-    if (values.length < CRITERIA.length) return 0;
-    return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
-  }, [ratings]);
 
   const [codeCheck, setCodeCheck] = useState<CodeCheck>({ status: "idle" });
 
