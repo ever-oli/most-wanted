@@ -59,8 +59,48 @@ export default function Review() {
     return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
   }, [ratings]);
 
-  const isValidCode = VALID_BATCH_CODES.includes(batchCode.trim().toUpperCase());
-  const isComplete = CRITERIA.every((c) => ratings[c.name] > 0) && isValidCode;
+  const [codeCheck, setCodeCheck] = useState<CodeCheck>({ status: "idle" });
+
+  const average = useCallback(() => {
+    const values = Object.values(ratings);
+    if (values.length < CRITERIA.length) return 0;
+    return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
+  }, [ratings]);
+
+  const trimmedCode = batchCode.trim().toUpperCase();
+  const isFormatValid = CODE_FORMAT_RE.test(trimmedCode);
+  const isCodeVerified = codeCheck.status === "valid";
+  const isComplete = CRITERIA.every((c) => ratings[c.name] > 0) && isCodeVerified;
+
+  // Debounced backend pre-check (like a promo code validator)
+  useEffect(() => {
+    if (!isFormatValid) {
+      setCodeCheck(trimmedCode.length === 0 ? { status: "idle" } : { status: "invalid", message: "Format: MW-XXXX-XXXX" });
+      return;
+    }
+    setCodeCheck({ status: "checking" });
+    const handle = setTimeout(async () => {
+      const { data, error } = await supabase.functions.invoke("submit-review", {
+        body: { token: trimmedCode, validate_only: true },
+      });
+      if (error) {
+        const ctx = (error as any)?.context;
+        let msg = "Code not found. Check your jar card.";
+        try {
+          const parsed = ctx ? (typeof ctx === "string" ? JSON.parse(ctx) : ctx) : null;
+          if (parsed?.error) msg = parsed.error;
+        } catch { /* ignore */ }
+        setCodeCheck({ status: "invalid", message: msg });
+        return;
+      }
+      if (data?.ok && data?.verified) {
+        setCodeCheck({ status: "valid", drop_id: data.drop_id, tier: data.tier });
+      } else {
+        setCodeCheck({ status: "invalid", message: data?.error || "Code not valid." });
+      }
+    }, 350);
+    return () => clearTimeout(handle);
+  }, [trimmedCode, isFormatValid]);
 
   const handleRate = (criterion: string, value: number) => {
     setRatings((prev) => ({ ...prev, [criterion]: value }));
