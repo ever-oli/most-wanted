@@ -279,16 +279,33 @@ export default function Review() {
             type="text"
             value={batchCode}
             onChange={(e) => setBatchCode(e.target.value)}
-            placeholder="MW-RRR-DA-2A7K"
+            placeholder="MW-OC-BEL-01"
             className={`w-full bg-card border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 transition-all font-stamp uppercase ${
-              batchCode.trim().length > 0 && !isValidCode
+              codeCheck.status === "invalid"
                 ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+                : codeCheck.status === "valid"
+                ? "border-primary focus:border-primary focus:ring-primary/30"
                 : "border-border focus:border-primary focus:ring-primary/30"
             }`}
           />
-          <p className="text-xs text-muted-foreground/60">
-            Format: <span className="font-stamp text-foreground/80">MW-DROP-GROWER-CODE</span>. Found on your jar card. Invalid or missing code — submission blocked.
-          </p>
+          <div className="text-xs min-h-[1.25rem]">
+            {codeCheck.status === "checking" && (
+              <span className="text-muted-foreground/70">Verifying code…</span>
+            )}
+            {codeCheck.status === "valid" && (
+              <span className="text-primary font-stamp uppercase tracking-widest">
+                ✓ Verified · {codeCheck.drop_id} · {codeCheck.tier}
+              </span>
+            )}
+            {codeCheck.status === "invalid" && (
+              <span className="text-destructive">{codeCheck.message}</span>
+            )}
+            {codeCheck.status === "idle" && (
+              <span className="text-muted-foreground/60">
+                Format: <span className="font-stamp text-foreground/80">MW-DROP-GROWER-CODE</span> — from your jar card.
+              </span>
+            )}
+          </div>
         </section>
 
         {/* Ratings */}
