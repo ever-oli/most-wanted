@@ -1,9 +1,9 @@
 import { Coins, Sparkles, Package, Star } from "lucide-react";
-import { WILDCARD_PRICE, MAX_PER_PULL, PULL_CART_MAX } from "@/lib/drop-config";
+import { WILDCARD_PRICE, JARS_PER_PULL, SPINS_PER_RUN } from "@/lib/drop-config";
 
 const steps = [
-  { icon: Coins, title: "Pull The Lever", body: `One flat price ($${WILDCARD_PRICE}) a pull — every pull wins a sealed 7g jar. The gamble is the cut you land. Up to ${MAX_PER_PULL} jars a pull, ${PULL_CART_MAX} a run.` },
-  { icon: Sparkles, title: "Land Your Cut", body: "AAA, EXO, or the rare F&F exclusive. Hit the F&F and the jackpot lights up. Jars hold in your cart for 3 minutes — lock them in before the timer runs out." },
+  { icon: Coins, title: "Pull The Lever", body: `Every pull spins ${JARS_PER_PULL} sealed 7g jars — the gamble is the cut you land. You get ${SPINS_PER_RUN} spins, ${JARS_PER_PULL * SPINS_PER_RUN} jars dealt in all.` },
+  { icon: Sparkles, title: "Keep Your Cuts", body: `AAA, EXO, or the rare F&F exclusive. Hit the F&F and the jackpot lights up. After your spins, keep only the jars you want — you pay $${WILDCARD_PRICE} a jar for the ones you lock in.` },
   { icon: Package, title: "Rip the Pack", body: "Discreet, odor-sealed, no branding. Tracking pings your phone the second it ships. Every jar arrives with a unique review code." },
   { icon: Star, title: "Rate & Reward", body: "Your jar ships with a numbered Rap Sheet — scan its code to log your verdict on the 5-point Ganjier scale. Joins the public Archive, earns 10% off the next drop + 24h early access." },
 ];

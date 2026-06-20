@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
 import { toast } from "sonner";
 import {
-  MAX_PER_PULL,
-  PULL_CART_MAX,
-  RESERVATION_SECONDS,
   WILDCARD_PRICE,
+  SPINS_PER_RUN,
+  JARS_PER_PULL,
   STRAINS,
   TIERS,
   JACKPOT_TIER,
@@ -15,10 +14,10 @@ import {
 } from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
 import { useDemoMode } from "@/lib/demo-mode";
-import { Clock, X } from "lucide-react";
+import { Check } from "lucide-react";
 
 type Pull = { tier: Tier; strain: StrainConfig };
-type CartJar = Pull & { id: string; expiresAt: number };
+type DrawnJar = Pull & { id: string };
 
 const SPIN_MS = 1100;
 const STAGGER_MS = 450;
@@ -26,16 +25,9 @@ const STAGGER_MS = 450;
 const REEL_WINDOW = "aspect-[16/9] w-full";
 const REEL_STRIP = 14;
 
-function fmt(secs: number) {
-  const s = Math.max(0, secs);
-  const m = Math.floor(s / 60);
-  const r = s % 60;
-  return `${m}:${r.toString().padStart(2, "0")}`;
-}
-
 /** A single luxe reel: a vertically scrolling strip of card art while spinning,
- *  snapping to the won jar on stop. Memoized so the per-second cart countdown
- *  never re-renders the reels. */
+ *  snapping to the won jar on stop. Memoized so unrelated re-renders (picks
+ *  selection, etc.) never re-render a spinning reel. */
 const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; result: Pull | null }) {
   // A fresh randomized strip each time a spin begins (drives the scroll illusion).
   const strip = useMemo(
@@ -119,60 +111,92 @@ const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; resul
   );
 });
 
+/** A picked jar in the haul — a selectable thumbnail. */
+const PickCard = memo(function PickCard({
+  jar,
+  selected,
+  onToggle,
+}: {
+  jar: DrawnJar;
+  selected: boolean;
+  onToggle: (id: string) => void;
+}) {
+  const art = strainArt(jar.strain.code);
+  const isJackpot = jar.tier === JACKPOT_TIER;
+  return (
+    <button
+      type="button"
+      onClick={() => onToggle(jar.id)}
+      aria-pressed={selected}
+      aria-label={`${selected ? "Remove" : "Keep"} ${jar.strain.name}`}
+      className={cn(
+        "group relative rounded-lg overflow-hidden text-left transition-all focus-outlaw",
+        selected
+          ? "ring-2 ring-[hsl(var(--gold-bright))] shadow-[var(--shadow-gold)]"
+          : "ring-1 ring-border opacity-55 hover:opacity-90",
+        isJackpot && selected && "animate-pulse-red",
+      )}
+    >
+      <div className={cn("relative", REEL_WINDOW, "bg-[radial-gradient(ellipse_at_center,hsl(0_0%_11%),hsl(0_0%_4%))]")}>
+        {art ? (
+          <img src={art} alt={jar.strain.name} className="h-full w-full object-cover scale-105" draggable={false} />
+        ) : (
+          <div className="flex h-full items-center justify-center px-2 text-center font-outlaw text-foreground text-sm leading-tight">
+            {jar.strain.name}
+          </div>
+        )}
+        {!selected && <div className="absolute inset-0 bg-background/45" />}
+        {/* Keep/skip indicator */}
+        <span
+          className={cn(
+            "absolute top-1.5 right-1.5 h-5 w-5 rounded-full flex items-center justify-center border",
+            selected
+              ? "bg-gold-plate border-[hsl(var(--gold-bright))] text-background"
+              : "bg-background/70 border-border text-transparent",
+          )}
+        >
+          <Check className="h-3 w-3" strokeWidth={3} />
+        </span>
+        <span
+          className={cn(
+            "absolute bottom-1.5 left-1.5 px-1.5 py-0.5 text-[8px] font-stamp uppercase tracking-[0.18em] border bg-background/85 backdrop-blur-sm",
+            TIERS[jar.tier].borderClass,
+            TIERS[jar.tier].textClass,
+          )}
+        >
+          {TIERS[jar.tier].label}
+        </span>
+      </div>
+      <div className="px-2 py-1.5 bg-card/60">
+        <p className="font-stamp uppercase text-[10px] tracking-wider text-foreground truncate">{jar.strain.name}</p>
+      </div>
+    </button>
+  );
+});
+
 export function SlotMachine() {
   const demo = useDemoMode();
-  const [pulls, setPulls] = useState(1);
   const [spinning, setSpinning] = useState(false);
-  const [results, setResults] = useState<(Pull | null)[]>([null]);
-  const [cart, setCart] = useState<CartJar[]>([]);
-  const [now, setNow] = useState(Date.now());
-  const [checkedOut, setCheckedOut] = useState<CartJar[] | null>(null);
+  const [results, setResults] = useState<(Pull | null)[]>(Array(JARS_PER_PULL).fill(null));
+  const [drawn, setDrawn] = useState<DrawnJar[]>([]);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [spinsUsed, setSpinsUsed] = useState(0);
+  const [checkedOut, setCheckedOut] = useState<DrawnJar[] | null>(null);
   const timers = useRef<number[]>([]);
-  const cartRef = useRef<CartJar[]>([]);
-  cartRef.current = cart;
-
-  const remaining = PULL_CART_MAX - cart.length;
-  const maxPullable = Math.min(MAX_PER_PULL, Math.max(1, remaining));
-
-  // Keep chosen pull count within capacity.
-  useEffect(() => {
-    if (pulls > maxPullable) setPulls(maxPullable);
-  }, [pulls, maxPullable]);
-
-  // Reel windows reflect the next/last spin size while idle.
-  useEffect(() => {
-    if (!spinning) setResults((prev) => (prev.length === pulls ? prev : Array(pulls).fill(null)));
-  }, [pulls, spinning]);
-
-  // One-second tick: drive countdowns and expire held jars back to the pool.
-  // Only runs while jars are held, so an idle machine never re-renders.
-  useEffect(() => {
-    if (cart.length === 0) return;
-    const id = setInterval(() => {
-      const t = Date.now();
-      setNow(t);
-      const expired = cartRef.current.filter((j) => j.expiresAt <= t);
-      if (expired.length) {
-        setCart((prev) => prev.filter((j) => j.expiresAt > t));
-        toast(`${expired.length} jar${expired.length > 1 ? "s" : ""} returned to the pool`, {
-          description: "Reservation expired — pull again to chase it.",
-        });
-      }
-    }, 1000);
-    return () => clearInterval(id);
-  }, [cart.length]);
 
   useEffect(() => () => timers.current.forEach((t) => clearTimeout(t)), []);
 
+  const spinsLeft = SPINS_PER_RUN - spinsUsed;
+  const exhausted = spinsLeft <= 0;
+
   const pull = useCallback(() => {
-    if (spinning || remaining <= 0) return;
-    const n = Math.min(pulls, remaining);
+    if (spinning || exhausted) return;
     timers.current.forEach((t) => clearTimeout(t));
     timers.current = [];
 
     setSpinning(true);
-    setResults(Array(n).fill(null));
-    const draws: Pull[] = Array.from({ length: n }, () => drawJar());
+    setResults(Array(JARS_PER_PULL).fill(null));
+    const draws: Pull[] = Array.from({ length: JARS_PER_PULL }, () => drawJar());
 
     draws.forEach((d, i) => {
       const t = window.setTimeout(() => {
@@ -183,32 +207,52 @@ export function SlotMachine() {
         });
         if (i === draws.length - 1) {
           setSpinning(false);
-          const expiresAt = Date.now() + RESERVATION_SECONDS * 1000;
-          setCart((prev) => [
-            ...prev,
-            ...draws.map((j, k) => ({ ...j, id: `${Date.now()}-${k}-${Math.random().toString(36).slice(2, 7)}`, expiresAt })),
-          ]);
+          setSpinsUsed((n) => n + 1);
+          const newJars: DrawnJar[] = draws.map((j, k) => ({
+            ...j,
+            id: `${Date.now()}-${k}-${Math.random().toString(36).slice(2, 7)}`,
+          }));
+          setDrawn((prev) => [...prev, ...newJars]);
+          // New jars start kept — pick-and-choose by removing what you don't want.
+          setSelected((prev) => {
+            const next = new Set(prev);
+            newJars.forEach((j) => next.add(j.id));
+            return next;
+          });
           if (draws.some((x) => x.tier === JACKPOT_TIER)) {
-            toast.success("JACKPOT — Exclusive Cut!", { description: "Held in your cart. Lock it in before the timer runs out." });
-          } else {
-            toast.success(`${draws.length} jar${draws.length > 1 ? "s" : ""} held`, { description: `Reserved in your cart for ${fmt(RESERVATION_SECONDS)}.` });
+            toast.success("JACKPOT — Exclusive Cut!", { description: "Added to your haul. Keep it in the cart." });
           }
         }
       }, SPIN_MS + i * STAGGER_MS);
       timers.current.push(t);
     });
-  }, [pulls, remaining, spinning]);
+  }, [spinning, exhausted]);
 
-  const removeJar = (id: string) => setCart((prev) => prev.filter((j) => j.id !== id));
+  const toggle = useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
-  const cartPaid = cart.length * WILDCARD_PRICE;
-  const cartValue = cart.reduce((s, j) => s + TIERS[j.tier].price, 0);
+  const selectedJars = drawn.filter((j) => selected.has(j.id));
+  const cartPaid = selectedJars.length * WILDCARD_PRICE;
+  const cartValue = selectedJars.reduce((s, j) => s + TIERS[j.tier].price, 0);
+
+  const resetRun = () => {
+    setDrawn([]);
+    setSelected(new Set());
+    setSpinsUsed(0);
+    setResults(Array(JARS_PER_PULL).fill(null));
+  };
 
   const checkout = () => {
-    if (cart.length === 0) return;
+    if (selectedJars.length === 0) return;
     if (demo.demoCheckout) {
-      setCheckedOut(cart);
-      setCart([]);
+      setCheckedOut(selectedJars);
+      resetRun();
     } else {
       toast("Routing to checkout…", { description: "Payments wire up next." });
     }
@@ -248,8 +292,6 @@ export function SlotMachine() {
     );
   }
 
-  const full = remaining <= 0;
-
   return (
     <div className="relative mx-auto max-w-xl md:max-w-2xl lg:max-w-3xl">
       {/* Warm ambient glow */}
@@ -266,12 +308,12 @@ export function SlotMachine() {
 
           <div className="flex items-center justify-between mb-4">
             <span className="font-stamp text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gold">The One-Armed Bandit</span>
-            <span className="font-stamp text-[10px] sm:text-xs uppercase tracking-[0.3em] text-background bg-gold-plate px-2 py-0.5 rounded-sm shadow-[var(--shadow-gold)]">${WILDCARD_PRICE} / pull</span>
+            <span className="font-stamp text-[10px] sm:text-xs uppercase tracking-[0.3em] text-background bg-gold-plate px-2 py-0.5 rounded-sm shadow-[var(--shadow-gold)]">${WILDCARD_PRICE} / jar</span>
           </div>
 
           {/* Reels + lever */}
           <div className="flex items-stretch gap-2 sm:gap-3 md:gap-4 mb-5">
-            <div className="flex-1 grid gap-2 sm:gap-3 md:gap-4" style={{ gridTemplateColumns: `repeat(${Math.max(1, results.length)}, minmax(0, 1fr))` }}>
+            <div className="flex-1 grid gap-2 sm:gap-3 md:gap-4" style={{ gridTemplateColumns: `repeat(${JARS_PER_PULL}, minmax(0, 1fr))` }}>
               {results.map((r, i) => (
                 <Reel key={i} spinning={spinning} result={r} />
               ))}
@@ -280,8 +322,8 @@ export function SlotMachine() {
             {/* Brass side lever (decorative + pulls) */}
             <button
               onClick={pull}
-              disabled={spinning || full}
-              aria-label={`Pull the lever · $${WILDCARD_PRICE * pulls}`}
+              disabled={spinning || exhausted}
+              aria-label={exhausted ? "All spins used" : `Pull the lever · ${JARS_PER_PULL} jars`}
               className="hidden sm:flex shrink-0 w-9 md:w-11 relative focus-outlaw disabled:opacity-40 group/lever"
             >
               <span aria-hidden className="absolute left-1/2 top-1 bottom-1 w-1.5 -translate-x-1/2 rounded-full bg-gradient-to-b from-[hsl(var(--gold-deep))] via-black/40 to-[hsl(var(--gold-deep))]" />
@@ -296,93 +338,87 @@ export function SlotMachine() {
             </button>
           </div>
 
-          {/* Quantity */}
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="font-stamp text-[10px] uppercase tracking-[0.2em] text-muted-foreground mr-1">Pull</span>
-            {Array.from({ length: MAX_PER_PULL }, (_, n) => n + 1).map((n) => (
-              <button
+          {/* Spins remaining */}
+          <div className="flex items-center justify-center gap-2.5 mb-4">
+            <span className="font-stamp text-[10px] uppercase tracking-[0.2em] text-muted-foreground mr-1">Spins</span>
+            {Array.from({ length: SPINS_PER_RUN }, (_, n) => n).map((n) => (
+              <span
                 key={n}
-                onClick={() => !spinning && n <= maxPullable && setPulls(n)}
-                disabled={spinning || n > maxPullable}
+                aria-hidden
                 className={cn(
-                  "h-8 w-8 rounded-sm border font-stamp text-sm transition-smooth focus-outlaw disabled:opacity-30",
-                  pulls === n
-                    ? "border-transparent bg-gold-plate text-background shadow-[var(--shadow-gold)]"
-                    : "border-[hsl(var(--gold)/0.4)] text-tan hover:text-foreground hover:border-[hsl(var(--gold)/0.7)]",
+                  "h-2.5 w-2.5 rounded-full border transition-colors",
+                  n < spinsUsed
+                    ? "bg-gold-plate border-[hsl(var(--gold-bright))] shadow-[var(--shadow-gold)]"
+                    : "border-[hsl(var(--gold)/0.45)] bg-transparent",
                 )}
-                aria-pressed={pulls === n}
-                aria-label={`${n} jar${n > 1 ? "s" : ""}`}
-              >
-                {n}
-              </button>
+              />
             ))}
             <span className="font-stamp text-[10px] uppercase tracking-[0.2em] text-muted-foreground ml-1">
-              {full ? "cart full" : `jar${pulls > 1 ? "s" : ""}`}
+              {exhausted ? "all used" : `${spinsLeft} left`}
             </span>
           </div>
 
           {/* Pull plate */}
           <button
             onClick={pull}
-            disabled={spinning || full}
+            disabled={spinning || exhausted}
             className={cn(
               "relative w-full py-4 rounded-md font-outlaw text-xl tracking-wider transition-all duration-300 flex items-center justify-center gap-3 focus-outlaw overflow-hidden",
               "border",
-              spinning || full
+              spinning || exhausted
                 ? "bg-muted text-muted-foreground border-border cursor-not-allowed"
                 : "bg-primary text-primary-foreground border-[hsl(var(--gold)/0.6)] hover:bg-primary-glow shadow-[var(--shadow-outlaw)]",
             )}
           >
-            {!spinning && !full && <span aria-hidden className="absolute inset-0 animate-gold-shimmer motion-reduce:hidden" />}
+            {!spinning && !exhausted && <span aria-hidden className="absolute inset-0 animate-gold-shimmer motion-reduce:hidden" />}
             <span className="relative">
-              {spinning ? "Spinning…" : full ? "Cart Full — Lock It In" : `Pull the Lever · $${WILDCARD_PRICE * pulls}`}
+              {spinning
+                ? "Spinning…"
+                : exhausted
+                ? "All Spins Used — Pick Your Jars"
+                : `Pull the Lever · Spin ${spinsUsed + 1} of ${SPINS_PER_RUN}`}
             </span>
           </button>
 
-        {/* Cart of held jars with reservation countdowns */}
-        {cart.length > 0 && (
-          <div className="mt-5 border-t border-border pt-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-stamp text-[10px] uppercase tracking-[0.25em] text-tan">Held in Your Cart</p>
-              <p className="font-stamp text-[10px] uppercase tracking-[0.25em] text-muted-foreground">{cart.length}/{PULL_CART_MAX}</p>
+          {/* The haul — pick & choose which jars to buy */}
+          {drawn.length > 0 && (
+            <div className="mt-6 border-t border-border pt-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="font-stamp text-[10px] uppercase tracking-[0.25em] text-tan">
+                  Your Haul — Keep What You Want
+                </p>
+                <p className="font-stamp text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                  {selectedJars.length}/{drawn.length} kept
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 mb-5">
+                {drawn.map((j) => (
+                  <PickCard key={j.id} jar={j} selected={selected.has(j.id)} onToggle={toggle} />
+                ))}
+              </div>
+
+              <button
+                onClick={checkout}
+                disabled={selectedJars.length === 0}
+                className="w-full py-3 rounded-md bg-gold-plate text-background font-stamp uppercase text-xs tracking-widest hover:brightness-110 transition-smooth focus-outlaw shadow-[var(--shadow-gold)] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {selectedJars.length === 0 ? (
+                  "Tap Jars to Keep Them"
+                ) : (
+                  <>
+                    Lock In {selectedJars.length} Jar{selectedJars.length > 1 ? "s" : ""} · ${cartPaid}
+                    {cartValue > cartPaid && <span className="opacity-70"> · ${cartValue} value</span>}
+                  </>
+                )}
+              </button>
             </div>
-            <div className="space-y-2 mb-4">
-              {cart.map((j) => {
-                const left = Math.round((j.expiresAt - now) / 1000);
-                const urgent = left <= 60;
-                return (
-                  <div key={j.id} className="flex items-center justify-between gap-2 text-xs font-stamp uppercase border border-border/60 bg-background/50 px-2.5 py-1.5">
-                    <span className="flex items-center gap-2 min-w-0">
-                      <span className={cn("h-2 w-2 shrink-0", TIERS[j.tier].colorClass)} />
-                      <span className="truncate">{j.strain.name}</span>
-                      <span className={cn("shrink-0 text-[10px]", TIERS[j.tier].textClass)}>{TIERS[j.tier].label}</span>
-                    </span>
-                    <span className="flex items-center gap-2 shrink-0">
-                      <span className={cn("flex items-center gap-1 tabular-nums", urgent ? "text-destructive animate-pulse" : "text-muted-foreground")}>
-                        <Clock className="h-3 w-3" /> {fmt(left)}
-                      </span>
-                      <button onClick={() => removeJar(j.id)} className="text-muted-foreground/70 hover:text-destructive focus-outlaw" aria-label="Release jar">
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <button
-              onClick={checkout}
-              className="w-full py-3 rounded-md bg-gold-plate text-background font-stamp uppercase text-xs tracking-widest hover:brightness-110 transition-smooth focus-outlaw shadow-[var(--shadow-gold)]"
-            >
-              Lock It In · ${cartPaid}
-              {cartValue > cartPaid && <span className="opacity-70"> · ${cartValue} value</span>}
-            </button>
-          </div>
-        )}
+          )}
         </div>
       </div>
 
       <p className="mt-4 text-center font-stamp text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
-        Every pull wins a jar · Held {fmt(RESERVATION_SECONDS)} · The cut is the gamble
+        {JARS_PER_PULL} jars a spin · {SPINS_PER_RUN} spins · Buy only the cuts you keep
       </p>
     </div>
   );

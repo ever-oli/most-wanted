@@ -1,5 +1,6 @@
 import {
-  MAX_PER_PULL,
+  JARS_PER_PULL,
+  SPINS_PER_RUN,
   TIERS,
   DROP_LIVE as CONFIG_DROP_LIVE,
   DROP_NAME,
@@ -34,7 +35,7 @@ export const MysteryGrid = () => {
             {DROP_SUBTITLE}
           </p>
           <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
-            One price. Any cut. Land the F&F for the jackpot. Up to {MAX_PER_PULL} jars a pull.
+            {JARS_PER_PULL} jars a spin · {SPINS_PER_RUN} spins · Keep only the cuts you want. Land the F&F for the jackpot.
           </p>
 
           {/* Tier / odds legend */}

@@ -4,7 +4,7 @@ import { HelpCircle } from "lucide-react";
 const FAQS = [
   {
     q: "How does the pull work?",
-    a: "It's a one-armed bandit. Every pull is one flat price and always wins a sealed 7g jar — the gamble is the cut you land. Pull up to 3 jars at a time, and your jars hold in the cart for 3 minutes while you decide to lock them in.",
+    a: "It's a one-armed bandit. Each pull spins 3 sealed 7g jars and you get 4 spins — 12 jars dealt in all. The gamble is the cut you land. When your spins are up, pick and choose which jars you actually want and pay one flat price ($89) for each one you keep.",
   },
   {
     q: "What are the tiers — AAA, EXO, F&F?",

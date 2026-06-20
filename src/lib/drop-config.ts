@@ -30,11 +30,17 @@ export const MAX_CART_TOTAL = 3;
  */
 export const WILDCARD_PRICE = 89;
 
-/** Reels per single spin (you choose 1–N jars to pull at once). */
-export const MAX_PER_PULL = 3;
+/** Jars revealed per spin (fixed — three reels every pull). */
+export const JARS_PER_PULL = 3;
 
-/** Max jars you can hold in the cart at once (across multiple spins). */
-export const PULL_CART_MAX = 12;
+/** Spins allowed per run. You then pick which of the dealt jars to buy. */
+export const SPINS_PER_RUN = 4;
+
+/** @deprecated The machine now pulls a fixed JARS_PER_PULL every spin. */
+export const MAX_PER_PULL = JARS_PER_PULL;
+
+/** Total jars dealt across a full run — the pool you pick your picks from. */
+export const PULL_CART_MAX = JARS_PER_PULL * SPINS_PER_RUN;
 
 /**
  * How long a pulled jar is HELD for you before it returns to the pool if you
