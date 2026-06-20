@@ -153,7 +153,7 @@ export function SlotMachine() {
           if (draws.some((x) => x.tier === "EXCLUSIVE")) {
             toast.success("JACKPOT — Exclusive Cut!", { description: "Held in your cart. Lock it in before the timer runs out." });
           } else {
-            toast.success(`${draws.length} jar${draws.length > 1 ? "s" : ""} held`, { description: "Reserved in your cart for 5:00." });
+            toast.success(`${draws.length} jar${draws.length > 1 ? "s" : ""} held`, { description: `Reserved in your cart for ${fmt(RESERVATION_SECONDS)}.` });
           }
         }
       }, SPIN_MS + i * STAGGER_MS);

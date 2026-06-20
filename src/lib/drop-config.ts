@@ -34,7 +34,7 @@ export const WILDCARD_PRICE = 89;
 export const MAX_PER_PULL = 3;
 
 /** Max jars you can hold in the cart at once (across multiple spins). */
-export const PULL_CART_MAX = 9;
+export const PULL_CART_MAX = 24;
 
 /**
  * How long a pulled jar is HELD for you before it returns to the pool if you
@@ -42,7 +42,7 @@ export const PULL_CART_MAX = 9;
  * enforcement (returning stock) must happen server-side; the client timer is
  * UX only.
  */
-export const RESERVATION_SECONDS = 300; // 5 minutes
+export const RESERVATION_SECONDS = 180; // 3 minutes
 
 /** Set to false to show a blurred preview with a "Coming Soon" overlay. */
 export const DROP_LIVE = false;
