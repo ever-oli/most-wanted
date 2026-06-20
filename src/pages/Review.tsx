@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift, X, ImagePlus, Play, Film } from "lucide-react";
+import { Star, Send, Hash, AlertCircle, BadgeCheck, X, ImagePlus, Play, Film } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { FIRST_BATCH_CODE } from "@/lib/drop-config";
@@ -205,18 +205,6 @@ export default function Review() {
           {result?.verified && (
             <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-tan/60 text-tan font-stamp uppercase text-[10px] tracking-widest">
               <BadgeCheck className="w-3.5 h-3.5" /> Verified Hunter
-            </div>
-          )}
-
-          {result?.discount_code && (
-            <div className="border border-primary/60 bg-card p-5 space-y-2">
-              <div className="flex items-center justify-center gap-2 font-stamp uppercase text-[10px] tracking-widest text-tan">
-                <Gift className="w-4 h-4" /> Hunter Reward — 10% off next drop
-              </div>
-              <div className="font-stamp text-2xl tracking-[0.2em] text-foreground select-all">
-                {result.discount_code}
-              </div>
-              <p className="text-[10px] text-muted-foreground">Single use. Save it.</p>
             </div>
           )}
 

@@ -2,20 +2,20 @@ import { Link } from "react-router-dom";
 import { ArrowRight, QrCode } from "lucide-react";
 
 /**
- * Condensed keepsake strip — every jar ships with a numbered Rap Sheet you can
- * scan to log a verdict. Kept compact; the full review flow lives at /review.
+ * Condensed Rap Sheet strip — every jar ships with a code you can scan to log a
+ * verdict on the public Archive. Kept compact; the full review flow lives at /review.
  */
 export const RapSheet = () => (
   <section id="rap-sheet" className="container py-10 md:py-12 scroll-mt-24">
     <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center gap-4 sm:gap-6 border border-border bg-card/40 px-5 py-5 sm:px-7">
       <QrCode className="h-9 w-9 text-primary shrink-0" />
       <div className="text-center sm:text-left flex-1">
-        <p className="font-stamp text-[10px] uppercase tracking-[0.3em] text-tan mb-1">— The Keepsake —</p>
+        <p className="font-stamp text-[10px] uppercase tracking-[0.3em] text-tan mb-1">— The Rap Sheet —</p>
         <h2 className="font-outlaw text-xl sm:text-2xl text-foreground text-shadow-outlaw">
           Every Jar Ships With A Rap Sheet
         </h2>
         <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-          A numbered, drop-unique keepsake. Scan its code to log your verdict — earns 10% off the next hunt + 24h early access.
+          Scan its code to log your verdict on the 5-point Ganjier scale. Your rating joins the public Archive for the next hunter to read.
         </p>
       </div>
       <Link
