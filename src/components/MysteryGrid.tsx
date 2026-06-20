@@ -10,6 +10,7 @@ import { DemoCheckoutSuccess } from "./DemoCheckoutSuccess";
 
 import { VaultTicker } from "./VaultTicker";
 import { ReserveSquareSheet } from "./ReserveSquareSheet";
+import { SlotMachine } from "./SlotMachine";
 import { useDemoMode } from "@/lib/demo-mode";
 import { Lock, Eye } from "lucide-react";
 
@@ -235,6 +236,40 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
     el.addEventListener("keydown", onKey);
     return () => el.removeEventListener("keydown", onKey);
   }, [focusedIndex, grid, handleTap, DROP_LIVE, previewMode]);
+
+  // ===== LIVE drop: the One-Armed Bandit (wildcard pull) =====
+  if (DROP_LIVE) {
+    return (
+      <section id="vault" className="relative scroll-mt-24">
+        <div className="container py-12 md:py-16">
+          <div className="text-center mb-8">
+            <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— {DROP_NAME} —</p>
+            <h2 className="font-outlaw text-3xl sm:text-4xl md:text-5xl text-foreground text-shadow-outlaw mb-3">
+              Pull the <span className="text-primary">Lever</span>
+            </h2>
+            <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto font-stamp italic">
+              {DROP_SUBTITLE}
+            </p>
+            <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
+              One price. Any cut. Land the Exclusive for the jackpot. Max {MAX_CART_TOTAL} jars per pull.
+            </p>
+
+            {/* Tier / odds legend */}
+            <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs font-stamp uppercase tracking-widest">
+              {Object.values(TIERS).map((t) => (
+                <span key={t.id} className="px-3 py-1.5 border border-border bg-card flex items-center gap-2">
+                  <span className={`h-2.5 w-2.5 ${t.colorClass}`} /> {t.label} · ${t.price}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <VaultTicker />
+          <SlotMachine />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="vault" className="relative scroll-mt-24">

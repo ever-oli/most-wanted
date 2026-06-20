@@ -22,6 +22,28 @@ export const TOTAL_SQUARES = GRID_SIZE * GRID_SIZE;
 
 export const MAX_CART_TOTAL = 3;
 
+/**
+ * Wildcard pull price — the "one-armed bandit" model. Every pull always wins a
+ * jar (so it's a mystery box, not regulated gambling); the gamble is which TIER
+ * and STRAIN you land on. Average jar value is ~$87 at the default tier mix, so
+ * this is set a touch above for house margin. Tune freely.
+ */
+export const WILDCARD_PRICE = 89;
+
+/** Reels per single spin (you choose 1–N jars to pull at once). */
+export const MAX_PER_PULL = 3;
+
+/** Max jars you can hold in the cart at once (across multiple spins). */
+export const PULL_CART_MAX = 9;
+
+/**
+ * How long a pulled jar is HELD for you before it returns to the pool if you
+ * haven't paid. Drives the per-jar countdown in the cart. NOTE: real
+ * enforcement (returning stock) must happen server-side; the client timer is
+ * UX only.
+ */
+export const RESERVATION_SECONDS = 300; // 5 minutes
+
 /** Set to false to show a blurred preview with a "Coming Soon" overlay. */
 export const DROP_LIVE = false;
 
@@ -166,6 +188,34 @@ export function buildGrid(soldIndexes: number[] = []): Square[] {
     tier,
     sold: soldSet.has(index),
   }));
+}
+
+/** All strains belonging to a given tier. */
+export function strainsByTier(tier: Tier): StrainConfig[] {
+  return STRAINS.filter((s) => s.tier === tier);
+}
+
+/**
+ * Draw one random jar for a wildcard pull. Tier is weighted by each tier's
+ * configured square count (the drop mix), then a random strain of that tier is
+ * picked. NOTE: for real money this must move server-side so the draw is
+ * authoritative and inventory-backed (no client-side rerolling).
+ */
+export function drawJar(): { tier: Tier; strain: StrainConfig } {
+  const entries = Object.values(TIERS);
+  const total = entries.reduce((s, t) => s + t.count, 0);
+  let r = Math.random() * total;
+  let tier: Tier = entries[0].id;
+  for (const t of entries) {
+    if (r < t.count) {
+      tier = t.id;
+      break;
+    }
+    r -= t.count;
+  }
+  const pool = strainsByTier(tier);
+  const strain = pool[Math.floor(Math.random() * pool.length)];
+  return { tier, strain };
 }
 
 // ====== Demo: pre-marked sold squares for FOMO realism ======
