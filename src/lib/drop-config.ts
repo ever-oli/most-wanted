@@ -70,14 +70,23 @@ export const DROP_SUBTITLE = "One man. A Houston grow.";
  */
 export const DROP_ID = "hilltop-budz-farm";
 
-/** Grower code — used to build jar/review codes: MW-<STRAIN_CODE>-<GROWER_CODE>-<NN> */
+/** Grower code — used to build jar/review codes: MW-<GROWER_CODE>-<STRAIN_CODE>-<NN> */
 export const GROWER_CODE = "HBF";
+
+/**
+ * Which tier is the rarest "jackpot" cut. Drives the slot-machine jackpot
+ * treatment so the celebration isn't hardcoded to a tier name.
+ */
+export const JACKPOT_TIER: Tier = "EXCLUSIVE";
 
 /**
  * The strains in this drop. Each square in the Vault is a mystery jar of a
  * given TIER; the specific strain is the surprise. Jar/review codes are built
- * as MW-<code>-HBF-<NN> and the valid codes live in the Supabase
+ * as MW-HBF-<code>-<NN> and the valid codes live in the Supabase
  * `order_tokens` table (the real source of truth for redemption).
+ *
+ * Strain data here matches the physical HillTop Budz Farm cards (source of
+ * truth): codes, tiers, and spellings are taken directly from the cards.
  */
 export interface StrainConfig {
   name: string;
@@ -86,21 +95,35 @@ export interface StrainConfig {
 }
 
 export const STRAINS: StrainConfig[] = [
-  { name: "Tendernism OG", code: "TOG", tier: "EXCLUSIVE" }, // Jealousy x Meat Breath — Exclusive Cut
-  { name: "Platinum Lemon Cherry Gelato", code: "PLG", tier: "EXO" },
+  { name: "Tenderism OG", code: "TOG", tier: "EXCLUSIVE" }, // 7G F&F — the exclusive cut
+  { name: "Platinum Lemon Cherry Gelato", code: "PLCG", tier: "EXO" },
   { name: "Crunch Berriez", code: "CB", tier: "EXO" },
-  { name: "Superboof", code: "SB", tier: "EXO" },
+  { name: "Super Boof", code: "SB", tier: "EXO" },
   { name: "Gelato 41", code: "G41", tier: "EXO" },
   { name: "Slapz", code: "SLP", tier: "EXO" },
   { name: "Honey Banana", code: "HB", tier: "AAA" },
-  { name: "Lemon Cherry Gelato BX", code: "LCB", tier: "AAA" },
   { name: "Lemon Cherry Gelato", code: "LCG", tier: "AAA" },
-  { name: "Oreo Cake", code: "OCK", tier: "AAA" },
+  { name: "Oreo Cake", code: "OC", tier: "AAA" },
   { name: "White Runtz", code: "WR", tier: "AAA" },
 ];
 
+/**
+ * Strain card art (the physical western labels), keyed by strain code. Files
+ * live in `src/assets/strains/<CODE>.png`. The slot machine shows this art on
+ * its reels, with a text fallback when a card is missing.
+ */
+const STRAIN_ART = import.meta.glob("@/assets/strains/*.png", {
+  eager: true,
+  import: "default",
+}) as Record<string, string>;
+
+export function strainArt(code: string): string | undefined {
+  const key = Object.keys(STRAIN_ART).find((p) => p.endsWith(`/${code}.png`));
+  return key ? STRAIN_ART[key] : undefined;
+}
+
 /** Example batch code shown on the review form. */
-export const FIRST_BATCH_CODE = `MW-${STRAINS[0].code}-${GROWER_CODE}-01`;
+export const FIRST_BATCH_CODE = `MW-${GROWER_CODE}-${STRAINS[0].code}-01`;
 
 /** Golden squares - random position(s) that get bonus treatment */
 export const GOLDEN_SQUARES = [42]; // Deterministic position for this drop
@@ -108,7 +131,7 @@ export const GOLDEN_SQUARES = [42]; // Deterministic position for this drop
 /** Wanted List clues - pre-drop hints, no photos */
 export const WANTED_LIST_CLUES = [
   "One man. One Houston grow.",
-  "Eleven cuts on the sheet. One of them is exclusive.",
+  "Ten cuts on the sheet. One of them is exclusive.",
   "The exotics don't announce themselves.",
   "If you know, you know.",
   "Sealed until your door.",
@@ -117,7 +140,7 @@ export const WANTED_LIST_CLUES = [
 export const TIERS: Record<Tier, TierConfig> = {
   EXCLUSIVE: {
     id: "EXCLUSIVE",
-    label: "EXCLUSIVE",
+    label: "F&F",
     price: 110,
     weight: "7g jar",
     count: 8,

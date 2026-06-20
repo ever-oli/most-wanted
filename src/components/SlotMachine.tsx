@@ -7,7 +7,9 @@ import {
   WILDCARD_PRICE,
   STRAINS,
   TIERS,
+  JACKPOT_TIER,
   drawJar,
+  strainArt,
   type StrainConfig,
   type Tier,
 } from "@/lib/drop-config";
@@ -43,7 +45,8 @@ const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; resul
 
   const show = spinning ? ticker : result?.strain ?? null;
   const tier = spinning ? null : result?.tier ?? null;
-  const isJackpot = tier === "EXCLUSIVE";
+  const isJackpot = tier === JACKPOT_TIER;
+  const art = show ? strainArt(show.code) : undefined;
 
   return (
     <div
@@ -56,22 +59,44 @@ const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; resul
     >
       <div aria-hidden className="absolute inset-x-1 top-1/2 -translate-y-1/2 h-px bg-tan/20" />
       {show ? (
-        <div className={cn("transition-all duration-150", spinning && "blur-[1.5px] opacity-80 scale-95")}>
-          {tier && (
-            <span
-              className={cn(
-                "inline-block mb-1 px-1.5 py-0.5 text-[8px] font-stamp uppercase tracking-[0.2em] border",
-                TIERS[tier].borderClass,
-                TIERS[tier].textClass,
-              )}
-            >
-              {tier}
-            </span>
-          )}
-          <div className={cn("font-outlaw leading-tight text-foreground", show.name.length > 18 ? "text-sm" : "text-base")}>
-            {show.name}
+        art ? (
+          <div className={cn("absolute inset-0 transition-all duration-150", spinning && "blur-[1.5px] opacity-80 scale-105")}>
+            <img
+              src={art}
+              alt={show.name}
+              className="h-full w-full object-cover"
+              draggable={false}
+            />
+            {tier && (
+              <span
+                className={cn(
+                  "absolute top-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 text-[8px] font-stamp uppercase tracking-[0.2em] border bg-background/80 backdrop-blur-sm",
+                  TIERS[tier].borderClass,
+                  TIERS[tier].textClass,
+                )}
+              >
+                {TIERS[tier].label}
+              </span>
+            )}
           </div>
-        </div>
+        ) : (
+          <div className={cn("transition-all duration-150", spinning && "blur-[1.5px] opacity-80 scale-95")}>
+            {tier && (
+              <span
+                className={cn(
+                  "inline-block mb-1 px-1.5 py-0.5 text-[8px] font-stamp uppercase tracking-[0.2em] border",
+                  TIERS[tier].borderClass,
+                  TIERS[tier].textClass,
+                )}
+              >
+                {TIERS[tier].label}
+              </span>
+            )}
+            <div className={cn("font-outlaw leading-tight text-foreground", show.name.length > 18 ? "text-sm" : "text-base")}>
+              {show.name}
+            </div>
+          </div>
+        )
       ) : (
         <div className="font-outlaw text-3xl text-muted-foreground/40">?</div>
       )}
@@ -153,7 +178,7 @@ export function SlotMachine() {
             ...prev,
             ...draws.map((j, k) => ({ ...j, id: `${Date.now()}-${k}-${Math.random().toString(36).slice(2, 7)}`, expiresAt })),
           ]);
-          if (draws.some((x) => x.tier === "EXCLUSIVE")) {
+          if (draws.some((x) => x.tier === JACKPOT_TIER)) {
             toast.success("JACKPOT — Exclusive Cut!", { description: "Held in your cart. Lock it in before the timer runs out." });
           } else {
             toast.success(`${draws.length} jar${draws.length > 1 ? "s" : ""} held`, { description: `Reserved in your cart for ${fmt(RESERVATION_SECONDS)}.` });
@@ -196,7 +221,7 @@ export function SlotMachine() {
               <span className="flex items-center gap-2">
                 <span className={cn("h-2 w-2", TIERS[w.tier].colorClass)} /> {w.strain.name}
               </span>
-              <span className={TIERS[w.tier].textClass}>{w.tier}</span>
+              <span className={TIERS[w.tier].textClass}>{TIERS[w.tier].label}</span>
             </div>
           ))}
         </div>
@@ -283,7 +308,7 @@ export function SlotMachine() {
                     <span className="flex items-center gap-2 min-w-0">
                       <span className={cn("h-2 w-2 shrink-0", TIERS[j.tier].colorClass)} />
                       <span className="truncate">{j.strain.name}</span>
-                      <span className={cn("shrink-0 text-[10px]", TIERS[j.tier].textClass)}>{j.tier}</span>
+                      <span className={cn("shrink-0 text-[10px]", TIERS[j.tier].textClass)}>{TIERS[j.tier].label}</span>
                     </span>
                     <span className="flex items-center gap-2 shrink-0">
                       <span className={cn("flex items-center gap-1 tabular-nums", urgent ? "text-destructive animate-pulse" : "text-muted-foreground")}>

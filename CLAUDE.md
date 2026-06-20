@@ -45,11 +45,12 @@ nav lives in `src/components/AnchorNav.tsx`.
 Drop name, subtitle, strain name/code, grower code, prices, tiers, dates,
 recruitment mode, and operator stories all live here. **Change drop content here,
 not hardcoded inside components.** Each drop = one cultivator/brand:
-- `GROWER_CODE` (e.g. `BEL` for Belgium, `HTB` for Hill Top Budz)
-- `STRAIN_CODE` (e.g. `OC` for Oreo Cookies)
-- Jar/review codes are built as `MW-<STRAIN_CODE>-<GROWER_CODE>-<NN>` and the
-  valid codes live in the Supabase `order_tokens` table (the real source of truth
-  for redemption — see `supabase/migrations/`).
+- `GROWER_CODE` (e.g. `BEL` for Belgium, `HBF` for HillTop Budz Farm)
+- `STRAIN_CODE` (e.g. `OC` for Oreo Cake)
+- Jar/review codes are built as `MW-<GROWER_CODE>-<STRAIN_CODE>-<NN>` (grower
+  then strain, e.g. `MW-HBF-CB-01`) and the valid codes live in the Supabase
+  `order_tokens` table (the real source of truth for redemption — see
+  `supabase/migrations/`).
 - `DROP_LIVE` toggles the live store vs. a "coming soon" preview.
 - `RECRUITMENT_MODE` shows the Wanted List signup instead of a countdown.
 
