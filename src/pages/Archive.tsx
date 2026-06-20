@@ -190,10 +190,10 @@ export default function Archive() {
 
                 <div className="flex items-center gap-2 mb-4 text-[10px] font-stamp uppercase tracking-widest">
                   <span className={cn("px-2 py-0.5 border", TIERS[r.tier]?.borderClass, TIERS[r.tier]?.textClass)}>
-                    {r.tier}
+                    {TIERS[r.tier]?.label ?? r.tier}
                   </span>
                   {r.square_index !== null && (
-                    <span className="text-muted-foreground">Square #{r.square_index + 1}</span>
+                    <span className="text-muted-foreground">Jar #{r.square_index + 1}</span>
                   )}
                   {r.is_verified && (
                     <span className="ml-auto flex items-center gap-1 text-tan">

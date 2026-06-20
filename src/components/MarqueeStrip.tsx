@@ -4,8 +4,8 @@ const ITEMS = [
   "HOUSTON",
   "TEXAS GROWN",
   "Sealed Until Your Door",
-  "100 Squares · 100 Outlaws",
-  "Eleven Cuts · One Exclusive",
+  "Pull The Lever · Land Your Cut",
+  "Ten Cuts · One F&F",
 ];
 
 export const MarqueeStrip = () => (

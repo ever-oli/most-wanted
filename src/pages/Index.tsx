@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { AgeGate } from "@/components/AgeGate";
 import { PromoBanner } from "@/components/PromoBanner";
 import { MarqueeStrip } from "@/components/MarqueeStrip";
@@ -13,13 +12,11 @@ import { MysteryGrid } from "@/components/MysteryGrid";
 import { SocialFeeds } from "@/components/SocialFeeds";
 import { Footer } from "@/components/Footer";
 import { WantedList } from "@/components/WantedList";
-import { SoldOutOverlay } from "@/components/SoldOutOverlay";
 import { WantedListRecruitment } from "@/components/WantedListRecruitment";
 import { DROP_LIVE, RECRUITMENT_MODE } from "@/lib/drop-config";
 import { useDemoMode } from "@/lib/demo-mode";
 
 const Index = () => {
-  const [allSold, setAllSold] = useState(false);
   const demo = useDemoMode();
   const dropLive = demo.active ? demo.dropLive : DROP_LIVE;
   const recruitmentMode = demo.active ? demo.recruitmentMode : RECRUITMENT_MODE;
@@ -54,11 +51,10 @@ const Index = () => {
           </section>
         )}
 
-        <MysteryGrid onAllSold={() => setAllSold(true)} />
+        <MysteryGrid />
       </main>
       <SocialFeeds />
       <Footer />
-      {allSold && <SoldOutOverlay />}
       {demo.active && !demo.clean && (
         <div className="fixed bottom-3 left-3 z-[70] px-2 py-1 bg-primary text-primary-foreground font-stamp uppercase text-[10px] tracking-widest border border-tan/60 shadow-[var(--shadow-outlaw)] pointer-events-none">
           Demo Mode

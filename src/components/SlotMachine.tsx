@@ -51,7 +51,7 @@ const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; resul
   return (
     <div
       className={cn(
-        "relative h-28 sm:h-32 rounded-md border-2 bg-background/90 overflow-hidden flex flex-col items-center justify-center text-center px-2",
+        "relative h-36 sm:h-44 md:h-52 rounded-md border-2 bg-background/90 overflow-hidden flex flex-col items-center justify-center text-center px-2",
         "shadow-[inset_0_2px_12px_hsl(0_0%_0%/0.7)]",
         spinning ? "border-tan/40" : tier ? TIERS[tier].borderClass : "border-border",
         isJackpot && "animate-pulse-red",
@@ -70,7 +70,7 @@ const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; resul
             {tier && (
               <span
                 className={cn(
-                  "absolute top-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 text-[8px] font-stamp uppercase tracking-[0.2em] border bg-background/80 backdrop-blur-sm",
+                  "absolute bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 text-[8px] sm:text-[9px] font-stamp uppercase tracking-[0.2em] border bg-background/80 backdrop-blur-sm",
                   TIERS[tier].borderClass,
                   TIERS[tier].textClass,
                 )}
@@ -101,7 +101,7 @@ const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; resul
         <div className="font-outlaw text-3xl text-muted-foreground/40">?</div>
       )}
       {isJackpot && (
-        <span className="absolute bottom-1 left-1/2 -translate-x-1/2 font-stamp text-[8px] uppercase tracking-[0.25em] text-tier-exclusive">
+        <span className="absolute top-1 left-1/2 -translate-x-1/2 font-stamp text-[8px] sm:text-[9px] uppercase tracking-[0.25em] text-tier-exclusive bg-background/80 backdrop-blur-sm px-1.5 py-0.5 rounded-sm">
           ★ Jackpot ★
         </span>
       )}
@@ -239,17 +239,17 @@ export function SlotMachine() {
   const full = remaining <= 0;
 
   return (
-    <div className="relative mx-auto max-w-xl">
+    <div className="relative mx-auto max-w-xl md:max-w-2xl lg:max-w-3xl">
       <div className="absolute -inset-4 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 blur-2xl pointer-events-none" />
 
-      <div className="relative border-2 border-tan/50 bg-card/70 rounded-xl p-4 sm:p-6 shadow-[var(--shadow-deep)]">
+      <div className="relative border-2 border-tan/50 bg-card/70 rounded-xl p-4 sm:p-6 md:p-8 shadow-[var(--shadow-deep)]">
         <div className="flex items-center justify-between mb-4">
-          <span className="font-stamp text-[10px] uppercase tracking-[0.3em] text-tan">The One-Armed Bandit</span>
-          <span className="font-stamp text-[10px] uppercase tracking-[0.3em] text-muted-foreground">${WILDCARD_PRICE} / pull</span>
+          <span className="font-stamp text-[10px] sm:text-xs uppercase tracking-[0.3em] text-tan">The One-Armed Bandit</span>
+          <span className="font-stamp text-[10px] sm:text-xs uppercase tracking-[0.3em] text-muted-foreground">${WILDCARD_PRICE} / pull</span>
         </div>
 
         {/* Reels */}
-        <div className="grid gap-2 sm:gap-3 mb-5" style={{ gridTemplateColumns: `repeat(${Math.max(1, results.length)}, minmax(0, 1fr))` }}>
+        <div className="grid gap-2 sm:gap-3 md:gap-4 mb-5" style={{ gridTemplateColumns: `repeat(${Math.max(1, results.length)}, minmax(0, 1fr))` }}>
           {results.map((r, i) => (
             <Reel key={i} spinning={spinning} result={r} />
           ))}

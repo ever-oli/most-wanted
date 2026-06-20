@@ -1,9 +1,10 @@
-import { Layers, MousePointerClick, Package, Star } from "lucide-react";
+import { Coins, Sparkles, Package, Star } from "lucide-react";
+import { WILDCARD_PRICE, MAX_PER_PULL, PULL_CART_MAX } from "@/lib/drop-config";
 
 const steps = [
-  { icon: Layers, title: "Choose Your Tier", body: "EXO ($110) or AAA ($75). Each tier unlocks a different pedigree of cultivar in a sealed 7g jar. Max 2 per tier, 3 per order — no whales." },
-  { icon: MousePointerClick, title: "Secure Your Square", body: "Lock in your spot on the grid. Once it's gone, it's gone. Bundle 3 jars for free priority shipping." },
-  { icon: Package, title: "Rip the Pack", body: "1 of 3 mystery variants per tier. Tracking pings your phone the second it ships. Your jar arrives sealed with a unique review token." },
+  { icon: Coins, title: "Pull The Lever", body: `One flat price ($${WILDCARD_PRICE}) a pull — every pull wins a sealed 7g jar. The gamble is the cut you land. Up to ${MAX_PER_PULL} jars a pull, ${PULL_CART_MAX} a run.` },
+  { icon: Sparkles, title: "Land Your Cut", body: "AAA, EXO, or the rare F&F exclusive. Hit the F&F and the jackpot lights up. Jars hold in your cart for 3 minutes — lock them in before the timer runs out." },
+  { icon: Package, title: "Rip the Pack", body: "Discreet, odor-sealed, no branding. Tracking pings your phone the second it ships. Every jar arrives with a unique review code." },
   { icon: Star, title: "Rate & Reward", body: "Your jar ships with a numbered Rap Sheet — scan its code to log your verdict on the 5-point Ganjier scale. Joins the public Archive, earns 10% off the next drop + 24h early access." },
 ];
 
