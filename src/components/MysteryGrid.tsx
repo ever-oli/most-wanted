@@ -1,6 +1,7 @@
 import {
   JARS_PER_PULL,
   SPINS_PER_RUN,
+  WILDCARD_PRICE,
   TIERS,
   DROP_LIVE as CONFIG_DROP_LIVE,
   DROP_NAME,
@@ -34,18 +35,24 @@ export const MysteryGrid = () => {
           <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto font-stamp italic">
             {DROP_SUBTITLE}
           </p>
-          <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
-            {JARS_PER_PULL} jars a spin · {SPINS_PER_RUN} spins · Keep only the cuts you want. Land the F&F for the jackpot.
+          <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto">
+            Every spin deals {JARS_PER_PULL} sealed cuts. Take your {SPINS_PER_RUN} spins, then keep only the jars you want.
+          </p>
+          <p className="mt-2 text-foreground text-sm md:text-base max-w-lg mx-auto font-semibold">
+            One flat ${WILDCARD_PRICE} a jar — for cuts worth $70 to $110.
           </p>
 
-          {/* Tier / odds legend */}
+          {/* Tier / worth legend */}
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs font-stamp uppercase tracking-widest">
             {Object.values(TIERS).map((t) => (
               <span key={t.id} className="px-3 py-1.5 border border-border bg-card flex items-center gap-2">
-                <span className={`h-2.5 w-2.5 ${t.colorClass}`} /> {t.label} · ${t.price}
+                <span className={`h-2.5 w-2.5 ${t.colorClass}`} /> {t.label} · worth ${t.price}
               </span>
             ))}
           </div>
+          <p className="mt-3 font-stamp text-[11px] uppercase tracking-[0.2em] text-muted-foreground/70 max-w-md mx-auto">
+            F&amp;F = Friends &amp; Family — our exclusive cut. Land it and the jackpot lights up.
+          </p>
         </div>
 
         {DROP_LIVE ? (

@@ -151,7 +151,7 @@ export const TIERS: Record<Tier, TierConfig> = {
     weight: "7g jar",
     count: 8,
     maxPerOrder: 1,
-    description: "Exclusive cut. The rarest on the sheet. One of one.",
+    description: "Friends & Family — the exclusive cut. Rarest on the sheet, one of one.",
     colorClass: "bg-tier-exclusive",
     textClass: "text-tier-exclusive",
     borderClass: "border-tier-exclusive",

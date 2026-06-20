@@ -8,7 +8,11 @@ const FAQS = [
   },
   {
     q: "What are the tiers — AAA, EXO, F&F?",
-    a: "Three cuts on the sheet. AAA ($70) is premium small-batch flower from trusted legacy operators. EXO ($100) is the top-shelf concierge tier — heavy hitters only. F&F ($110) is the rare exclusive cut: land it and the jackpot lights up.",
+    a: "Three cuts on the sheet, ranked by worth. AAA (worth ~$70) is premium small-batch flower from trusted legacy operators. EXO (worth ~$100) is the top-shelf concierge tier — heavy hitters only. F&F — short for Friends & Family — is our rarest, most exclusive cut (worth ~$110): land it and the jackpot lights up. No matter the tier, every jar is one flat $89.",
+  },
+  {
+    q: "Why is every jar $89?",
+    a: "Flat pricing keeps the gamble pure. You pay $89 for any jar you keep — whether it's an AAA, an EXO, or the F&F. Some cuts are worth more than others (up to ~$110), so the fun is landing one worth more than you paid. No tier surcharges, no hidden math.",
   },
   {
     q: "Is this legal in my state?",
