@@ -151,7 +151,7 @@ export default function Review() {
           display_name: displayName.trim(),
           is_public: isPublic,
           early_access_optin: earlyAccess,
-          drop_id_fallback: "belgium",
+          drop_id_fallback: "hilltop-budz-farm",
           tier_fallback: "AAA",
           media_count: media.length,
         },
@@ -279,7 +279,7 @@ export default function Review() {
             type="text"
             value={batchCode}
             onChange={(e) => setBatchCode(e.target.value)}
-            placeholder="MW-OC-BEL-01"
+            placeholder="MW-PLG-HBF-01"
             className={`w-full bg-card border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 transition-all font-stamp uppercase ${
               codeCheck.status === "invalid"
                 ? "border-destructive focus:border-destructive focus:ring-destructive/30"

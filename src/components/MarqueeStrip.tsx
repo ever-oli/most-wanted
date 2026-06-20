@@ -1,12 +1,11 @@
 const ITEMS = [
-  "BELGIUM",
-  "███████",
-  "███████",
-  "NYC",
-  "PROVIDENCE",
+  "HILLTOP BUDZ FARM",
+  "HBF",
+  "HOUSTON",
+  "TEXAS GROWN",
   "Sealed Until Your Door",
-  "64 Squares · 64 Outlaws",
-  "Solventless Heritage",
+  "100 Squares · 100 Outlaws",
+  "Eleven Cuts · One Exclusive",
 ];
 
 export const MarqueeStrip = () => (

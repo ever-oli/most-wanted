@@ -33,7 +33,7 @@ import React from "react";
 
 const GridSquare = React.memo(
   ({ sq, isSelected, isRevealed, isReserved, previewMode, onTap, onHover, focused, isGolden }: SquareProps & { isGolden: boolean }) => {
-    const tierColor = sq.tier === "EXO" ? "bg-tier-exo" : "bg-tier-aaa";
+    const tierColor = TIERS[sq.tier].colorClass;
     return (
       <button
         data-index={sq.index}
@@ -255,12 +255,11 @@ export const MysteryGrid = ({ onAllSold }: Props) => {
 
           {/* Legend / counts */}
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs font-stamp uppercase tracking-widest">
-            <span className="px-3 py-1.5 border border-border bg-card flex items-center gap-2">
-              <span className="h-2.5 w-2.5 bg-tier-exo" /> EXO · ${TIERS.EXO.price}
-            </span>
-            <span className="px-3 py-1.5 border border-border bg-card flex items-center gap-2">
-              <span className="h-2.5 w-2.5 bg-tier-aaa" /> AAA · ${TIERS.AAA.price}
-            </span>
+            {Object.values(TIERS).map((t) => (
+              <span key={t.id} className="px-3 py-1.5 border border-border bg-card flex items-center gap-2">
+                <span className={`h-2.5 w-2.5 ${t.colorClass}`} /> {t.label} · ${t.price}
+              </span>
+            ))}
             <span className="px-3 py-1.5 border border-border bg-card flex items-center gap-2 text-muted-foreground">
               <Lock className="h-3 w-3" /> {soldCount}/{grid.length} Sold
             </span>

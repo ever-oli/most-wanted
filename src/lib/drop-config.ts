@@ -1,20 +1,23 @@
 // ============= Drop configuration =============
 // Adjust these values to reconfigure the drop without touching grid logic.
+// This file is the SINGLE SOURCE OF TRUTH for drop content (see CLAUDE.md).
 
-export type Tier = "EXO" | "AAA";
+export type Tier = "EXCLUSIVE" | "EXO" | "AAA";
 
 export interface TierConfig {
   id: Tier;
   label: string;
   price: number;
   weight: string;
-  count: number;
+  count: number; // number of squares of this tier on the grid
   maxPerOrder: number;
   description: string;
-  colorClass: string;
+  colorClass: string; // bg-* utility (literal so Tailwind keeps it)
+  textClass: string; // text-* utility
+  borderClass: string; // border-* utility
 }
 
-export const GRID_SIZE = 8; // 8x8 = 64
+export const GRID_SIZE = 10; // 10x10 = 100
 export const TOTAL_SQUARES = GRID_SIZE * GRID_SIZE;
 
 export const MAX_CART_TOTAL = 3;
@@ -25,89 +28,106 @@ export const DROP_LIVE = false;
 /**
  * Recruitment mode: for the INITIAL drop only.
  * When true, the sealed vault shows a "Wanted List" recruitment panel
- * (tally toward 64 signups) instead of a countdown.
- * Flip to false once 64 is hit — countdown takes over for the actual drop.
+ * (tally toward RECRUITMENT_GOAL signups) instead of a countdown.
+ * Flip to false once the goal is hit — countdown takes over for the actual drop.
  * After the initial drop, future drops use normal cadence (countdown only).
  */
 export const RECRUITMENT_MODE = true;
-export const RECRUITMENT_GOAL = 64;
+export const RECRUITMENT_GOAL = 100;
 
 /** Target date/time for the next drop. Used by the countdown on the sealed vault. */
-export const NEXT_DROP_AT = new Date("2026-05-15T19:00:00-04:00");
+export const NEXT_DROP_AT = new Date("2026-07-15T19:00:00-05:00");
 
 /** Drop identity */
-export const DROP_NAME = "Belgium";
-export const DROP_SUBTITLE = "One man. NYC to Providence. Two ghosts you haven't met yet.";
-
-/** Drop slug used in /drop/:dropId routes */
-export const DROP_SLUG = "belgium";
-
-/** Strain for this drop (EXO tier) */
-export const STRAIN_NAME = "Oreo Cookies";
-export const STRAIN_CODE = "OC";
-export const GROWER_CODE = "BEL";
-export const STRAIN_TIER: Tier = "EXO";
-
-/** First official batch code — found on every jar card */
-export const FIRST_BATCH_CODE = `MW-${STRAIN_CODE}-${GROWER_CODE}-01`;
+export const DROP_NAME = "HillTop Budz Farm";
+export const DROP_SUBTITLE = "One man. A Houston grow.";
 
 /**
- * Valid jar codes now live in the backend `order_tokens` table (source of truth).
- * The Review form does a format check + backend pre-check — no client list to drift.
+ * drop_id used in the Supabase `order_tokens` / `reviews` tables and as the
+ * fallback drop id on the review form. Keep in sync with the seed migration.
  */
+export const DROP_ID = "hilltop-budz-farm";
 
-/** Operators - aliases and regions for story pages. Two are intentionally redacted. */
-export const OPERATORS = [
-  { alias: "Belgium", region: "NYC / Providence", redacted: false },
-  { alias: "███████", region: "Accomplice #1 — name withheld", redacted: true },
-  { alias: "███████", region: "Accomplice #2 — name withheld", redacted: true },
+/** Grower code — used to build jar/review codes: MW-<STRAIN_CODE>-<GROWER_CODE>-<NN> */
+export const GROWER_CODE = "HBF";
+
+/**
+ * The strains in this drop. Each square in the Vault is a mystery jar of a
+ * given TIER; the specific strain is the surprise. Jar/review codes are built
+ * as MW-<code>-HBF-<NN> and the valid codes live in the Supabase
+ * `order_tokens` table (the real source of truth for redemption).
+ */
+export interface StrainConfig {
+  name: string;
+  code: string;
+  tier: Tier;
+}
+
+export const STRAINS: StrainConfig[] = [
+  { name: "Tendernism OG", code: "TOG", tier: "EXCLUSIVE" }, // Jealousy x Meat Breath — Exclusive Cut
+  { name: "Platinum Lemon Cherry Gelato", code: "PLG", tier: "EXO" },
+  { name: "Crunch Berriez", code: "CB", tier: "EXO" },
+  { name: "Superboof", code: "SB", tier: "EXO" },
+  { name: "Gelato 41", code: "G41", tier: "EXO" },
+  { name: "Slapz", code: "SLP", tier: "EXO" },
+  { name: "Honey Banana", code: "HB", tier: "AAA" },
+  { name: "Lemon Cherry Gelato BX", code: "LCB", tier: "AAA" },
+  { name: "Lemon Cherry Gelato", code: "LCG", tier: "AAA" },
+  { name: "Oreo Cake", code: "OCK", tier: "AAA" },
+  { name: "White Runtz", code: "WR", tier: "AAA" },
 ];
 
-/** Golden squares - 1 random position that gets bonus treatment */
+/** Example batch code shown on the review form. */
+export const FIRST_BATCH_CODE = `MW-${STRAINS[0].code}-${GROWER_CODE}-01`;
+
+/** Golden squares - random position(s) that get bonus treatment */
 export const GOLDEN_SQUARES = [42]; // Deterministic position for this drop
 
 /** Wanted List clues - pre-drop hints, no photos */
 export const WANTED_LIST_CLUES = [
-  "He moves between the boroughs and the bay.",
-  "They call him Belgium. He won't tell you why.",
-  "Two more names on the sheet — both redacted.",
-  "If you know, you know. The waffle is a coincidence.",
+  "One man. One Houston grow.",
+  "Eleven cuts on the sheet. One of them is exclusive.",
+  "The exotics don't announce themselves.",
+  "If you know, you know.",
   "Sealed until your door.",
 ];
 
-/** Drop story - the backstory that appears on private pages */
-export const DROP_STORY = {
-  title: "Belgium",
-  body: `One man on the wanted list. Two more redacted.
-
-Belgium runs between the five boroughs and the Providence bay. Quiet operator, loud results. Doesn't talk much about the work, doesn't talk at all about the name.
-
-The other two? They haven't been named yet. Maybe next drop. Maybe never.
-
-(No, there's no recipe. Stop asking.)`,
-  notes: "2018 Farm Bill compliant. Lab tested. Sealed fresh."
-};
-
 export const TIERS: Record<Tier, TierConfig> = {
+  EXCLUSIVE: {
+    id: "EXCLUSIVE",
+    label: "EXCLUSIVE",
+    price: 110,
+    weight: "7g jar",
+    count: 8,
+    maxPerOrder: 1,
+    description: "Exclusive cut. The rarest on the sheet. One of one.",
+    colorClass: "bg-tier-exclusive",
+    textClass: "text-tier-exclusive",
+    borderClass: "border-tier-exclusive",
+  },
   EXO: {
     id: "EXO",
     label: "EXO",
-    price: 110,
+    price: 100,
     weight: "7g jar",
-    count: 26,
+    count: 52,
     maxPerOrder: 2,
     description: "Top-shelf concierge cultivar. Heavy hitters only.",
     colorClass: "bg-tier-exo",
+    textClass: "text-tier-exo",
+    borderClass: "border-tier-exo",
   },
   AAA: {
     id: "AAA",
     label: "AAA",
-    price: 75,
+    price: 70,
     weight: "7g jar",
-    count: 38,
+    count: 40,
     maxPerOrder: 2,
     description: "Premium small-batch flower from legacy operators.",
     colorClass: "bg-tier-aaa",
+    textClass: "text-tier-aaa",
+    borderClass: "border-tier-aaa",
   },
 };
 
@@ -135,6 +155,7 @@ export interface Square {
 
 export function buildGrid(soldIndexes: number[] = []): Square[] {
   const tiers: Tier[] = [
+    ...Array(TIERS.EXCLUSIVE.count).fill("EXCLUSIVE" as Tier),
     ...Array(TIERS.EXO.count).fill("EXO" as Tier),
     ...Array(TIERS.AAA.count).fill("AAA" as Tier),
   ];
@@ -148,7 +169,7 @@ export function buildGrid(soldIndexes: number[] = []): Square[] {
 }
 
 // ====== Demo: pre-marked sold squares for FOMO realism ======
-// Replace with real data from Shopify / backend later.
+// Replace with real data from the backend later.
 export const DEMO_SOLD_INDEXES: number[] = [
-  3, 7, 12, 21, 28, 35, 41, 48, 55, 60,
+  3, 7, 12, 21, 28, 35, 41, 48, 55, 60, 68, 73, 81, 88, 94,
 ];

@@ -29,6 +29,7 @@ export default {
           deep: "hsl(var(--tan-deep))",
         },
         tier: {
+          exclusive: "hsl(var(--tier-exclusive))",
           exo: "hsl(var(--tier-exo))",
           aaa: "hsl(var(--tier-aaa))",
         },

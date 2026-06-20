@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Star, BadgeCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TIERS, type Tier } from "@/lib/drop-config";
 
 interface Review {
   id: string;
   drop_id: string;
-  tier: "EXO" | "AAA";
+  tier: Tier;
   square_index: number | null;
   nose: number;
   structure: number;
@@ -88,13 +89,13 @@ export default function Archive() {
           <Link to="/" className="flex items-center gap-2 text-sm font-stamp uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" /> Home
           </Link>
-          <p className="font-stamp text-[10px] uppercase tracking-[0.3em] text-tan">Public Ledger</p>
+          <p className="font-stamp text-[10px] uppercase tracking-[0.3em] text-tan">Review History</p>
         </div>
       </header>
 
       <main className="container py-10 md:py-14">
         <div className="text-center mb-10">
-          <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— The Archive —</p>
+          <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan mb-3">— Review History —</p>
           <h1 className="font-outlaw text-4xl sm:text-5xl md:text-6xl text-shadow-outlaw mb-3">
             Hunters Have <span className="text-primary">Spoken</span>
           </h1>
@@ -141,7 +142,7 @@ export default function Archive() {
             </button>
           ))}
           <span className="mx-2 text-muted-foreground/40">·</span>
-          {(["all", "EXO", "AAA"] as const).map((t) => (
+          {(["all", ...Object.keys(TIERS)] as const).map((t) => (
             <button
               key={t}
               onClick={() => setFilterTier(t)}
@@ -188,7 +189,7 @@ export default function Archive() {
                 </div>
 
                 <div className="flex items-center gap-2 mb-4 text-[10px] font-stamp uppercase tracking-widest">
-                  <span className={cn("px-2 py-0.5 border", r.tier === "EXO" ? "border-tier-exo text-tier-exo" : "border-tier-aaa text-tier-aaa")}>
+                  <span className={cn("px-2 py-0.5 border", TIERS[r.tier]?.borderClass, TIERS[r.tier]?.textClass)}>
                     {r.tier}
                   </span>
                   {r.square_index !== null && (

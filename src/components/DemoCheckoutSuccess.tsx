@@ -44,7 +44,7 @@ export const DemoCheckoutSuccess = ({ open, selected, grid, onClose, onHuntAgain
               return (
                 <div key={i} className="flex items-center justify-between font-stamp uppercase text-xs">
                   <span className="flex items-center gap-2">
-                    <span className={`h-2 w-2 ${sq.tier === "EXO" ? "bg-tier-exo" : "bg-tier-aaa"}`} />
+                    <span className={`h-2 w-2 ${TIERS[sq.tier].colorClass}`} />
                     Square #{i + 1} · {sq.tier}
                   </span>
                   <span className="text-tan">${tier.price}</span>
