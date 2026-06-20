@@ -239,7 +239,6 @@ export function SlotMachine() {
 
   const selectedJars = drawn.filter((j) => selected.has(j.id));
   const cartPaid = selectedJars.length * WILDCARD_PRICE;
-  const cartValue = selectedJars.reduce((s, j) => s + TIERS[j.tier].price, 0);
 
   const resetRun = () => {
     setDrawn([]);
@@ -261,14 +260,12 @@ export function SlotMachine() {
   // ===== Post-checkout success (demo) =====
   if (checkedOut) {
     const paid = checkedOut.length * WILDCARD_PRICE;
-    const value = checkedOut.reduce((s, j) => s + TIERS[j.tier].price, 0);
     return (
       <div className="mx-auto max-w-xl rounded-2xl p-[2px] sm:p-[3px] bg-gold-plate shadow-[var(--shadow-gold),var(--shadow-deep)] animate-reveal">
       <div className="rounded-[15px] grain bg-[radial-gradient(ellipse_at_50%_-10%,hsl(0_32%_12%),hsl(0_0%_6%)_62%)] p-6 text-center">
         <p className="font-outlaw text-3xl text-primary text-shadow-outlaw mb-1">Locked In.</p>
         <p className="text-muted-foreground text-sm mb-4">
           {checkedOut.length} jar{checkedOut.length > 1 ? "s" : ""} secured · Paid ${paid}
-          {value > paid && <span className="text-tier-exclusive"> · ${value} in value 🤠</span>}
         </p>
         <div className="space-y-1.5 mb-5 max-w-xs mx-auto text-left">
           {checkedOut.map((w) => (
@@ -408,7 +405,6 @@ export function SlotMachine() {
                 ) : (
                   <>
                     Lock In {selectedJars.length} Jar{selectedJars.length > 1 ? "s" : ""} · ${cartPaid}
-                    {cartValue > cartPaid && <span className="opacity-70"> · ${cartValue} value</span>}
                   </>
                 )}
               </button>
