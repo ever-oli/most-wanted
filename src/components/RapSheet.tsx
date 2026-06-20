@@ -15,7 +15,7 @@ export const RapSheet = () => (
           Every Jar Ships With A Rap Sheet
         </h2>
         <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-          Scan its code to log your verdict on the 5-point Ganjier scale. Your rating joins the public Archive for the next hunter to read.
+          Scan its code to log your verdict on the 5-point Ganjier scale. Verified verdicts join the public Archive — log enough and you climb the Most Wanted Hunters board.
         </p>
       </div>
       <Link

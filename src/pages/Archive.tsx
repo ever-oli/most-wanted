@@ -82,6 +82,24 @@ export default function Archive() {
     };
   }, [filtered]);
 
+  // Most Wanted Hunters — ranked by verdicts logged, then avg score. The clout reward.
+  const topHunters = useMemo(() => {
+    const byName = new Map<string, { name: string; count: number; sum: number; verified: boolean }>();
+    for (const r of reviews) {
+      const name = (r.display_name || "").trim();
+      if (!name) continue;
+      const cur = byName.get(name) ?? { name, count: 0, sum: 0, verified: false };
+      cur.count += 1;
+      cur.sum += Number(r.average);
+      cur.verified = cur.verified || r.is_verified;
+      byName.set(name, cur);
+    }
+    return Array.from(byName.values())
+      .map((h) => ({ name: h.name, count: h.count, verified: h.verified, avg: h.sum / h.count }))
+      .sort((a, b) => b.count - a.count || b.avg - a.avg)
+      .slice(0, 5);
+  }, [reviews]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border/40 py-6 px-6">
@@ -121,6 +139,26 @@ export default function Archive() {
               <div className="font-outlaw text-3xl text-tan">{drops.length || 1}</div>
               <div className="text-[10px] font-stamp uppercase tracking-widest text-muted-foreground">Drops</div>
             </div>
+          </div>
+        )}
+
+        {/* Most Wanted Hunters leaderboard */}
+        {topHunters.length > 0 && (
+          <div className="max-w-2xl mx-auto mb-10">
+            <p className="font-stamp text-[10px] uppercase tracking-[0.3em] text-tan mb-3 text-center">— Most Wanted Hunters —</p>
+            <ol className="space-y-2">
+              {topHunters.map((h, i) => (
+                <li key={h.name} className={cn("flex items-center gap-3 border bg-card/60 px-4 py-2.5", i === 0 ? "border-primary/60" : "border-border")}>
+                  <span className={cn("font-outlaw text-lg w-6 text-center", i === 0 ? "text-primary" : "text-muted-foreground")}>{i + 1}</span>
+                  <span className="flex-1 min-w-0 font-stamp uppercase text-xs tracking-widest text-foreground truncate flex items-center gap-1.5">
+                    {h.name}
+                    {h.verified && <BadgeCheck className="w-3 h-3 text-tan shrink-0" />}
+                  </span>
+                  <span className="font-stamp text-[10px] uppercase tracking-widest text-muted-foreground shrink-0">{h.count} verdict{h.count > 1 ? "s" : ""}</span>
+                  <span className="font-outlaw text-sm text-tan w-10 text-right shrink-0">{h.avg.toFixed(1)}</span>
+                </li>
+              ))}
+            </ol>
           </div>
         )}
 

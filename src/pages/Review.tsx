@@ -211,7 +211,7 @@ export default function Review() {
           <div className="border-t border-border pt-6">
             <h2 className="font-outlaw text-2xl mb-2">Logged.</h2>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Your verdict is now part of the public archive.
+              Your verdict is on the public record — climb the Most Wanted Hunters board with every cut you call.
             </p>
           </div>
 
@@ -220,7 +220,7 @@ export default function Review() {
               to={result ? `/archive#review-${result.review_id}` : "/archive"}
               className="px-5 py-3 bg-primary text-primary-foreground font-stamp uppercase text-xs tracking-widest hover:bg-primary-glow transition-colors shadow-[var(--shadow-outlaw)]"
             >
-              View Your Entry in the Archive
+              View the Archive &amp; Leaderboard
             </Link>
             <button
               onClick={() => {
