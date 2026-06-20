@@ -32,7 +32,6 @@ If you think something truly needs a new page or route, **stop and ask the user 
 | URL | File | Purpose |
 |---|---|---|
 | `/` | `src/pages/Index.tsx` | **Main page** — hero, ethos, grading, how-it-works, rap sheet, FAQ, wanted list, **and the store (Vault)** |
-| `/drop/:dropId/story` | `src/pages/DropStory.tsx` | Per-operator backstory pages |
 | `/review` | `src/pages/Review.tsx` | Submit a review using a jar code |
 | `/archive` | `src/pages/Archive.tsx` | Past drops |
 | `*` | `src/pages/NotFound.tsx` | 404 |

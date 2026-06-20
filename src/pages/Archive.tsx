@@ -148,7 +148,7 @@ export default function Archive() {
               onClick={() => setFilterTier(t)}
               className={cn("px-3 py-1.5 border transition-colors", filterTier === t ? "border-primary bg-primary/10 text-foreground" : "border-border text-muted-foreground hover:text-foreground")}
             >
-              {t === "all" ? "All Tiers" : t}
+              {t === "all" ? "All Tiers" : (TIERS[t as Tier]?.label ?? t)}
             </button>
           ))}
         </div>

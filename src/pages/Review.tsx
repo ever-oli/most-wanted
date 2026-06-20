@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Star, Send, Hash, AlertCircle, BadgeCheck, Gift, X, ImagePlus, Play, Film } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { FIRST_BATCH_CODE } from "@/lib/drop-config";
 
 const CODE_FORMAT_RE = /^MW-[A-Z0-9-]{2,40}$/;
 type CodeCheck =
@@ -279,7 +280,7 @@ export default function Review() {
             type="text"
             value={batchCode}
             onChange={(e) => setBatchCode(e.target.value)}
-            placeholder="MW-PLG-HBF-01"
+            placeholder={FIRST_BATCH_CODE}
             className={`w-full bg-card border rounded px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 transition-all font-stamp uppercase ${
               codeCheck.status === "invalid"
                 ? "border-destructive focus:border-destructive focus:ring-destructive/30"
@@ -302,7 +303,7 @@ export default function Review() {
             )}
             {codeCheck.status === "idle" && (
               <span className="text-muted-foreground/60">
-                Format: <span className="font-stamp text-foreground/80">MW-DROP-GROWER-CODE</span> — from your jar card.
+                Format: <span className="font-stamp text-foreground/80">MW-GROWER-STRAIN-NN</span> — from your jar card.
               </span>
             )}
           </div>
@@ -312,7 +313,7 @@ export default function Review() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-stamp text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              The Ten Points
+              The Five Points
             </h2>
             <div className={`font-outlaw text-2xl ${getScoreColor(parseFloat(average() as string))}`}>
               {average()} <span className="text-xs font-sans text-muted-foreground">/ 10</span>

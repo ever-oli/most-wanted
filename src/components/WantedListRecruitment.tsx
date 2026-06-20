@@ -80,7 +80,7 @@ export const WantedListRecruitment = ({ overlay = true }: Props = {}) => {
       toast.success(
         data.duplicate ? "You're already on the list." : "You're on the wanted list.",
         {
-          description: "Once 256 hunters sign on, the countdown begins.",
+          description: `Once ${RECRUITMENT_GOAL} hunters sign on, the countdown begins.`,
           className: "font-stamp",
         }
       );
