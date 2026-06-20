@@ -72,7 +72,7 @@ export const AnchorNav = () => {
               href="/archive"
               className="block px-2.5 sm:px-3 py-1.5 font-stamp uppercase text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] transition-smooth border border-tan/40 text-tan hover:bg-tan/5 whitespace-nowrap"
             >
-              Archive
+              Reviews
             </a>
           </li>
         </ul>

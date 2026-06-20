@@ -45,6 +45,7 @@
     --radius: 0.25rem;
 
     /* Tier colors */
+    --tier-exclusive: 43 96% 56%;
     --tier-exo: 0 70% 50%;
     --tier-aaa: 28 45% 60%;
     --sold: 0 0% 22%;

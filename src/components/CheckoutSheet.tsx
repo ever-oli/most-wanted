@@ -21,12 +21,12 @@ export const CheckoutSheet = ({ square, onClose, onConfirm, alreadyInCart }: Pro
       >
         {square && tier && (
           <div className="relative">
-            <div className={`absolute inset-x-0 top-0 h-1 ${tier.id === "EXO" ? "bg-tier-exo" : "bg-tier-aaa"}`} />
+            <div className={`absolute inset-x-0 top-0 h-1 ${tier.colorClass}`} />
             <div className="p-6 pt-8">
               <SheetHeader className="text-left mb-5">
                 <p className="font-stamp text-xs uppercase tracking-[0.3em] text-tan">— Square #{square.index + 1} —</p>
                 <SheetTitle className="font-outlaw text-3xl text-foreground flex items-center gap-2">
-                  Tier: <span className={tier.id === "EXO" ? "text-tier-exo" : "text-tier-aaa"}>{tier.label}</span>
+                  Tier: <span className={tier.textClass}>{tier.label}</span>
                 </SheetTitle>
               </SheetHeader>
 
