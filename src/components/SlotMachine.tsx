@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, memo } from "react";
 import { toast } from "sonner";
 import {
   MAX_PER_PULL,
@@ -28,8 +28,9 @@ function fmt(secs: number) {
   return `${m}:${r.toString().padStart(2, "0")}`;
 }
 
-/** A single reel: blurs + cycles strain names while spinning, lands on a jar. */
-function Reel({ spinning, result }: { spinning: boolean; result: Pull | null }) {
+/** A single reel: blurs + cycles strain names while spinning, lands on a jar.
+ *  Memoized so the per-second cart countdown never re-renders the reels. */
+const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; result: Pull | null }) {
   const [ticker, setTicker] = useState<StrainConfig>(STRAINS[0]);
 
   useEffect(() => {
@@ -81,7 +82,7 @@ function Reel({ spinning, result }: { spinning: boolean; result: Pull | null }) 
       )}
     </div>
   );
-}
+});
 
 export function SlotMachine() {
   const demo = useDemoMode();
@@ -109,7 +110,9 @@ export function SlotMachine() {
   }, [pulls, spinning]);
 
   // One-second tick: drive countdowns and expire held jars back to the pool.
+  // Only runs while jars are held, so an idle machine never re-renders.
   useEffect(() => {
+    if (cart.length === 0) return;
     const id = setInterval(() => {
       const t = Date.now();
       setNow(t);
@@ -122,7 +125,7 @@ export function SlotMachine() {
       }
     }, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [cart.length]);
 
   useEffect(() => () => timers.current.forEach((t) => clearTimeout(t)), []);
 

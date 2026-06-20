@@ -34,7 +34,7 @@ export const WILDCARD_PRICE = 89;
 export const MAX_PER_PULL = 3;
 
 /** Max jars you can hold in the cart at once (across multiple spins). */
-export const PULL_CART_MAX = 24;
+export const PULL_CART_MAX = 12;
 
 /**
  * How long a pulled jar is HELD for you before it returns to the pool if you
