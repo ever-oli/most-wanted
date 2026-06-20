@@ -22,7 +22,8 @@ type CartJar = Pull & { id: string; expiresAt: number };
 
 const SPIN_MS = 1100;
 const STAGGER_MS = 450;
-const REEL_H = "h-36 sm:h-44 md:h-52";
+// Card art is 1920x1080 (16:9) — keep windows landscape so the art never mushes.
+const REEL_WINDOW = "aspect-[16/9] w-full";
 const REEL_STRIP = 14;
 
 function fmt(secs: number) {
@@ -51,7 +52,7 @@ const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; resul
     <div
       className={cn(
         "relative rounded-lg overflow-hidden",
-        REEL_H,
+        REEL_WINDOW,
         "ring-1 ring-[hsl(var(--gold)/0.45)]",
         "bg-[radial-gradient(ellipse_at_center,hsl(0_0%_11%),hsl(0_0%_4%))]",
         "shadow-[inset_0_3px_16px_hsl(0_0%_0%/0.85)]",
@@ -65,9 +66,9 @@ const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; resul
             {[...strip, ...strip].map((s, i) => {
               const a = strainArt(s.code);
               return (
-                <div key={i} className={cn(REEL_H, "w-full")}>
+                <div key={i} className={REEL_WINDOW}>
                   {a ? (
-                    <img src={a} alt="" className="h-full w-full object-cover opacity-90" draggable={false} />
+                    <img src={a} alt="" className="h-full w-full object-cover scale-105 opacity-90" draggable={false} />
                   ) : (
                     <div className="flex h-full items-center justify-center font-outlaw text-tan/40 text-xl">{s.name}</div>
                   )}
@@ -80,7 +81,7 @@ const Reel = memo(function Reel({ spinning, result }: { spinning: boolean; resul
         // Landed result.
         <div className="absolute inset-0 animate-reel-land">
           {resultArt ? (
-            <img src={resultArt} alt={result.strain.name} className="h-full w-full object-cover" draggable={false} />
+            <img src={resultArt} alt={result.strain.name} className="h-full w-full object-cover scale-105" draggable={false} />
           ) : (
             <div className="flex h-full items-center justify-center px-2 text-center font-outlaw text-foreground text-base leading-tight">
               {result.strain.name}
