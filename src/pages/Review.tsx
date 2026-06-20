@@ -48,7 +48,6 @@ export default function Review() {
   const [notes, setNotes] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [isPublic, setIsPublic] = useState(true);
-  const [earlyAccess, setEarlyAccess] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState<{ verified: boolean; discount_code: string | null; review_id: string } | null>(null);
@@ -151,7 +150,7 @@ export default function Review() {
           notes: notes.trim(),
           display_name: displayName.trim(),
           is_public: isPublic,
-          early_access_optin: earlyAccess,
+          early_access_optin: false,
           drop_id_fallback: "hilltop-budz-farm",
           tier_fallback: "AAA",
           media_count: media.length,
@@ -462,18 +461,6 @@ export default function Review() {
               <span className="block text-xs text-muted-foreground mt-0.5">Your review helps other hunters trust the brand.</span>
             </span>
           </label>
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={earlyAccess}
-              onChange={(e) => setEarlyAccess(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-primary"
-            />
-            <span className="text-sm">
-              <span className="font-stamp uppercase tracking-widest text-xs text-foreground">Hunter early access list</span>
-              <span className="block text-xs text-muted-foreground mt-0.5">Get notified 24h before the next drop opens.</span>
-            </span>
-          </label>
         </section>
 
         {/* Submit */}
@@ -511,7 +498,7 @@ export default function Review() {
             Your feedback drives our next hunt
           </p>
           <p className="font-stamp text-[10px] text-muted-foreground/40">
-            mostwantedhemp.co
+            @mstwntdpacks
           </p>
         </div>
       </footer>
