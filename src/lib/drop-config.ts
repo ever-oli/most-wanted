@@ -164,6 +164,113 @@ export function strainArt(code: string): string | undefined {
   return key ? STRAIN_ART[key] : undefined;
 }
 
+/**
+ * Curated "dossier" notes for the strain lineup — keyed by strain code. This is
+ * COMPLIANCE-SAFE reference only: type (Indica/Sativa/Hybrid), lineage/genetics,
+ * flavor & aroma notes, and a short cinematic vibe blurb. NO medical/health
+ * claims — never describe effects, conditions, or benefits here (see CLAUDE.md).
+ * Lineage/type/flavor sourced from public strain references (Leafly et al.).
+ */
+export interface StrainDossier {
+  /** Indica / Sativa / Hybrid descriptor (no effect language). */
+  type: string;
+  /** Genetics / cross. */
+  lineage: string;
+  /** Flavor & aroma / terpene notes — rendered as chips. */
+  flavors: string[];
+  /** Short noir blurb — flavor, lineage, reputation, look. No effect claims. */
+  blurb: string;
+  /** Leafly strain page; omit for the house exclusive (no public file). */
+  leafly?: string;
+}
+
+export const STRAIN_DOSSIER: Record<string, StrainDossier> = {
+  TOG: {
+    type: "Indica-dominant Hybrid",
+    lineage: "Jealousy × Meat Breath",
+    flavors: ["Gas", "Funk", "Sweet", "Earth", "Cookie"],
+    blurb:
+      "The Friends & Family cut. Jealousy's loud, gassy sweetness folded into Meat Breath's savory funk — exotic on the nose, heavy in the cure. Land it on the reels and the jackpot lights up.",
+    leafly: "https://www.leafly.com/search?q=Jealousy%20x%20Meat%20Breath",
+  },
+  PLCG: {
+    type: "Indica-dominant Hybrid",
+    lineage: "Sunset Sherbet × GSC — the Platinum cut",
+    flavors: ["Lemon", "Cherry", "Citrus", "Cream", "Sweet"],
+    blurb:
+      "The platinum cut of a Cali legend. Lemon and cherry over cold cream — dressed up, polished, and twice as quiet about it.",
+    leafly: "https://www.leafly.com/search?q=Platinum%20Lemon%20Cherry%20Gelato",
+  },
+  CB: {
+    type: "Indica-leaning Hybrid",
+    lineage: "(Gassius Clay × Billy Kimber) × Sweet Retreat",
+    flavors: ["Berry cereal", "Candy", "Cream", "Gas", "Fruit"],
+    blurb:
+      "Half a decade of breeding folded into a cereal box. Smells like the bowl you weren't allowed seconds of — berry candy, then gas.",
+    leafly: "https://www.leafly.com/search?q=Crunch%20Berriez",
+  },
+  SB: {
+    type: "Balanced Hybrid",
+    lineage: "Black Cherry Punch × Tropicana Cookies",
+    flavors: ["Orange", "Cherry", "Citrus", "Diesel", "Cookie"],
+    blurb:
+      "Leafly's Strain of the Year, 2024. Loud orange off the Tropicana side, dark cherry off the Punch. A modern classic that earned the name the hard way.",
+    leafly: "https://www.leafly.com/strains/super-boof",
+  },
+  G41: {
+    type: "Hybrid",
+    lineage: "Sunset Sherbet × Thin Mint GSC — Cookies Fam",
+    flavors: ["Sweet cream", "Dessert", "Lavender", "Pine", "Citrus"],
+    blurb:
+      "Cookies-family royalty — the number every other Gelato gets measured against. Sweet cream with a whisper of lavender and pine.",
+    leafly: "https://www.leafly.com/strains/gelato-41",
+  },
+  SLP: {
+    type: "Indica-dominant Hybrid",
+    lineage: "Runtz × Grease Monkey — Exotic Genetix",
+    flavors: ["Skunk", "Diesel", "Pine", "Candy", "Citrus"],
+    blurb:
+      "Runtz dragged through the fuel pump by Grease Monkey. Candy up front, gas on the back, frosted all the way through. Named for the sound it makes.",
+    leafly: "https://www.leafly.com/strains/slapz",
+  },
+  HB: {
+    type: "Indica-leaning Hybrid",
+    lineage: "Honey Boo Boo × Banana OG",
+    flavors: ["Banana", "Honey", "Tropical", "Earth", "Gas"],
+    blurb:
+      "Ripe banana over warm honey, sticky to the touch. A dessert cut that wears its name on the nose.",
+    leafly: "https://www.leafly.com/search?q=Honey%20Banana",
+  },
+  LCG: {
+    type: "Indica-dominant Hybrid",
+    lineage: "Sunset Sherbet × GSC — Backpackboyz cut",
+    flavors: ["Lemon", "Cherry", "Citrus", "Berry", "Cream"],
+    blurb:
+      "The strain that built a brand on flavor alone. Lemon, cherry, and cream — the Bay Area's worst-kept secret.",
+    leafly: "https://www.leafly.com/strains/lemon-cherry-gelato",
+  },
+  OC: {
+    type: "Indica-dominant Hybrid",
+    lineage: "Cookies & Cream × Secret Weapon (aka Oreoz)",
+    flavors: ["Chocolate", "Vanilla", "Marshmallow", "Cream", "Gas"],
+    blurb:
+      "Near-black buds under a coat of frost. Chocolate and toasted marshmallow over diesel — a campfire dessert with a record.",
+    leafly: "https://www.leafly.com/strains/oreoz",
+  },
+  WR: {
+    type: "Balanced Hybrid",
+    lineage: "Gelato × Zkittlez — the white pheno of Runtz",
+    flavors: ["Sweet candy", "Tropical fruit", "Citrus", "Cream"],
+    blurb:
+      "Buds so frosted they read white. Gelato crossed with Zkittlez — pure candy, snow-tipped, top of the Runtz family tree.",
+    leafly: "https://www.leafly.com/strains/white-runtz",
+  },
+};
+
+export function strainDossier(code: string): StrainDossier | undefined {
+  return STRAIN_DOSSIER[code];
+}
+
 /** Example batch code shown on the review form. */
 export const FIRST_BATCH_CODE = `MW-${GROWER_CODE}-${STRAINS[0].code}-01`;
 

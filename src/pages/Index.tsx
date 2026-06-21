@@ -6,6 +6,7 @@ import { Hero } from "@/components/Hero";
 import { Ethos } from "@/components/Ethos";
 import { GradingSystem } from "@/components/GradingSystem";
 import { HowItWorks } from "@/components/HowItWorks";
+import { StrainLineup } from "@/components/StrainLineup";
 import { FAQ } from "@/components/FAQ";
 import { MysteryGrid } from "@/components/MysteryGrid";
 import { SocialFeeds } from "@/components/SocialFeeds";
@@ -35,6 +36,7 @@ const Index = () => {
         <section id="how-it-works" className="scroll-mt-24">
           <HowItWorks />
         </section>
+        <StrainLineup />
         <FAQ />
         <WantedList />
 
