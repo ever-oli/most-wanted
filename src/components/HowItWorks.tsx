@@ -5,7 +5,7 @@ const steps = [
   { icon: Coins, title: "Pull The Lever", body: `Every pull spins ${JARS_PER_PULL} sealed 7g jars — the gamble is the cut you land. You get ${SPINS_PER_RUN} spins, ${JARS_PER_PULL * SPINS_PER_RUN} jars dealt in all.` },
   { icon: Sparkles, title: "Keep Your Cuts", body: `AAA, EXO, or the rare F&F (Friends & Family) exclusive — cuts worth $70 to $110. After your spins, keep only the jars you want and pay one flat $${WILDCARD_PRICE} each. Land the F&F and the jackpot lights up.` },
   { icon: Package, title: "Rip the Pack", body: "Discreet, odor-sealed, no branding. Tracking pings your phone the second it ships. Every jar arrives with a unique review code." },
-  { icon: Star, title: "Rate & Rank", body: "Your jar ships with a Rap Sheet — scan its code to log your verdict on the 5-point Ganjier scale. Verified verdicts join the public Archive and climb the Most Wanted Hunters board. Earn your name." },
+  { icon: Star, title: "Rate & Rank", body: "Scan the review code on your jar to log your verdict on the 5-point Ganjier scale. Verified verdicts join the public Archive and climb the Most Wanted Hunters board. Earn your name." },
 ];
 
 export const HowItWorks = () => (
