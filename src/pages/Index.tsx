@@ -7,6 +7,7 @@ import { Ethos } from "@/components/Ethos";
 import { GradingSystem } from "@/components/GradingSystem";
 import { HowItWorks } from "@/components/HowItWorks";
 import { StrainLineup } from "@/components/StrainLineup";
+import { MerchStore } from "@/components/MerchStore";
 import { FAQ } from "@/components/FAQ";
 import { MysteryGrid } from "@/components/MysteryGrid";
 import { SocialFeeds } from "@/components/SocialFeeds";
@@ -50,6 +51,7 @@ const Index = () => {
         )}
 
         <MysteryGrid />
+        <MerchStore />
       </main>
       <SocialFeeds />
       <Footer />

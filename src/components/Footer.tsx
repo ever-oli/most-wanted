@@ -18,6 +18,7 @@ export const Footer = () => {
               <li><a href="#grading" className="text-muted-foreground hover:text-foreground transition-smooth focus-outlaw">Grading</a></li>
               <li><a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-smooth focus-outlaw">How It Works</a></li>
               <li><a href="#vault" className="text-muted-foreground hover:text-foreground transition-smooth focus-outlaw">The Vault</a></li>
+              <li><a href="https://mostwantedpacks.printify.me/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-smooth focus-outlaw">Merch</a></li>
               <li><a href="#feed" className="text-muted-foreground hover:text-foreground transition-smooth focus-outlaw">The Feed</a></li>
               <li><a href="/archive" className="text-tan hover:text-foreground transition-smooth focus-outlaw">The Archive</a></li>
               <li><a href="/review" className="text-tan hover:text-foreground transition-smooth focus-outlaw">Rate Your Jar</a></li>
