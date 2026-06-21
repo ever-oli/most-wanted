@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Bell, Target } from "lucide-react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@convex/_generated/api";
 import { RECRUITMENT_GOAL } from "@/lib/drop-config";
-import { supabase } from "@/integrations/supabase/client";
 
 const MINE_KEY = "mwp-wanted-list:mine";
 /** Start the tally from the real DB count only. */
@@ -19,29 +20,20 @@ export const WantedListRecruitment = ({ overlay = true }: Props = {}) => {
   const [count, setCount] = useState(DEMO_BASE_COUNT);
   const [submitting, setSubmitting] = useState(false);
 
-  // Load live count + remember if this device already signed
+  const countData = useQuery(api.wantedList.count);
+  const signUp = useMutation(api.wantedList.signup);
+
+  // Remember if this device already signed.
   useEffect(() => {
     if (localStorage.getItem(MINE_KEY)) setSubscribed(true);
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke(
-          "wanted-list-signup",
-          { method: "GET" }
-        );
-        if (cancelled) return;
-        if (!error && data && typeof data.count === "number") {
-          setCount(DEMO_BASE_COUNT + data.count);
-        }
-      } catch {
-        /* keep seed count on failure */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  // Reflect the live count when it loads.
+  useEffect(() => {
+    if (countData && typeof countData.count === "number") {
+      setCount(DEMO_BASE_COUNT + countData.count);
+    }
+  }, [countData]);
 
   const remaining = Math.max(0, RECRUITMENT_GOAL - count);
   const pct = Math.min(100, (count / RECRUITMENT_GOAL) * 100);
@@ -58,19 +50,9 @@ export const WantedListRecruitment = ({ overlay = true }: Props = {}) => {
 
     setSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke(
-        "wanted-list-signup",
-        { body: { email: trimmed } }
-      );
+      const data = await signUp({ email: trimmed });
 
-      if (error || !data?.ok) {
-        toast.error("Could not sign you on. Try again.", {
-          className: "font-stamp",
-        });
-        return;
-      }
-
-      if (typeof data.count === "number") {
+      if (typeof data?.count === "number") {
         setCount(DEMO_BASE_COUNT + data.count);
       }
       localStorage.setItem(MINE_KEY, "1");
@@ -78,14 +60,14 @@ export const WantedListRecruitment = ({ overlay = true }: Props = {}) => {
       setEmail("");
 
       toast.success(
-        data.duplicate ? "You're already on the list." : "You're on the wanted list.",
+        data?.duplicate ? "You're already on the list." : "You're on the wanted list.",
         {
           description: `Once ${RECRUITMENT_GOAL} hunters sign on, the countdown begins.`,
           className: "font-stamp",
         }
       );
     } catch {
-      toast.error("Network error. Try again.", { className: "font-stamp" });
+      toast.error("Could not sign you on. Try again.", { className: "font-stamp" });
     } finally {
       setSubmitting(false);
     }

@@ -13,8 +13,8 @@ import {
   type Tier,
 } from "@/lib/drop-config";
 import { cn } from "@/lib/utils";
-import { useDemoMode } from "@/lib/demo-mode";
 import { Check } from "lucide-react";
+import { CheckoutSheet } from "./CheckoutSheet";
 
 type Pull = { tier: Tier; strain: StrainConfig };
 type DrawnJar = Pull & { id: string };
@@ -175,13 +175,12 @@ const PickCard = memo(function PickCard({
 });
 
 export function SlotMachine() {
-  const demo = useDemoMode();
   const [spinning, setSpinning] = useState(false);
   const [results, setResults] = useState<(Pull | null)[]>(Array(JARS_PER_PULL).fill(null));
   const [drawn, setDrawn] = useState<DrawnJar[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [spinsUsed, setSpinsUsed] = useState(0);
-  const [checkedOut, setCheckedOut] = useState<DrawnJar[] | null>(null);
+  const [checkingOut, setCheckingOut] = useState(false);
   const timers = useRef<number[]>([]);
 
   useEffect(() => () => timers.current.forEach((t) => clearTimeout(t)), []);
@@ -249,48 +248,18 @@ export function SlotMachine() {
 
   const checkout = () => {
     if (selectedJars.length === 0) return;
-    if (demo.demoCheckout) {
-      setCheckedOut(selectedJars);
-      resetRun();
-    } else {
-      toast("Routing to checkout…", { description: "Payments wire up next." });
-    }
+    setCheckingOut(true);
   };
-
-  // ===== Post-checkout success (demo) =====
-  if (checkedOut) {
-    const paid = checkedOut.length * WILDCARD_PRICE;
-    return (
-      <div className="mx-auto max-w-xl rounded-2xl p-[2px] sm:p-[3px] bg-gold-plate shadow-[var(--shadow-gold),var(--shadow-deep)] animate-reveal">
-      <div className="rounded-[15px] grain bg-[radial-gradient(ellipse_at_50%_-10%,hsl(0_32%_12%),hsl(0_0%_6%)_62%)] p-6 text-center">
-        <p className="font-outlaw text-3xl text-primary text-shadow-outlaw mb-1">Locked In.</p>
-        <p className="text-muted-foreground text-sm mb-4">
-          {checkedOut.length} jar{checkedOut.length > 1 ? "s" : ""} secured · Paid ${paid}
-        </p>
-        <div className="space-y-1.5 mb-5 max-w-xs mx-auto text-left">
-          {checkedOut.map((w) => (
-            <div key={w.id} className="flex items-center justify-between font-stamp uppercase text-xs">
-              <span className="flex items-center gap-2">
-                <span className={cn("h-2 w-2", TIERS[w.tier].colorClass)} /> {w.strain.name}
-              </span>
-              <span className={TIERS[w.tier].textClass}>{TIERS[w.tier].label}</span>
-            </div>
-          ))}
-        </div>
-        <button
-          onClick={() => setCheckedOut(null)}
-          className="px-5 py-2.5 border border-primary/60 text-foreground font-stamp uppercase text-xs tracking-widest hover:bg-primary/10 transition-smooth focus-outlaw"
-        >
-          Back to the Machine
-        </button>
-        <p className="mt-3 font-stamp text-[9px] uppercase tracking-[0.25em] text-muted-foreground/60">Demo · No charge</p>
-      </div>
-      </div>
-    );
-  }
 
   return (
     <div className="relative mx-auto max-w-xl md:max-w-2xl lg:max-w-3xl">
+      {checkingOut && (
+        <CheckoutSheet
+          items={selectedJars.map((j) => ({ code: j.strain.code, name: j.strain.name, tier: j.tier }))}
+          onClose={() => setCheckingOut(false)}
+          onPlaced={resetRun}
+        />
+      )}
       {/* Warm ambient glow */}
       <div className="absolute -inset-6 bg-[radial-gradient(ellipse_at_center,hsl(41_70%_45%/0.12),transparent_70%)] blur-2xl pointer-events-none" />
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "convex/react";
+import { api } from "@convex/_generated/api";
 import { ArrowLeft, Star, BadgeCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TIERS, type Tier } from "@/lib/drop-config";
@@ -37,23 +38,11 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
 }
 
 export default function Archive() {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
+  const data = useQuery(api.reviews.list);
+  const reviews = (data ?? []) as Review[];
+  const loading = data === undefined;
   const [filterDrop, setFilterDrop] = useState<string>("all");
   const [filterTier, setFilterTier] = useState<string>("all");
-
-  useEffect(() => {
-    (async () => {
-      const { data, error } = await supabase
-        .from("reviews")
-        .select("*")
-        .eq("is_public", true)
-        .order("created_at", { ascending: false })
-        .limit(200);
-      if (!error && data) setReviews(data as Review[]);
-      setLoading(false);
-    })();
-  }, []);
 
   // Scroll to anchor after load
   useEffect(() => {

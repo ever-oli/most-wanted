@@ -50,6 +50,42 @@ export const PULL_CART_MAX = JARS_PER_PULL * SPINS_PER_RUN;
  */
 export const RESERVATION_SECONDS = 180; // 3 minutes
 
+/**
+ * Interim manual-payment config (used until a card processor + bank are set up).
+ * Orders are placed pending payment; the buyer sends the total to one of these
+ * handles with their order code in the memo. Edit these with your real handles.
+ */
+export const PAYMENT = {
+  /** Your CashApp $cashtag, e.g. "$mostwanted". */
+  cashappTag: "$everoli",
+  /** Your Chime $ChimeSign, e.g. "$YourName". */
+  chimeHandle: "$Everardo-Olivares-2",
+  /** Minutes an unpaid order is held before it expires. */
+  windowMinutes: 30,
+};
+
+/**
+ * Discreet aliases — keep anything payment/processor-facing reading like a
+ * dessert order, never cannabis. The customer still sees real strain names on
+ * the site; aliases are for memos, receipts, and the bank's eyes. Keyed by code.
+ */
+export const STRAIN_ALIAS: Record<string, string> = {
+  TOG: "House Special",
+  PLCG: "Platinum Gelato",
+  CB: "Berry Crunch",
+  SB: "Cream Soda",
+  G41: "Gelato No. 41",
+  SLP: "Sour Candy",
+  HB: "Banana Bread",
+  LCG: "Cherry Gelato",
+  OC: "Oreo Cake",
+  WR: "Vanilla Ice Cream",
+};
+
+export function strainAlias(code: string): string {
+  return STRAIN_ALIAS[code] ?? "House Special";
+}
+
 /** Set to false to show a blurred preview with a "Coming Soon" overlay. */
 export const DROP_LIVE = false;
 
@@ -71,8 +107,8 @@ export const DROP_NAME = "HillTop Budz Farm";
 export const DROP_SUBTITLE = "One man. A Houston grow.";
 
 /**
- * drop_id used in the Supabase `order_tokens` / `reviews` tables and as the
- * fallback drop id on the review form. Keep in sync with the seed migration.
+ * drop_id used in the Convex `orderTokens` / `reviews` tables and as the
+ * fallback drop id on the review form. Keep in sync with convex/seed.ts.
  */
 export const DROP_ID = "hilltop-budz-farm";
 
@@ -88,8 +124,8 @@ export const JACKPOT_TIER: Tier = "EXCLUSIVE";
 /**
  * The strains in this drop. Each square in the Vault is a mystery jar of a
  * given TIER; the specific strain is the surprise. Jar/review codes are built
- * as MW-HBF-<code>-<NN> and the valid codes live in the Supabase
- * `order_tokens` table (the real source of truth for redemption).
+ * as MW-HBF-<code>-<NN> and the valid codes live in the Convex
+ * `orderTokens` table (the real source of truth for redemption).
  *
  * Strain data here matches the physical HillTop Budz Farm cards (source of
  * truth): codes, tiers, and spellings are taken directly from the cards.

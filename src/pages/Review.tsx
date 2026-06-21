@@ -2,7 +2,8 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Star, Send, Hash, AlertCircle, BadgeCheck, X, ImagePlus, Play, Film } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { useConvex, useMutation } from "convex/react";
+import { api } from "@convex/_generated/api";
 import { FIRST_BATCH_CODE } from "@/lib/drop-config";
 
 const CODE_FORMAT_RE = /^MW-[A-Z0-9-]{2,40}$/;
@@ -35,6 +36,8 @@ interface MediaFile {
 }
 
 export default function Review() {
+  const convex = useConvex();
+  const submitReview = useMutation(api.reviews.submit);
   const [searchParams] = useSearchParams();
   const [batchCode, setBatchCode] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,28 +77,25 @@ export default function Review() {
       return;
     }
     setCodeCheck({ status: "checking" });
+    let cancelled = false;
     const handle = setTimeout(async () => {
-      const { data, error } = await supabase.functions.invoke("submit-review", {
-        body: { token: trimmedCode, validate_only: true },
-      });
-      if (error) {
-        const ctx = (error as any)?.context;
-        let msg = "Code not found. Check your jar card.";
-        try {
-          const parsed = ctx ? (typeof ctx === "string" ? JSON.parse(ctx) : ctx) : null;
-          if (parsed?.error) msg = parsed.error;
-        } catch { /* ignore */ }
-        setCodeCheck({ status: "invalid", message: msg });
-        return;
-      }
-      if (data?.ok && data?.verified) {
-        setCodeCheck({ status: "valid", drop_id: data.drop_id, tier: data.tier });
-      } else {
-        setCodeCheck({ status: "invalid", message: data?.error || "Code not valid." });
+      try {
+        const data = await convex.query(api.reviews.validateCode, { token: trimmedCode });
+        if (cancelled) return;
+        if (data?.ok && data?.verified) {
+          setCodeCheck({ status: "valid", drop_id: data.drop_id, tier: data.tier });
+        } else {
+          setCodeCheck({ status: "invalid", message: data?.error || "Code not valid." });
+        }
+      } catch {
+        if (!cancelled) setCodeCheck({ status: "invalid", message: "Code not found. Check your jar card." });
       }
     }, 350);
-    return () => clearTimeout(handle);
-  }, [trimmedCode, isFormatValid]);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+  }, [trimmedCode, isFormatValid, convex]);
 
   const handleRate = (criterion: string, value: number) => {
     setRatings((prev) => ({ ...prev, [criterion]: value }));
@@ -137,29 +137,22 @@ export default function Review() {
 
     const token = batchCode.trim().toUpperCase();
     try {
-      const { data, error } = await supabase.functions.invoke("submit-review", {
-        body: {
-          token,
-          ratings: {
-            nose: ratings.NOSE,
-            structure: ratings.STRUCTURE,
-            cure: ratings.CURE,
-            burn: ratings.BURN,
-            experience: ratings.EXPERIENCE,
-          },
-          notes: notes.trim(),
-          display_name: displayName.trim(),
-          is_public: isPublic,
-          early_access_optin: false,
-          drop_id_fallback: "hilltop-budz-farm",
-          tier_fallback: "AAA",
-          media_count: media.length,
+      const data = await submitReview({
+        token,
+        ratings: {
+          nose: ratings.NOSE,
+          structure: ratings.STRUCTURE,
+          cure: ratings.CURE,
+          burn: ratings.BURN,
+          experience: ratings.EXPERIENCE,
         },
+        notes: notes.trim(),
+        display_name: displayName.trim(),
+        is_public: isPublic,
       });
 
-      if (error || !data?.success) {
-        const msg = (error as any)?.context?.error || (error as any)?.message || data?.error || "Submission failed";
-        toast.error(msg);
+      if (!data?.success) {
+        toast.error("Submission failed");
         setSubmitting(false);
         return;
       }
@@ -168,7 +161,7 @@ export default function Review() {
       toast.success("Evaluation logged. Your verdict is now part of the archive.");
       setSubmitted(true);
     } catch (e: any) {
-      toast.error(e?.message || "Something went wrong");
+      toast.error(e?.data ?? e?.message ?? "Something went wrong");
     } finally {
       setSubmitting(false);
     }

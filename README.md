@@ -3,15 +3,14 @@
 Concierge platform for small-batch, 2018 Farm Bill compliant premium hemp drops.
 
 Built with **Vite + React + TypeScript + Tailwind/shadcn-ui** on the frontend and
-**Supabase** (Postgres + Edge Functions) on the backend. Fully open source and
-self-hostable — no proprietary platform required.
+**Convex** (reactive database + serverless functions) on the backend.
 
 ## Tech stack
 
 - **Frontend:** Vite, React 18, TypeScript, React Router, TanStack Query
 - **UI:** Tailwind CSS + shadcn-ui (Radix primitives)
-- **Backend:** Supabase (hosted free tier) — Postgres, Auth, Edge Functions
-- **Hosting:** GitHub Pages (free, deployed via GitHub Actions)
+- **Backend:** Convex — reactive DB + typed queries/mutations/actions (`convex/`)
+- **Hosting:** GitHub Pages (frontend) + Convex Cloud (backend)
 
 ## Local development
 
@@ -25,20 +24,29 @@ npm install
 npm run dev
 ```
 
-### Environment variables
+### Backend setup (Convex)
 
-The app reads its Supabase connection from environment variables. These are kept
-in `.env`:
+The first time you clone, link a Convex deployment. This generates
+`convex/_generated/` (required for the build) and writes `VITE_CONVEX_URL` to
+`.env.local`:
 
 ```sh
-VITE_SUPABASE_URL="https://<your-project>.supabase.co"
-VITE_SUPABASE_PUBLISHABLE_KEY="<your-anon-publishable-key>"
-VITE_SUPABASE_PROJECT_ID="<your-project-id>"
+npx convex dev      # logs in, creates/links a deployment, runs codegen + live sync
 ```
 
-> The publishable/anon key is **safe to commit** — it is meant to ship in the
-> client bundle and is protected by Supabase Row Level Security policies. Never
-> commit the `service_role` key.
+Keep `npx convex dev` running alongside `npm run dev`. Then seed the jar/review
+codes and set server secrets:
+
+```sh
+npx convex run seed:run                       # seed the HillTop Budz Farm jar codes
+npx convex env set ADMIN_PASSPHRASE "<pick-a-strong-passphrase>"   # gates /intake
+npx convex env set ORDER_WINDOW_MINUTES 30    # how long an unpaid order is reserved
+npx convex env set ORDER_ALERT_WEBHOOK "<optional Discord/Telegram webhook>"
+```
+
+> `VITE_CONVEX_URL` is safe to commit/ship — it only identifies your public
+> deployment. Secrets set via `convex env set` live server-side only and never
+> reach the client bundle.
 
 ## Useful scripts
 
@@ -68,18 +76,24 @@ GitHub Pages has no built-in single-page-app fallback, so the deploy workflow
 copies `dist/index.html` to `dist/404.html`. This lets deep links (e.g.
 `/review`, `/archive`) load correctly instead of 404ing.
 
-## Backend (Supabase)
+## Backend (Convex)
 
-The `supabase/` directory contains the database migrations and Edge Functions
-(`submit-review`, `wanted-list-signup`). The project currently runs against a
-hosted Supabase project on the free tier. To run or manage the backend locally,
-install the [Supabase CLI](https://supabase.com/docs/guides/cli):
+The `convex/` directory holds the schema and all backend logic:
+
+- `schema.ts` — tables: `reviews`, `orderTokens`, `wantedListSignups`, `orders`
+- `reviews.ts` — `list` (Archive feed), `validateCode`, `submit`
+- `wantedList.ts` — `count`, `signup`
+- `orders.ts` — `create` (action, pay-by-memo), `adminList` / `adminUpdate` (passphrase-gated)
+- `seed.ts` — seeds the redeemable jar/review codes
+
+Deploy the backend with:
 
 ```sh
-supabase start          # run the full stack locally via Docker
-supabase db push        # apply migrations to the linked project
-supabase functions deploy <name>
+npx convex deploy       # push functions + schema to your production deployment
 ```
+
+The `/intake` route is the passphrase-gated fulfillment dashboard (set
+`ADMIN_PASSPHRASE` via `convex env set`).
 
 ## License
 

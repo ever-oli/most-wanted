@@ -47,16 +47,17 @@ not hardcoded inside components.** Each drop = one cultivator/brand:
 - `GROWER_CODE` (e.g. `BEL` for Belgium, `HBF` for HillTop Budz Farm)
 - `STRAIN_CODE` (e.g. `OC` for Oreo Cake)
 - Jar/review codes are built as `MW-<GROWER_CODE>-<STRAIN_CODE>-<NN>` (grower
-  then strain, e.g. `MW-HBF-CB-01`) and the valid codes live in the Supabase
-  `order_tokens` table (the real source of truth for redemption — see
-  `supabase/migrations/`).
+  then strain, e.g. `MW-HBF-CB-01`) and the valid codes live in the Convex
+  `orderTokens` table (the real source of truth for redemption — seeded by
+  `convex/seed.ts`, run with `npx convex run seed:run`).
 - `DROP_LIVE` toggles the live store vs. a "coming soon" preview.
 - `RECRUITMENT_MODE` shows the Wanted List signup instead of a countdown.
 
 ### Tech stack
 Vite + React 18 + TypeScript, Tailwind + shadcn-ui (Radix), React Router,
-TanStack Query. Backend: Supabase (Postgres + Edge Functions in `supabase/`).
-Path alias: `@/` → `src/`.
+TanStack Query. Backend: **Convex** (reactive DB + functions in `convex/`).
+Queries/mutations/actions replace the old edge functions; access control lives
+inside the functions (no RLS). Path aliases: `@/` → `src/`, `@convex/` → `convex/`.
 
 ---
 
@@ -97,9 +98,11 @@ npm run preview  # preview the production build
 npm run lint     # ESLint
 npm run test     # Vitest (includes a smoke test that mounts the whole app)
 ```
-- Supabase connection comes from `.env` (`VITE_SUPABASE_*`). The publishable/anon
-  key is safe to commit (protected by Row Level Security). **Never commit the
-  Supabase `service_role` key.**
+- Convex connection comes from `VITE_CONVEX_URL` (written to `.env.local` by
+  `npx convex dev`). Run `npx convex dev` alongside `npm run dev` so the backend
+  is live and codegen (`convex/_generated/`) stays current.
+- Server secrets (`ADMIN_PASSPHRASE`, `ORDER_ALERT_WEBHOOK`, `ORDER_WINDOW_MINUTES`)
+  are set in the Convex dashboard / `npx convex env set`, never in client code.
 
 ### Deploy — GitHub Pages (automatic)
 - **Every push to `main` auto-deploys** via `.github/workflows/deploy.yml` →

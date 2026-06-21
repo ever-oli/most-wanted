@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Review from "./pages/Review.tsx";
 import Archive from "./pages/Archive.tsx";
+import Intake from "./pages/Intake.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,8 @@ const App = () => (
           <Route path="/review" element={<Review />} />
           {/* Public review history (a.k.a. the Archive) */}
           <Route path="/archive" element={<Archive />} />
+          {/* Passphrase-gated fulfillment dashboard */}
+          <Route path="/intake" element={<Intake />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

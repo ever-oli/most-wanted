@@ -1,7 +1,0 @@
-project_id = "pfkrspnclmllhzdbksvp"
-
-[functions.wanted-list-signup]
-verify_jwt = false
-
-[functions.submit-review]
-verify_jwt = false
