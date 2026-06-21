@@ -87,7 +87,7 @@ export function strainAlias(code: string): string {
 }
 
 /** Set to false to show a blurred preview with a "Coming Soon" overlay. */
-export const DROP_LIVE = false;
+export const DROP_LIVE = true;
 
 /**
  * Recruitment mode: for the INITIAL drop only.
@@ -96,7 +96,7 @@ export const DROP_LIVE = false;
  * Flip to false once the goal is hit — countdown takes over for the actual drop.
  * After the initial drop, future drops use normal cadence (countdown only).
  */
-export const RECRUITMENT_MODE = true;
+export const RECRUITMENT_MODE = false;
 export const RECRUITMENT_GOAL = 100;
 
 /** Target date/time for the next drop. Used by the countdown on the sealed vault. */
@@ -266,25 +266,27 @@ export function strainsByTier(tier: Tier): StrainConfig[] {
  * picked. NOTE: for real money this must move server-side so the draw is
  * authoritative and inventory-backed (no client-side rerolling).
  */
-export function drawJar(): { tier: Tier; strain: StrainConfig } {
-  const entries = Object.values(TIERS);
-  const total = entries.reduce((s, t) => s + t.count, 0);
+export function drawJar(available?: Set<string>): { tier: Tier; strain: StrainConfig } {
+  const isAvail = (s: StrainConfig) => !available || available.has(s.code);
+  // Only weight tiers that still have an in-stock strain.
+  const entries = Object.values(TIERS).filter((t) => STRAINS.some((s) => s.tier === t.id && isAvail(s)));
+  const tierPool = entries.length ? entries : Object.values(TIERS);
+  const total = tierPool.reduce((s, t) => s + t.count, 0);
   let r = Math.random() * total;
-  let tier: Tier = entries[0].id;
-  for (const t of entries) {
+  let tier: Tier = tierPool[0].id;
+  for (const t of tierPool) {
     if (r < t.count) {
       tier = t.id;
       break;
     }
     r -= t.count;
   }
-  const pool = strainsByTier(tier);
+  let pool = strainsByTier(tier).filter(isAvail);
+  if (pool.length === 0) pool = strainsByTier(tier);
   const strain = pool[Math.floor(Math.random() * pool.length)];
   return { tier, strain };
 }
 
-// ====== Demo: pre-marked sold squares for FOMO realism ======
-// Replace with real data from the backend later.
-export const DEMO_SOLD_INDEXES: number[] = [
-  3, 7, 12, 21, 28, 35, 41, 48, 55, 60, 68, 73, 81, 88, 94,
-];
+// Real sold state comes from Convex inventory (convex/inventory.ts `summary`).
+// No fabricated "sold" markers ship — kept empty intentionally.
+export const DEMO_SOLD_INDEXES: number[] = [];

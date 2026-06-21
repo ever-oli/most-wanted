@@ -58,6 +58,7 @@ export function CheckoutSheet({
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState<Placed | null>(null);
   const [copied, setCopied] = useState(false);
+  const [err, setErr] = useState("");
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -77,6 +78,7 @@ export function CheckoutSheet({
     if (!agree) return toast.error("You must agree to the terms.");
 
     setSubmitting(true);
+    setErr("");
     try {
       const res = await createOrder({
         customer: { name: name.trim(), email: email.trim(), phone: phone.trim() },
@@ -90,7 +92,9 @@ export function CheckoutSheet({
       setPlaced(res as Placed);
       onPlaced?.();
     } catch (e: any) {
-      toast.error(e?.data ?? e?.message ?? "Could not place order. Try again.");
+      const msg = e?.data ?? e?.message ?? "Could not place order. Try again.";
+      setErr(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -248,6 +252,11 @@ export function CheckoutSheet({
                 </span>
               </label>
 
+              {err && (
+                <div className="mb-3 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                  {err} <span className="text-muted-foreground">— close this and adjust your haul, then try again.</span>
+                </div>
+              )}
               <button
                 onClick={submit}
                 disabled={submitting}

@@ -48,6 +48,17 @@ export default defineSchema({
     squareIndex: v.optional(v.union(v.number(), v.null())),
   }).index("by_email", ["email"]),
 
+  // Per-strain stock. remaining = total - committed (committed covers
+  // pending_payment + paid + shipped; released on cancel/expire).
+  inventory: defineTable({
+    dropId: v.string(),
+    code: v.string(),
+    name: v.string(),
+    tier,
+    total: v.number(),
+    committed: v.number(),
+  }).index("by_code", ["code"]),
+
   // Manual pay-by-memo orders (interim, pre-processor).
   orders: defineTable({
     orderCode: v.string(),
@@ -77,9 +88,11 @@ export default defineSchema({
     total: v.number(),
     paymentMethod: v.optional(v.string()),
     customerNote: v.optional(v.union(v.string(), v.null())),
+    trackingNumber: v.optional(v.union(v.string(), v.null())),
     expiresAt: v.optional(v.number()),
     paidAt: v.optional(v.number()),
     shippedAt: v.optional(v.number()),
+    emailedAt: v.optional(v.number()),
   })
     .index("by_code", ["orderCode"])
     .index("by_status", ["status"]),

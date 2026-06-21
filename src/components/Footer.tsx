@@ -1,5 +1,6 @@
 import { Instagram, Twitter, Mail } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { SignalContact } from "@/components/SignalContact";
 
 export const Footer = () => {
@@ -85,10 +86,9 @@ export const Footer = () => {
         {/* Legal + origin */}
         <div className="mt-10 pt-8 border-t border-border/60 text-[10px] text-muted-foreground font-stamp uppercase tracking-wider flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
-            <a href="#" className="hover:text-foreground transition-smooth focus-outlaw">Terms</a>
-            <a href="#" className="hover:text-foreground transition-smooth focus-outlaw">Privacy</a>
-            <a href="#" className="hover:text-foreground transition-smooth focus-outlaw">Shipping Policy</a>
-            <a href="#" className="hover:text-foreground transition-smooth focus-outlaw">COA Lookup</a>
+            <Link to="/terms" className="hover:text-foreground transition-smooth focus-outlaw">Terms</Link>
+            <Link to="/privacy" className="hover:text-foreground transition-smooth focus-outlaw">Privacy</Link>
+            <Link to="/terms#shipping" className="hover:text-foreground transition-smooth focus-outlaw">Shipping Policy</Link>
           </div>
           <p className="text-muted-foreground/50">
             Crafted in the South · Most Wanted LLC

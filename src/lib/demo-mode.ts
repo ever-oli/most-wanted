@@ -17,20 +17,11 @@ export interface DemoModeState {
   demoCheckout: boolean;
 }
 
+// Demo mode is permanently disabled for the live store. The store is now driven
+// entirely by DROP_LIVE/RECRUITMENT_MODE in drop-config and real Convex data, so
+// no URL param can put the site into a fake "demo" state.
 function read(): DemoModeState {
-  if (typeof window === "undefined") {
-    return { active: false, clean: false, dropLive: false, recruitmentMode: true, demoCheckout: false };
-  }
-  const p = new URLSearchParams(window.location.search);
-  const active = p.get("demo") === "1";
-  const clean = p.get("clean") === "1";
-  return {
-    active,
-    clean,
-    dropLive: active,
-    recruitmentMode: active ? false : true,
-    demoCheckout: active,
-  };
+  return { active: false, clean: false, dropLive: false, recruitmentMode: false, demoCheckout: false };
 }
 
 export function useDemoMode(): DemoModeState {

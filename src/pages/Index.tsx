@@ -14,12 +14,10 @@ import { Footer } from "@/components/Footer";
 import { WantedList } from "@/components/WantedList";
 import { WantedListRecruitment } from "@/components/WantedListRecruitment";
 import { DROP_LIVE, RECRUITMENT_MODE } from "@/lib/drop-config";
-import { useDemoMode } from "@/lib/demo-mode";
 
 const Index = () => {
-  const demo = useDemoMode();
-  const dropLive = demo.active ? demo.dropLive : DROP_LIVE;
-  const recruitmentMode = demo.active ? demo.recruitmentMode : RECRUITMENT_MODE;
+  const dropLive = DROP_LIVE;
+  const recruitmentMode = RECRUITMENT_MODE;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -55,11 +53,6 @@ const Index = () => {
       </main>
       <SocialFeeds />
       <Footer />
-      {demo.active && !demo.clean && (
-        <div className="fixed bottom-3 left-3 z-[70] px-2 py-1 bg-primary text-primary-foreground font-stamp uppercase text-[10px] tracking-widest border border-tan/60 shadow-[var(--shadow-outlaw)] pointer-events-none">
-          Demo Mode
-        </div>
-      )}
     </div>
   );
 };

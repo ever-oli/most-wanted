@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
-import { ArrowLeft, RefreshCw, Lock } from "lucide-react";
+import { ArrowLeft, RefreshCw, Lock, LogOut, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const PASS_KEY = "mwp-intake-pass";
@@ -21,6 +21,7 @@ interface Order {
   total: number;
   paymentMethod?: string;
   customerNote?: string | null;
+  trackingNumber?: string | null;
   expiresAt?: number;
   paidAt?: number;
   shippedAt?: number;
@@ -50,6 +51,7 @@ export default function Intake() {
   const [authed, setAuthed] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -84,15 +86,37 @@ export default function Intake() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setStatus = async (id: string, to: string) => {
+  const setStatus = async (id: string, to: string, tracking?: string) => {
     const passphrase = sessionStorage.getItem(PASS_KEY) || pass;
     try {
-      await adminUpdate({ passphrase, id: id as any, to });
+      await adminUpdate({ passphrase, id: id as any, to, tracking });
       await load(passphrase, filter);
     } catch (e: any) {
       setError(e?.data ?? e?.message ?? "Update failed.");
     }
   };
+
+  const markShipped = (id: string) => {
+    const tracking = window.prompt("Tracking number (optional — leave blank to skip):") ?? "";
+    setStatus(id, "shipped", tracking.trim());
+  };
+
+  const logout = () => {
+    sessionStorage.removeItem(PASS_KEY);
+    setPass("");
+    setAuthed(false);
+    setOrders([]);
+  };
+
+  const visible = orders.filter((o) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      o.orderCode.toLowerCase().includes(q) ||
+      o.customerName.toLowerCase().includes(q) ||
+      o.email.toLowerCase().includes(q)
+    );
+  });
 
   if (!authed) {
     return (
@@ -138,16 +162,34 @@ export default function Intake() {
       <header className="border-b border-border/40 py-4 px-6 sticky top-0 bg-background/95 backdrop-blur z-10">
         <div className="container flex items-center justify-between gap-3">
           <h1 className="font-outlaw text-xl text-shadow-outlaw">Intake</h1>
-          <button
-            onClick={() => load(sessionStorage.getItem(PASS_KEY) || pass, filter)}
-            className="inline-flex items-center gap-2 text-xs font-stamp uppercase tracking-widest text-muted-foreground hover:text-foreground"
-          >
-            <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} /> Refresh
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => load(sessionStorage.getItem(PASS_KEY) || pass, filter)}
+              className="inline-flex items-center gap-2 text-xs font-stamp uppercase tracking-widest text-muted-foreground hover:text-foreground"
+            >
+              <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} /> Refresh
+            </button>
+            <button
+              onClick={logout}
+              className="inline-flex items-center gap-2 text-xs font-stamp uppercase tracking-widest text-muted-foreground hover:text-destructive"
+            >
+              <LogOut className="h-3.5 w-3.5" /> Logout
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="container py-6">
+        <div className="relative mb-4 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search code, name, or email"
+            className="w-full pl-9 pr-3 py-2 bg-muted border border-border text-foreground text-sm font-stamp placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 rounded"
+          />
+        </div>
+
         <div className="flex flex-wrap gap-2 mb-5 text-xs font-stamp uppercase tracking-widest">
           {STATUSES.map((s) => (
             <button
@@ -168,13 +210,13 @@ export default function Intake() {
 
         {error && <p className="text-xs text-destructive mb-4">{error}</p>}
 
-        {orders.length === 0 ? (
+        {visible.length === 0 ? (
           <p className="text-center text-muted-foreground font-stamp uppercase tracking-widest text-xs py-16">
             {loading ? "Loading…" : "No orders."}
           </p>
         ) : (
           <div className="space-y-3">
-            {orders.map((o) => (
+            {visible.map((o) => (
               <div key={o._id} className="border border-border bg-card/50 rounded-lg p-4">
                 <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
                   <div>
@@ -213,6 +255,9 @@ export default function Intake() {
                     <p className="text-[10px] text-muted-foreground/60 mt-2">
                       Placed {new Date(o._creationTime).toLocaleString()}
                     </p>
+                    {o.trackingNumber && (
+                      <p className="text-[10px] text-green-400 mt-0.5">Tracking: {o.trackingNumber}</p>
+                    )}
                   </div>
                 </div>
 
@@ -223,7 +268,7 @@ export default function Intake() {
                     </button>
                   )}
                   {o.status !== "shipped" && (
-                    <button onClick={() => setStatus(o._id, "shipped")} className="px-3 py-1.5 border border-green-500/60 text-green-400 font-stamp uppercase text-[10px] tracking-widest hover:bg-green-500/10 rounded">
+                    <button onClick={() => markShipped(o._id)} className="px-3 py-1.5 border border-green-500/60 text-green-400 font-stamp uppercase text-[10px] tracking-widest hover:bg-green-500/10 rounded">
                       Mark Shipped
                     </button>
                   )}

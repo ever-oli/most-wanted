@@ -8,6 +8,9 @@
  * @module
  */
 
+import type * as crons from "../crons.js";
+import type * as email from "../email.js";
+import type * as inventory from "../inventory.js";
 import type * as orders from "../orders.js";
 import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
@@ -20,6 +23,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  crons: typeof crons;
+  email: typeof email;
+  inventory: typeof inventory;
   orders: typeof orders;
   reviews: typeof reviews;
   seed: typeof seed;

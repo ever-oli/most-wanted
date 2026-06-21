@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
 import { toast } from "sonner";
+import { useQuery } from "convex/react";
+import { api } from "@convex/_generated/api";
 import {
   WILDCARD_PRICE,
   SPINS_PER_RUN,
@@ -175,6 +177,11 @@ const PickCard = memo(function PickCard({
 });
 
 export function SlotMachine() {
+  const inventory = useQuery(api.inventory.summary);
+  const available = useMemo(
+    () => (inventory ? new Set(inventory.filter((r) => r.remaining > 0).map((r) => r.code)) : undefined),
+    [inventory],
+  );
   const [spinning, setSpinning] = useState(false);
   const [results, setResults] = useState<(Pull | null)[]>(Array(JARS_PER_PULL).fill(null));
   const [drawn, setDrawn] = useState<DrawnJar[]>([]);
@@ -187,15 +194,16 @@ export function SlotMachine() {
 
   const spinsLeft = SPINS_PER_RUN - spinsUsed;
   const exhausted = spinsLeft <= 0;
+  const soldOut = available != null && available.size === 0;
 
   const pull = useCallback(() => {
-    if (spinning || exhausted) return;
+    if (spinning || exhausted || soldOut) return;
     timers.current.forEach((t) => clearTimeout(t));
     timers.current = [];
 
     setSpinning(true);
     setResults(Array(JARS_PER_PULL).fill(null));
-    const draws: Pull[] = Array.from({ length: JARS_PER_PULL }, () => drawJar());
+    const draws: Pull[] = Array.from({ length: JARS_PER_PULL }, () => drawJar(available));
 
     draws.forEach((d, i) => {
       const t = window.setTimeout(() => {
@@ -225,7 +233,7 @@ export function SlotMachine() {
       }, SPIN_MS + i * STAGGER_MS);
       timers.current.push(t);
     });
-  }, [spinning, exhausted]);
+  }, [spinning, exhausted, soldOut, available]);
 
   const toggle = useCallback((id: string) => {
     setSelected((prev) => {
@@ -288,8 +296,8 @@ export function SlotMachine() {
             {/* Brass side lever (decorative + pulls) */}
             <button
               onClick={pull}
-              disabled={spinning || exhausted}
-              aria-label={exhausted ? "All spins used" : `Pull the lever · ${JARS_PER_PULL} jars`}
+              disabled={spinning || exhausted || soldOut}
+              aria-label={soldOut ? "Sold out" : exhausted ? "All spins used" : `Pull the lever · ${JARS_PER_PULL} jars`}
               className="hidden sm:flex shrink-0 w-9 md:w-11 relative focus-outlaw disabled:opacity-40 group/lever"
             >
               <span aria-hidden className="absolute left-1/2 top-1 bottom-1 w-1.5 -translate-x-1/2 rounded-full bg-gradient-to-b from-[hsl(var(--gold-deep))] via-black/40 to-[hsl(var(--gold-deep))]" />
@@ -327,18 +335,20 @@ export function SlotMachine() {
           {/* Pull plate */}
           <button
             onClick={pull}
-            disabled={spinning || exhausted}
+            disabled={spinning || exhausted || soldOut}
             className={cn(
               "relative w-full py-4 rounded-md font-outlaw text-xl tracking-wider transition-all duration-300 flex items-center justify-center gap-3 focus-outlaw overflow-hidden",
               "border",
-              spinning || exhausted
+              spinning || exhausted || soldOut
                 ? "bg-muted text-muted-foreground border-border cursor-not-allowed"
                 : "bg-primary text-primary-foreground border-[hsl(var(--gold)/0.6)] hover:bg-primary-glow shadow-[var(--shadow-outlaw)]",
             )}
           >
-            {!spinning && !exhausted && <span aria-hidden className="absolute inset-0 animate-gold-shimmer motion-reduce:hidden" />}
+            {!spinning && !exhausted && !soldOut && <span aria-hidden className="absolute inset-0 animate-gold-shimmer motion-reduce:hidden" />}
             <span className="relative">
-              {spinning
+              {soldOut
+                ? "Sold Out"
+                : spinning
                 ? "Spinning…"
                 : exhausted
                 ? "All Spins Used — Pick Your Jars"
