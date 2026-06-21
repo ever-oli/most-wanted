@@ -4,15 +4,15 @@ import { HelpCircle } from "lucide-react";
 const FAQS = [
   {
     q: "How does the pull work?",
-    a: "It's a one-armed bandit. Each pull spins 3 sealed 7g jars and you get 4 spins — 12 jars dealt in all. The gamble is the cut you land. When your spins are up, pick and choose which jars you actually want and pay one flat price ($89) for each one you keep.",
+    a: "It's a one-armed bandit. Each pull spins 3 sealed 7g jars and you get 4 spins — 12 jars dealt in all. The gamble is the cut you land. When your spins are up, pick and choose which jars you actually want and pay one flat price ($85) for each one you keep.",
   },
   {
-    q: "What are the tiers — AAA, EXO, F&F?",
-    a: "Three cuts on the sheet, ranked by worth. AAA (worth ~$70) is premium small-batch flower from trusted legacy operators. EXO (worth ~$100) is the top-shelf concierge tier — heavy hitters only. F&F — short for Friends & Family — is our rarest, most exclusive cut (worth ~$110): land it and the jackpot lights up. No matter the tier, every jar is one flat $89.",
+    q: "What are the tiers — AAA, EXO, Reserve?",
+    a: "Three cuts on the sheet, ranked by worth. AAA (worth ~$70) is premium small-batch flower from trusted legacy operators. EXO (worth ~$90) is the top-shelf concierge tier — heavy hitters only. Reserve is our rarest, most exclusive cut (worth ~$100): land it and the jackpot lights up. No matter the tier, every jar is one flat $85.",
   },
   {
-    q: "Why is every jar $89?",
-    a: "Flat pricing keeps the gamble pure. You pay $89 for any jar you keep — whether it's an AAA, an EXO, or the F&F. Some cuts are worth more than others (up to ~$110), so the fun is landing one worth more than you paid. No tier surcharges, no hidden math.",
+    q: "Why is every jar $85?",
+    a: "Flat pricing keeps the gamble pure. You pay $85 for any jar you keep — whether it's an AAA, an EXO, or the Reserve. Some cuts are worth more than others (up to ~$100), so the fun is landing one worth more than you paid. No tier surcharges, no hidden math.",
   },
   {
     q: "Is this legal in my state?",

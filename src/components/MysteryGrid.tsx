@@ -50,7 +50,7 @@ export const MysteryGrid = () => {
             Every spin deals {JARS_PER_PULL} sealed cuts. Take your {SPINS_PER_RUN} spins, then keep only the jars you want.
           </p>
           <p className="mt-2 text-foreground text-sm md:text-base max-w-lg mx-auto font-semibold">
-            One flat ${WILDCARD_PRICE} a jar — for cuts worth $70 to $110.
+            One flat ${WILDCARD_PRICE} a jar — for cuts worth $70 to $100.
           </p>
 
           {/* Tier / worth legend — with live remaining stock */}
@@ -77,7 +77,7 @@ export const MysteryGrid = () => {
             })}
           </div>
           <p className="mt-3 font-stamp text-[11px] uppercase tracking-[0.2em] text-muted-foreground/70 max-w-md mx-auto">
-            F&amp;F = Friends &amp; Family — our exclusive cut. Land it and the jackpot lights up.
+            Reserve — the rarest, most exclusive cut. Land it and the jackpot lights up.
           </p>
         </div>
 

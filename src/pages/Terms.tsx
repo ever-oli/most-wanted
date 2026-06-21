@@ -32,7 +32,7 @@ export default function Terms() {
         </Section>
 
         <Section title="How orders work">
-          Each spin deals jars; you choose which to keep and check out. Every jar is a flat $89. Orders
+          Each spin deals jars; you choose which to keep and check out. Every jar is a flat $85. Orders
           are placed as <em>pending payment</em> and reserved for a limited window. To complete an order,
           send the exact total via the selected method (CashApp or Chime) with your order code in the
           payment note. We confirm payment by matching that code. Orders without a matching payment, or

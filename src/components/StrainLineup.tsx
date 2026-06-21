@@ -83,15 +83,15 @@ export const StrainLineup = () => {
           Ten Cuts On The <span className="text-primary">Sheet</span>
         </h2>
         <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto">
-          Ten cultivars run this drop — nine on the board and one Friends &amp; Family exclusive.
+          Ten cultivars run this drop — nine on the board and one Reserve exclusive.
           Pull a label to open its dossier.
         </p>
       </div>
 
-      {/* Top row — the Friends & Family exclusive, on its own */}
+      {/* Top row — the Reserve exclusive, on its own */}
       <div className="mb-4 sm:mb-5 flex flex-col items-center">
         <p className="font-stamp text-[10px] uppercase tracking-[0.32em] text-[hsl(var(--gold-bright))] mb-2">
-          ★ The Friends &amp; Family Cut ★
+          ★ The Reserve Cut ★
         </p>
         <div className="w-1/2 sm:w-1/3">
           <LineupCard strain={STRAINS[0]} onOpen={setActive} />

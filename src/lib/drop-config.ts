@@ -25,10 +25,10 @@ export const MAX_CART_TOTAL = 3;
 /**
  * Wildcard pull price — the "one-armed bandit" model. Every pull always wins a
  * jar (so it's a mystery box, not regulated gambling); the gamble is which TIER
- * and STRAIN you land on. Average jar value is ~$87 at the default tier mix, so
+ * and STRAIN you land on. Average jar value is ~$83 at the default tier mix, so
  * this is set a touch above for house margin. Tune freely.
  */
-export const WILDCARD_PRICE = 89;
+export const WILDCARD_PRICE = 85;
 
 /** Jars revealed per spin (fixed — three reels every pull). */
 export const JARS_PER_PULL = 3;
@@ -137,7 +137,7 @@ export interface StrainConfig {
 }
 
 export const STRAINS: StrainConfig[] = [
-  { name: "Tenderism OG", code: "TOG", tier: "EXCLUSIVE" }, // 7G F&F — the exclusive cut
+  { name: "Tenderism OG", code: "TOG", tier: "EXCLUSIVE" }, // 7G Reserve — the exclusive cut
   { name: "Platinum Lemon Cherry Gelato", code: "PLCG", tier: "EXO" },
   { name: "Crunch Berriez", code: "CB", tier: "EXO" },
   { name: "Super Boof", code: "SB", tier: "EXO" },
@@ -190,7 +190,7 @@ export const STRAIN_DOSSIER: Record<string, StrainDossier> = {
     lineage: "Jealousy × Meat Breath",
     flavors: ["Gas", "Funk", "Sweet", "Earth", "Cookie"],
     blurb:
-      "The Friends & Family cut. Jealousy's loud, gassy sweetness folded into Meat Breath's savory funk — exotic on the nose, heavy in the cure. Land it on the reels and the jackpot lights up.",
+      "The Reserve cut. Jealousy's loud, gassy sweetness folded into Meat Breath's savory funk — exotic on the nose, heavy in the cure. Land it on the reels and the jackpot lights up.",
     leafly: "https://www.leafly.com/search?q=Jealousy%20x%20Meat%20Breath",
   },
   PLCG: {
@@ -289,12 +289,12 @@ export const WANTED_LIST_CLUES = [
 export const TIERS: Record<Tier, TierConfig> = {
   EXCLUSIVE: {
     id: "EXCLUSIVE",
-    label: "F&F",
-    price: 110,
+    label: "Reserve",
+    price: 100,
     weight: "7g jar",
     count: 8,
     maxPerOrder: 1,
-    description: "Friends & Family — the exclusive cut. Rarest on the sheet, one of one.",
+    description: "Reserve — the rarest cut on the sheet, one of one.",
     colorClass: "bg-tier-exclusive",
     textClass: "text-tier-exclusive",
     borderClass: "border-tier-exclusive",
@@ -302,7 +302,7 @@ export const TIERS: Record<Tier, TierConfig> = {
   EXO: {
     id: "EXO",
     label: "EXO",
-    price: 100,
+    price: 90,
     weight: "7g jar",
     count: 52,
     maxPerOrder: 2,
