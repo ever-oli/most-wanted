@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Private deploy/login reminders — never commit
+.deploy-notes.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
