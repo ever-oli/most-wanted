@@ -29,7 +29,6 @@ import {
   jarDrop as sfxJarDrop,
   doorOpen as sfxDoorOpen,
   duel as sfxDuel,
-  tallyTick,
   vibrate,
 } from "@/lib/slot-sfx";
 
@@ -69,44 +68,6 @@ function useReducedMotion(): boolean {
     return () => mq.removeEventListener("change", onChange);
   }, []);
   return reduced;
-}
-
-/** Smoothly counts a displayed number toward `target`, ticking a coin sound as
- *  it climbs (gated by the global mute). Snaps instantly under reduced motion. */
-function useCountUp(target: number, reduced: boolean): number {
-  const [display, setDisplay] = useState(target);
-  const displayRef = useRef(target);
-  displayRef.current = display;
-  const rafRef = useRef<number | null>(null);
-  const lastTick = useRef(0);
-
-  useEffect(() => {
-    if (reduced) {
-      setDisplay(target);
-      return;
-    }
-    const from = displayRef.current;
-    if (from === target) return;
-    const start = performance.now();
-    const dur = 550;
-    const diff = target - from;
-    const step = (now: number) => {
-      const p = Math.min(1, (now - start) / dur);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setDisplay(Math.round(from + diff * eased));
-      if (diff > 0 && now - lastTick.current > 90) {
-        lastTick.current = now;
-        tallyTick();
-      }
-      if (p < 1) rafRef.current = requestAnimationFrame(step);
-    };
-    rafRef.current = requestAnimationFrame(step);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [target, reduced]);
-
-  return display;
 }
 
 /** Two saloon doors swinging open over a reel (start of a fresh run). */
@@ -716,10 +677,6 @@ export function SlotMachine() {
 
   const selectedJars = drawn.filter((j) => selected.has(j.id));
   const cartPaid = selectedJars.length * WILDCARD_PRICE;
-  // "Bounty" = sum of the kept jars' tier worth (TIERS[tier].price); "pay" is the
-  // flat per-jar price. Value framing — NOT a casino win meter.
-  const bountyWorth = selectedJars.reduce((sum, j) => sum + TIERS[j.tier].price, 0);
-  const bountyDisplay = useCountUp(bountyWorth, reduced);
   const canDuel = drawn.length > 0 && !rerollUsed && !spinning;
 
   const resetRun = () => {
@@ -866,23 +823,13 @@ export function SlotMachine() {
           {/* The haul — pick & choose which jars to buy */}
           {drawn.length > 0 && (
             <div className="mt-6 border-t border-border pt-5">
-              <div className="flex items-end justify-between mb-3 gap-3">
-                <div>
-                  <p className="font-stamp text-[10px] uppercase tracking-[0.25em] text-tan">
-                    Your Haul — Keep What You Want
-                  </p>
-                  <p className="mt-1 font-stamp text-xs sm:text-sm uppercase tracking-[0.2em] text-gold">
-                    Bounty kept: ~${bountyDisplay}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="font-stamp text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                    {selectedJars.length}/{drawn.length} kept
-                  </p>
-                  <p className="mt-1 font-stamp text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                    you pay ${cartPaid}
-                  </p>
-                </div>
+              <div className="flex items-center justify-between mb-3 gap-3">
+                <p className="font-stamp text-[10px] uppercase tracking-[0.25em] text-tan">
+                  Your Haul — Keep What You Want
+                </p>
+                <p className="font-stamp text-[10px] uppercase tracking-[0.25em] text-muted-foreground shrink-0">
+                  {selectedJars.length}/{drawn.length} kept
+                </p>
               </div>
 
               {canDuel && (
