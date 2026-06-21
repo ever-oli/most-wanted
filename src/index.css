@@ -224,6 +224,120 @@
 }
 .animate-pulse-underline { animation: pulse-underline 3s ease-in-out infinite; }
 
+/* ===== One-Armed Bandit: anticipation + tiered win celebrations ===== */
+
+/* Final-reel heartbeat + gold spotlight while the board is "hot" */
+@keyframes anticipation-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 14px 2px hsl(var(--gold) / 0.25); }
+  50% { transform: scale(1.035); box-shadow: 0 0 0 3px hsl(var(--gold-bright) / 0.5), 0 0 36px 8px hsl(var(--gold) / 0.55); }
+}
+.animate-anticipation-pulse { animation: anticipation-pulse 0.85s ease-in-out infinite; }
+
+/* Lever knob trembling during the hold-your-breath moment */
+@keyframes tremble {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(0.6px, -0.6px, 0); }
+  50% { transform: translate3d(-0.6px, 0.6px, 0); }
+  75% { transform: translate3d(0.6px, 0.6px, 0); }
+}
+.animate-tremble { animation: tremble 0.11s linear infinite; }
+
+/* Reserve-cut screen shake on the whole machine */
+@keyframes screen-shake {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  15% { transform: translate3d(-5px, 2px, 0) rotate(-0.4deg); }
+  30% { transform: translate3d(5px, -2px, 0) rotate(0.4deg); }
+  45% { transform: translate3d(-4px, 3px, 0); }
+  60% { transform: translate3d(4px, -1px, 0) rotate(0.3deg); }
+  75% { transform: translate3d(-2px, 1px, 0); }
+}
+.animate-screen-shake { animation: screen-shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+
+/* WANTED stamp slam — a heavier slam than the sold stamp, ends rotated */
+@keyframes stamp-slam {
+  0% { transform: scale(2.3) rotate(-8deg); opacity: 0; }
+  55% { transform: scale(0.86) rotate(-8deg); opacity: 1; }
+  72% { transform: scale(1.06) rotate(-8deg); }
+  100% { transform: scale(1) rotate(-8deg); opacity: 1; }
+}
+.animate-stamp-slam { animation: stamp-slam 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* Ribbon banner sliding/snapping in under the stamp */
+@keyframes ribbon-in {
+  0% { transform: translateY(18px) scaleX(0.6); opacity: 0; }
+  60% { transform: translateY(0) scaleX(1.04); opacity: 1; }
+  100% { transform: translateY(0) scaleX(1); opacity: 1; }
+}
+.animate-ribbon-in { animation: ribbon-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both; }
+
+/* Gold-ember particle burst radiating from center */
+@keyframes ember-burst {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+  100% { transform: translate3d(var(--bx, 0), var(--by, -80px), 0) scale(0.2); opacity: 0; }
+}
+.animate-ember-burst { animation: ember-burst 1.1s cubic-bezier(0.2, 0.6, 0.3, 1) forwards; }
+
+/* Quick gold glint sweep for the subtle (AAA) celebration */
+@keyframes glint-sweep {
+  0% { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+  35% { opacity: 0.9; }
+  100% { transform: translateX(220%) skewX(-18deg); opacity: 0; }
+}
+.animate-glint-sweep { animation: glint-sweep 0.9s ease-out forwards; }
+
+/* Celebration overlay fade in/out */
+@keyframes celebration-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-celebration-in { animation: celebration-in 0.2s ease-out both; }
+
+/* ===== One-Armed Bandit: scene, saloon doors, loot tray, foil, duel ===== */
+
+/* Saloon doors swinging open over each reel at the start of a run */
+@keyframes door-open-left {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(-115deg); }
+}
+@keyframes door-open-right {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(115deg); }
+}
+.animate-door-left { transform-origin: left center; animation: door-open-left 0.55s cubic-bezier(0.5, 0, 0.4, 1) forwards; }
+.animate-door-right { transform-origin: right center; animation: door-open-right 0.55s cubic-bezier(0.5, 0, 0.4, 1) forwards; }
+
+/* Jars dropping/settling into the loot tray */
+@keyframes jar-drop {
+  0% { transform: translateY(-130%); opacity: 0; }
+  55% { transform: translateY(6%); opacity: 1; }
+  72% { transform: translateY(-3%); }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-jar-drop { animation: jar-drop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Holographic foil sheen sweeping across a rare landed card */
+@keyframes foil-sheen {
+  0% { transform: translateX(-130%) skewX(-18deg); }
+  100% { transform: translateX(240%) skewX(-18deg); }
+}
+.animate-foil-sheen { animation: foil-sheen 2.4s linear infinite; }
+
+/* Animated rich gold rim for the Reserve cut (sits on top of a static ring) */
+@keyframes gold-border {
+  0%, 100% { box-shadow: 0 0 0 1px hsl(var(--gold) / 0.7), 0 0 14px 2px hsl(var(--gold) / 0.4); }
+  50% { box-shadow: 0 0 0 2px hsl(var(--gold-bright) / 0.95), 0 0 26px 6px hsl(var(--gold) / 0.75); }
+}
+.animate-gold-border { animation: gold-border 1.6s ease-in-out infinite; }
+
+/* Quick coin/blade flip for the free Duel re-roll */
+@keyframes duel-flip {
+  0% { transform: perspective(520px) rotateY(0deg); }
+  45% { transform: perspective(520px) rotateY(90deg); }
+  55% { transform: perspective(520px) rotateY(-90deg); }
+  100% { transform: perspective(520px) rotateY(0deg); }
+}
+.animate-duel-flip { animation: duel-flip 0.5s ease-in-out; }
+
 /* ===== Custom crosshair cursor for the vault grid ===== */
 .cursor-crosshair-outlaw {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><circle cx='14' cy='14' r='10' fill='none' stroke='%23D32F2F' stroke-width='1.5'/><line x1='14' y1='1' x2='14' y2='8' stroke='%23D32F2F' stroke-width='1.5'/><line x1='14' y1='20' x2='14' y2='27' stroke='%23D32F2F' stroke-width='1.5'/><line x1='1' y1='14' x2='8' y2='14' stroke='%23D32F2F' stroke-width='1.5'/><line x1='20' y1='14' x2='27' y2='14' stroke='%23D32F2F' stroke-width='1.5'/><circle cx='14' cy='14' r='1.5' fill='%23D32F2F'/></svg>") 14 14, crosshair;
@@ -290,7 +404,21 @@
   .animate-reel-spin,
   .animate-gold-shimmer,
   .animate-lever-pull,
-  .animate-reel-land {
+  .animate-reel-land,
+  .animate-anticipation-pulse,
+  .animate-tremble,
+  .animate-screen-shake,
+  .animate-stamp-slam,
+  .animate-ribbon-in,
+  .animate-ember-burst,
+  .animate-glint-sweep,
+  .animate-celebration-in,
+  .animate-door-left,
+  .animate-door-right,
+  .animate-jar-drop,
+  .animate-foil-sheen,
+  .animate-gold-border,
+  .animate-duel-flip {
     animation: none !important;
     opacity: 1 !important;
   }
